@@ -1,5 +1,5 @@
 .PHONY: all
 all: 
-	latexmk -cd -shell-escape -pdfxe report.tex
+	latexmk -shell-escape -cd -pdfxe report.tex
 	makeglossaries report
-	latexmk -cd -shell-escape -pdfxe report.tex
+	latexmk -shell-escape -cd -shell-escape -pdfxe report.tex
