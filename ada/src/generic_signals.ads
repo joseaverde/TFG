@@ -1,10 +1,11 @@
+with Ada.Unchecked_Deallocation;
 with Types; use Types;
 
 generic
    type Real is digits <> or use Float;
    Stride_Samples : Positive_Count_Type := 256;
    Epoch_Strides  : Positive_Count_Type := 5;
-package Generic_Signals with Pure, SPARK_Mode => On is
+package Generic_Signals with Preelaborate, SPARK_Mode => On is
 
    Stride_Size : constant Positive_Count_Type := Stride_Samples;
    Epoch_Size  : constant Positive_Count_Type := Stride_Size * Epoch_Strides;
@@ -68,5 +69,9 @@ package Generic_Signals with Pure, SPARK_Mode => On is
       Pre'Class => Is_Valid_Span (Item, Span)
                      and then Index in 1 .. Size (Span),
       Post'Class => Is_Valid_Span (Item, Span);
+
+   type Signal_Access is access Signal;
+
+   procedure Free is new Ada.Unchecked_Deallocation (Signal, Signal_Access);
 
 end Generic_Signals;

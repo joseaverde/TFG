@@ -8,7 +8,8 @@ procedure Detect with SPARK_Mode => On is
    package T_IO renames Ada.Text_IO;
    package Signals is new Generic_Signals (Real);
    package Detector is new Generic_Detector (Signals);
-   package Loader is new Generic_Loader (Signals);
+   procedure Loader is new Generic_Loader (Signals);
+   Signal : Signals.Signal_Access;
 begin
    if CLI.Count /= 2 then
       T_IO.Put ("USAGE: `");
@@ -17,5 +18,6 @@ begin
       T_IO.New_Line;
       return;
    end if;
-   Loader.Load (CLI.Argument (1));
+   Loader (CLI.Argument (1), Signal);
+   Signals.Free (Signal);
 end Detect;
