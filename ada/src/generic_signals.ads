@@ -1,19 +1,13 @@
-private with Ada.Numerics.Generic_Elementary_Functions;
+with Types; use Types;
 
 generic
    type Real is digits <> or use Float;
-   Stride_Samples : Positive := 256;
-   Epoch_Strides  : Positive := 5;
-package Seizure with Pure, SPARK_Mode => On is
+   Stride_Samples : Positive_Count_Type := 256;
+   Epoch_Strides  : Positive_Count_Type := 5;
+package Generic_Signals with Pure, SPARK_Mode => On is
 
-   type Count_Type is range 0 .. 1_000_000_000;
-   subtype Positive_Count_Type is Count_Type range 1 .. Count_Type'Last;
-   subtype Extended_Index is Count_Type range 0 .. Count_Type'Last - 1;
-   subtype Index_Type is Extended_Index range 1 .. Extended_Index'Last - 1;
-
-   Stride_Size : constant Count_Type := Count_Type (Stride_Samples);
-   Epoch_Size  : constant Count_Type := Count_Type (Epoch_Strides)
-                                      * Stride_Size;
+   Stride_Size : constant Positive_Count_Type := Stride_Samples;
+   Epoch_Size  : constant Positive_Count_Type := Stride_Size * Epoch_Strides;
 
    -->> Spans <<--
 
@@ -51,6 +45,12 @@ package Seizure with Pure, SPARK_Mode => On is
       Span.First in 1 .. Item.Last and then
       Span.Last in 0 .. Item.Last);
 
+   function Full_Span (
+      Item : in Signal)
+      return Span_Type is (
+      First => 1,
+      Last  => Item.Last);
+
    function Get (
       Item  : in Signal;
       Span  : in Span_Type;
@@ -66,31 +66,7 @@ package Seizure with Pure, SPARK_Mode => On is
       Index : in     Count_Type;
       Value : in     Sample) with
       Pre'Class => Is_Valid_Span (Item, Span)
-                     and then Index in 1 .. Size (Span);
+                     and then Index in 1 .. Size (Span),
+      Post'Class => Is_Valid_Span (Item, Span);
 
-   -->> Batch <<--
-
-   subtype Pattern_Type is Signal (Epoch_Size);
-   type Pattern_Array is array (Positive range <>) of Pattern_Type;
-
-   type Bound_Type is record
-      Low  : Real;
-      High : Real;
-   end record;
-
-   type Batch_Type (Patterns : Positive) is limited record
-      PSD_1    : Bound_Type;
-      PSD_2    : Bound_Type;
-      PSD_3    : Bound_Type;
-      Energy   : Bound_Type;
-      Max_Dist : Bound_Type;
-      d_th     : Real;
-      Pj       : Pattern_Array (1 .. Patterns);
-   end record;
-
-private
-
-   package Elementary_Functions is
-      new Ada.Numerics.Generic_Elementary_Functions (Real);
-
-end Seizure;
+end Generic_Signals;

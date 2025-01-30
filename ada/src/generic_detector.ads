@@ -1,5 +1,9 @@
+with Generic_Signals;
+pragma Warnings (Off, "unused variable ""Detector.State""",
+                 Reason => "It is used, maybe a compiler bug.");
 generic
-package Seizure.Detector with
+   with package Signals is new Generic_Signals (<>);
+package Generic_Detector with
    SPARK_Mode     => On,
    Abstract_State => State
 is
@@ -9,7 +13,7 @@ is
    procedure Reset with Global => (Output => State), Post => Invariant;
 
    procedure Feed_Stride (
-      Process : not null access function return Sample) with
+      Process : not null access function return Signals.Sample) with
       Pre    => Invariant,
       Post   => Invariant,
       Global => (In_Out => State);
@@ -18,4 +22,4 @@ is
       Pre    => Invariant,
       Global => (Input => State);
 
-end Seizure.Detector;
+end Generic_Detector;
