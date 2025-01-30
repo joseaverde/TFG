@@ -32,7 +32,8 @@ package Generic_Signals with Preelaborate, SPARK_Mode => On is
    -->> Signals <<--
 
    subtype Sample is Real range -100_000.0 .. 100_000.0;
-   type Sample_Array is array (Index_Type range <>) of Sample;
+   type Sample_Array is array (Index_Type range <>) of Sample with
+      Default_Component_Value => 0.0;
 
    type Signal (Last : Index_Type) is tagged limited record
       Samples : Sample_Array (1 .. Last);
@@ -50,7 +51,8 @@ package Generic_Signals with Preelaborate, SPARK_Mode => On is
       Item : in Signal)
       return Span_Type is (
       First => 1,
-      Last  => Item.Last);
+      Last  => Item.Last) with
+      Post'Class => Is_Valid_Span (Item, Full_Span'Result);
 
    function Get (
       Item  : in Signal;
