@@ -1,0 +1,4 @@
+numpy~=1.21.1
+pandas~=2.0.3
+mne~=1.2.2
+tables~=3.7.0

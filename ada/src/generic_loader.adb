@@ -30,7 +30,8 @@ begin
    Batch := null;
    -- Read the batch
    Read (Count);
-   if Count not in Positive then
+   Read (Size);
+   if Count not in Positive or else Size not in Index_Type then
       return;
    end if;
    Batch := new Batchs.Batch_Type'(Count, others => <>);
@@ -44,10 +45,6 @@ begin
       Read (Batch.Pj (I).Samples, Success);
    end loop;
    -- Read the signal
-   Read (Size);
-   if Size not in Index_Type then
-      return;
-   end if;
    Signal := new Signals.Signal'(Last => Size, others => <>);
    Read (Signal.Samples, Success);
 end Generic_Loader;

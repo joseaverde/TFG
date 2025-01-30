@@ -1,17 +1,25 @@
 with Ada.Text_IO;
 with CLI;
 with Generic_Signals, Generic_Detector, Generic_Batchs, Generic_Loader;
+with Types;
 procedure Detect with SPARK_Mode => On is
+
    subtype Real is Long_Float;
+
    package T_IO renames Ada.Text_IO;
    package Signals is new Generic_Signals (Real);
    package Batchs is new Generic_Batchs (Signals);
    package Detector is new Generic_Detector (Signals);
    procedure Loader is new Generic_Loader (Signals, Batchs);
+
+   use type Types.Count_Type, Signals.Signal_Access, Batchs.Batch_Access;
+
    Signal : Signals.Signal_Access;
    Batch  : Batchs.Batch_Access;
+   Stride : Signals.Stride_Span := (1, Signals.Stride_Size);
+
 begin
-   if CLI.Count /= 2 then
+   if CLI.Count /= 1 then
       T_IO.Put ("USAGE: `");
       T_IO.Put (CLI.Command_Name);
       T_IO.Put (" signal batch'");
@@ -19,6 +27,27 @@ begin
       return;
    end if;
    Loader (CLI.Argument (1), Signal, Batch);
+   Detector.Reset;
+   pragma Assert (Detector.Invariant);
+   if Signal /= null and then Batch /= null then
+      Detection_Loop : while Signal.Is_Valid_Span (Stride) loop
+         pragma Loop_Invariant (Signal.Is_Valid_Span (Stride));
+         pragma Loop_Invariant (Detector.Invariant);
+         Detector.Write (Signal.all, Stride);
+         if Detector.Is_Seizure then
+            T_IO.Put ("Seizure at");
+            T_IO.Put (Types.Count_Type'Image (
+               Stride.First / Signals.Stride_Size));
+            T_IO.Put_Line (" seconds!");
+         end if;
+         -- Increment if no overflow
+         if Stride.Last <= Types.Index_Type'Last - Signals.Stride_Size then
+            Stride := (@.Last + 1, @.Last + Signals.Stride_Size);
+         else
+            exit Detection_Loop;
+         end if;
+      end loop Detection_Loop;
+   end if;
    Signals.Free (Signal);
    Batchs.Free (Batch);
 end Detect;
