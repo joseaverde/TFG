@@ -1,7 +1,11 @@
+with Generic_Algorithms;
+
 package body Generic_Detector with
    SPARK_Mode    => On,
    Refined_State => (State => (Buffer, Span))
 is
+
+   package Algorithms is new Generic_Algorithms (Signals);
 
    use Signals, Types;
 
@@ -41,13 +45,19 @@ is
       end if;
    end Write;
 
-   function Is_Seizure return Boolean is
+   function Is_Seizure (
+      Batch : in Batchs.Batch_Type)
+      return Boolean is
+      use Algorithms, Batchs;
    begin
       if Span not in Epoch_Span then
          return False;
       else
-         pragma Assert (Buffer.Is_Valid_Span (Span));
-         return True;
+         if Is_In (Max_Dist (Buffer, Span), Batch.Max_Dist) then
+            return True;
+         else
+            return False;
+         end if;
       end if;
    end Is_Seizure;
 

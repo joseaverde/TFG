@@ -1,6 +1,6 @@
 with Ada.Text_IO;
 with CLI;
-with Generic_Signals, Generic_Detector, Generic_Batchs, Generic_Loader;
+with Generic_Detector, Generic_Batchs, Generic_Loader, Generic_Signals;
 with Types;
 procedure Detect with SPARK_Mode => On is
 
@@ -9,7 +9,7 @@ procedure Detect with SPARK_Mode => On is
    package T_IO renames Ada.Text_IO;
    package Signals is new Generic_Signals (Real);
    package Batchs is new Generic_Batchs (Signals);
-   package Detector is new Generic_Detector (Signals);
+   package Detector is new Generic_Detector (Signals, Batchs);
    procedure Loader is new Generic_Loader (Signals, Batchs);
 
    use type Types.Count_Type, Signals.Signal_Access, Batchs.Batch_Access;
@@ -34,7 +34,7 @@ begin
          pragma Loop_Invariant (Signal.Is_Valid_Span (Stride));
          pragma Loop_Invariant (Detector.Invariant);
          Detector.Write (Signal.all, Stride);
-         if Detector.Is_Seizure then
+         if Detector.Is_Seizure (Batch.all) then
             T_IO.Put ("Seizure at");
             T_IO.Put (Types.Count_Type'Image (
                Stride.First / Signals.Stride_Size));
@@ -47,6 +47,8 @@ begin
             exit Detection_Loop;
          end if;
       end loop Detection_Loop;
+   else
+      T_IO.Put_Line ("Couldn't load the signal!!!");
    end if;
    Signals.Free (Signal);
    Batchs.Free (Batch);

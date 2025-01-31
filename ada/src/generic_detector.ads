@@ -1,8 +1,9 @@
-with Generic_Signals, Types;
+with Generic_Batchs, Generic_Signals, Types;
 pragma Warnings (Off, "unused variable ""Detector.State""",
                  Reason => "It is used, maybe a compiler bug.");
 generic
    with package Signals is new Generic_Signals (<>);
+   with package Batchs is new Generic_Batchs (Signals);
 package Generic_Detector with
    SPARK_Mode     => On,
    Abstract_State => State
@@ -24,7 +25,9 @@ is
       Post   => Invariant,
       Global => (In_Out => State);
 
-   function Is_Seizure return Boolean with
+   function Is_Seizure (
+      Batch : in Batchs.Batch_Type)
+      return Boolean with
       Pre    => Invariant,
       Global => (Input => State);
 

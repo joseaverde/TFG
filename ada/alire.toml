@@ -2,8 +2,8 @@ name = "seizure_algorithm"
 description = ""
 version = "0.1.0-dev"
 
-authors = ["JosÃÂÃÂ© Antonio Verde JimÃÂÃÂ©nez"]
-maintainers = ["JosÃÂÃÂ© Antonio Verde JimÃÂÃÂ©nez <joseaverde@protonmail.com>"]
+authors = ["José Antonio Verde Jiménez"]
+maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
 maintainers-logins = ["joseaverde"]
 licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
 website = ""
