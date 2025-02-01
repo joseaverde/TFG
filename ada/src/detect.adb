@@ -2,6 +2,7 @@ with Ada.Text_IO;
 with CLI;
 with Generic_Detector, Generic_Batchs, Generic_Loader, Generic_Signals;
 with Types;
+with Generic_Real_Sum;
 procedure Detect with SPARK_Mode => On is
 
    subtype Real is Long_Float;
@@ -11,6 +12,16 @@ procedure Detect with SPARK_Mode => On is
    package Batchs is new Generic_Batchs (Signals);
    package Detector is new Generic_Detector (Signals, Batchs);
    procedure Loader is new Generic_Loader (Signals, Batchs);
+
+   subtype Mini_Real is Real range -100_000.0 .. 100_000.0;
+   type Real_Array is array (Positive range <>) of Real;
+   package Sum is new Generic_Real_Sum (
+      Size       => 1280,
+      Index_Type => Positive,
+      Real       => Real,
+      Real_Array => Real_Array,
+      First      => Mini_Real'First,
+      Last       => Mini_Real'Last);
 
    use type Types.Count_Type, Signals.Signal_Access, Batchs.Batch_Access;
 

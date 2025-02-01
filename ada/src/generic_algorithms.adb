@@ -1,4 +1,4 @@
-with Generic_Real_Accumulation;
+with Generic_Real_Sum;
 
 package body Generic_Algorithms with SPARK_Mode => On is
 
@@ -73,16 +73,20 @@ package body Generic_Algorithms with SPARK_Mode => On is
       Signal : in Signals.Signal;
       Epoch  : in Epoch_Span)
       return Sample is
-      subtype Mini_Sample is Sample
-         range Sample'First / Real (Epoch_Size)
-            .. Sample'Last / Real (Epoch_Size);
-      subtype Epoch_Index is Types.Count_Type range 1 .. Epoch_Size;
-      type Mini_Sample_Array is array (Epoch_Index range <>) of Mini_Sample;
-      package Accumulation is new Generic_Real_Accumulation (
-         Index_Type  => Epoch_Index,
-         Input_Real  => Mini_Sample,
-         Input_Array => Mini_Sample_Array,
-         Output_Real => Real);
+   -- use all type Types.Count_Type;
+   -- subtype Mini_Sample is Sample
+   --    range Sample'First / Real (Epoch_Size)
+   --       .. Sample'Last / Real (Epoch_Size);
+   -- subtype Epoch_Index is Types.Count_Type range 1 .. Epoch_Size;
+   -- type Mini_Sample_Array is array (Epoch_Index range <>) of Mini_Sample;
+   -- type Real_Array is array (Types.Index_Type range <>) of Real;
+   -- package Real_Sum is new Generic_Real_Sum (
+   --    Index_Type => Types.Index_Type,
+   --    Real       => Real,
+   --    Real_Array => Real_Array,
+   --    Size       => Positive (Epoch_Size),
+   --    First      => Mini_Sample'First,
+   --    Last       => Mini_Sample'Last);
    begin
       return 0.0;
    end Mean;
