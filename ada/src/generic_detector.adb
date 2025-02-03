@@ -53,7 +53,9 @@ is
       if Span not in Epoch_Span then
          return False;
       else
-         if Is_In (Max_Dist (Buffer, Span), Batch.Max_Dist) then
+         if Is_In (Max_Dist (Buffer, Span), Batch.Max_Dist)
+            or else Is_In (Energy (Buffer, Span), Batch.Energy)
+         then
             return True;
          else
             return False;

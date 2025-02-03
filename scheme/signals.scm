@@ -51,5 +51,7 @@
     res))
 
 (define %char->bits-map% (make-vector 256))
+(for i in 0 .. 255 =>
+  (vector-set! %char->bits-map% i (make-vector 8)))
 
-(for b7 in 0 .. 2 
+((lambda (x index)

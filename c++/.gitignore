@@ -1,0 +1,17 @@
+CHBMIT
+*.edf
+*.so
+__pycache__
+build
+*.swp
+d_aux
+data_all
+dlist
+err
+out
+CMakeUserPresets.json
+venv
+/perf*
+/build*
+CMakeCache.txt
+CMakeFiles

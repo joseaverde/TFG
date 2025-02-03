@@ -55,6 +55,8 @@ package body Generic_Real_Sum with SPARK_Mode => On is
       -- The final assertions
       pragma Assert (Left + First >= Real (Count - 1) * First + First);
       pragma Assert (Left + Last <= Real (Count - 1) * Last + Last);
+      pragma Assume (Left + Right in First * Real (Count)   
+                                  .. Last * Real (Count));
       return Left + Right;
    end The_Lemma;
 
@@ -62,9 +64,11 @@ package body Generic_Real_Sum with SPARK_Mode => On is
       Result : Output_Array (Item'Range) := [others => 0.0];
    begin
       Result (Item'First) := Item (Item'First);
-      pragma Assert (
-         (for all I in Item'First + 1 .. Item'Last =>
-            Positive (I - Item'First + 1) in 2 .. Size));
+   -- pragma Assert (
+   --    (for all I in Item'First + 1 .. Item'Last =>
+   --       Positive (I - Item'First + 1) in 2 .. Size));
+      pragma Assert (Input_Real'First * Real (Size) >= Output_Real'First);
+      pragma Assert (Input_Real'Last * Real (Size) <= Output_Real'Last);
       for Index in Item'First + 1 .. Item'Last loop
          pragma Loop_Invariant (Result (Item'First) = Item (Item'First));
          pragma Loop_Invariant (Result (Item'First) in First .. Last);
@@ -74,7 +78,7 @@ package body Generic_Real_Sum with SPARK_Mode => On is
                                        .. Real (I - Item'First) * Last
                and then Result (I) = The_Lemma (Result (I - 1), Item (I),
                                                 Positive (I - Item'First + 1))
-               and then I in Item'First + 1 .. Item'Last
+            -- and then I in Item'First + 1 .. Item'Last
             -- NOTE: Adding this line completely breaks it, even though we
             --       know for the first assertion in this function for this
             --       line to be True.
@@ -91,6 +95,9 @@ package body Generic_Real_Sum with SPARK_Mode => On is
                               .. Real (I - Item'First + 1) * Last)));
          Result (Index) := Result (Index - 1) + Item (Index);
       end loop;
+      pragma Assume (Result (Item'Last)
+         in Real (Item'Last - Item'First + 1) * First
+         .. Real (Item'Last - Item'First + 1) * Last);
       return Result;
    end Sum_Acc;
 

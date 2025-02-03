@@ -5,7 +5,7 @@ generic
    type Real is digits <> or use Float;
    Stride_Samples : Positive_Count_Type := 256;
    Epoch_Strides  : Positive_Count_Type := 5;
-package Generic_Signals with Preelaborate, SPARK_Mode => On is
+package Generic_Signals with SPARK_Mode => On is
 
    Stride_Size : constant Positive_Count_Type := Stride_Samples;
    Epoch_Size  : constant Positive_Count_Type := Stride_Size * Epoch_Strides;
@@ -31,7 +31,16 @@ package Generic_Signals with Preelaborate, SPARK_Mode => On is
 
    -->> Signals <<--
 
-   subtype Sample is Real range -100_000.0 .. 100_000.0;
+   function Nearest_Multiple (Num, Mult : in Positive)
+      return Positive is (
+      (if Num rem Mult = 0 then Num
+         elsif Num - (Num rem Mult) >= Positive'Last - Mult then Num
+         else Num + (Mult - (Num rem Mult)))) with
+      Static;
+   Maximum_Sample : constant Real :=
+      Real (Nearest_Multiple (100_000, Positive (Epoch_Size)));
+
+   subtype Sample is Real range -Maximum_Sample .. Maximum_Sample;
    type Sample_Array is array (Index_Type range <>) of Sample with
       Default_Component_Value => 0.0;
 

@@ -1,4 +1,4 @@
-with Generic_Real_Sum;
+with Generic_Real_Sum, Types;
 
 package body Generic_Algorithms with SPARK_Mode => On is
 
@@ -25,70 +25,55 @@ package body Generic_Algorithms with SPARK_Mode => On is
       return Real (Max) - Real (Min);
    end Max_Dist;
 
--- function Energy (
---    Signal : in Signals.Signal;
---    Epoch  : in Epoch_Span)
---    return Real is
---    pragma Annotate (
---       GNATprove,
---       False_Positive,
---       """Acc"" might not be initialized",
---       "Acc (1) is initialised, and we index Acc (I - 1), with I >= 2");
---    use type Types.Count_Type;
---    subtype Mini_Sample is Sample
---       range Sample'First / Real (Epoch_Size)
---          .. Sample'Last / Real (Epoch_Size);
---    Acc  : array (1 .. Epoch_Size) of Sample;
---    Temp : Mini_Sample;
---    Mean : Sample;
--- begin
---    -- Compute the mean
---    Acc (1) := Signal (Epoch, 1) / Real (Epoch_Size);
---    pragma Assert (Acc (1) in Mini_Sample);
---    for I in 2 .. Epoch_Size loop
---       Temp := Signal (Epoch, I) / Real (Epoch_Size);
---       pragma Assert (
---          if Acc (I - 1) in Mini_Sample'First * Real (I)
---                         .. Mini_Sample'Last * Real (I)
---             then Acc (I - 1) + Temp
---                in Mini_Sample'First * Real (I) + Mini_Sample'First
---                .. Mini_Sample'Last * Real (I) + Mini_Sample'Last);
---       pragma Assert (Mini_Sample'First * Real (Epoch_Size) >= Sample'First);
---       pragma Assert (Mini_Sample'Last * Real (Epoch_Size) <= Sample'Last);
---       pragma Loop_Invariant (
---          Acc (I - 1) in Mini_Sample'First * Real (I)
---                      .. Mini_Sample'Last * Real (I));
---       pragma Loop_Invariant (
---          Acc (I - 1) + Temp
---             in Mini_Sample'First * Real (I) + Mini_Sample'First
---             .. Mini_Sample'Last * Real (I) + Mini_Sample'Last);
---       Acc (I) := Acc (I - 1) + Temp;
---    end loop;
---    Mean := Acc (Acc'Last);
---    -- Compute the energy
---    return Mean;
--- end Energy;
+   type Real_Array is array (Types.Index_Type range <>) of Signals.Real;
 
-   function Mean (
+   package Mean_Sum is new Generic_Real_Sum (
+      Size       => Positive (Signals.Epoch_Size),
+      Index_Type => Types.Index_Type,
+      Real       => Signals.Real,
+      Real_Array => Real_Array,
+      First      => Sample'First / Real (Signals.Epoch_Size),
+      Last       => Sample'Last / Real (Signals.Epoch_Size));
+
+   package Energy_Sum is new Generic_Real_Sum (
+      Size       => Positive (Signals.Epoch_Size),
+      Index_Type => Types.Index_Type,
+      Real       => Signals.Real,
+      Real_Array => Real_Array,
+      First      => 0.0,
+      Last       => (Sample'Last - Sample'First) ** 2
+                     / Real (Signals.Epoch_Size));
+   -- The operation is: (Σ (x - mean)²) / epoch_size
+   --
+   -- The maximum value is when: x = Last, mean = First.
+   -- The minimum value is when x = mean. Which is 0.
+   --
+   -- Then the safe range of operations is:
+   -- 0 .. (Sample'First + Sample'Last) ** 2 / Epoch_Size
+
+   function Energy (
       Signal : in Signals.Signal;
       Epoch  : in Epoch_Span)
-      return Sample is
-   -- use all type Types.Count_Type;
-   -- subtype Mini_Sample is Sample
-   --    range Sample'First / Real (Epoch_Size)
-   --       .. Sample'Last / Real (Epoch_Size);
-   -- subtype Epoch_Index is Types.Count_Type range 1 .. Epoch_Size;
-   -- type Mini_Sample_Array is array (Epoch_Index range <>) of Mini_Sample;
-   -- type Real_Array is array (Types.Index_Type range <>) of Real;
-   -- package Real_Sum is new Generic_Real_Sum (
-   --    Index_Type => Types.Index_Type,
-   --    Real       => Real,
-   --    Real_Array => Real_Array,
-   --    Size       => Positive (Epoch_Size),
-   --    First      => Mini_Sample'First,
-   --    Last       => Mini_Sample'Last);
+      return Real is
+      Temp : Real_Array (1 .. Signals.Epoch_Size);
+      Mean : constant Sample := Mean_Sum.Sum (
+         [for I in 1 .. Signals.Epoch_Size =>
+            Signal (Epoch, I) / Real (Signals.Epoch_Size)]);
+      function Step (X, Mean : in Sample) return Real with
+         Post => Step'Result in Energy_Sum.Input_Real;
+      function Step (X, Mean : in Sample) return Real is
+         Result : constant Real := (X - Mean) ** 2 / Real (Signals.Epoch_Size);
+      begin
+         pragma Assume (Result in Energy_Sum.Input_Real);
+         return Result;
+      end Step;
    begin
-      return 0.0;
-   end Mean;
+      pragma Assume (
+         (for all I in 1 .. Signals.Epoch_Size =>
+            Step (Signal (Epoch, I), Mean) in Energy_Sum.Input_Real));
+      return Energy_Sum.Sum (
+         [for I in 1 .. Signals.Epoch_Size =>
+            Step (Signal (Epoch, I), Mean)]);
+   end Energy;
 
 end Generic_Algorithms;

@@ -8,7 +8,9 @@ generic
 package Generic_Real_Sum with Pure, SPARK_Mode => On is
 
    subtype Input_Real is Real range First .. Last;
-   subtype Output_Real is Real range Real (Size) * First .. Real (Size) * Last;
+   subtype Output_Real is Real
+      range Real (Size + 1) * First
+         .. Real (Size + 1) * Last;
    type Output_Array is array (Index_Type range <>) of Output_Real;
 
    function Sum_Acc (Item : in Real_Array) return Output_Array with

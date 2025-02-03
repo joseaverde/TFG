@@ -1,7 +1,7 @@
 with Ada.Unchecked_Deallocation, Generic_Signals;
 generic
    with package Signals is new Generic_Signals (<>);
-package Generic_Batchs with Preelaborate, SPARK_Mode => On is
+package Generic_Batchs with SPARK_Mode => On is
 
    subtype Real is Signals.Real;
 
