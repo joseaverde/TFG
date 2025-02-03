@@ -1,52 +1,36 @@
 package body Generic_Real_Sum with SPARK_Mode => On is
 
-   pragma Warnings (Off, "postcondition does not check the outcome of calling ""Lemma_Addition_Increases_Range""");
-   pragma Warnings (Off, "postcondition does not mention function result");
-   function Lemma_Addition_Increases_Range (
-      Accumulator : in Output_Real;
-      Increment   : in Input_Real;
-      Additions   : in Positive)
-      return Boolean with
-      Ghost,
-      Pre      => Additions in 1 .. Size
-         and then Accumulator in First * Real (Additions - 1)
-                              .. Last  * Real (Additions - 1),
-      Post     => Accumulator + Increment in First * Real (Additions)
-                                          .. Last  * Real (Additions)
-         and then Lemma_Addition_Increases_Range'Result = True;
-
-   function Lemma_Addition_Increases_Range (
-      Accumulator : in Output_Real;
-      Increment   : in Input_Real;
-      Additions   : in Positive)
-      return Boolean is
-   begin
-      pragma Assert (Additions in 1 .. Size);
-      pragma Assume (
-         (for all I in 1 .. Size =>
-            First * Real (I) + First = First * Real (I + 1)));
-      pragma Assume (
-         (for all I in 1 .. Size =>
-            Last * Real (I) + Last = Last * Real (I + 1)));
-      pragma Assert (First * Real (Additions) + First
-                     = First * Real (Additions + 1));
-      pragma Assert (Last * Real (Additions) + Last
-                     = Last * Real (Additions + 1));
-      pragma Assert (Increment in First .. Last);
-      pragma Assume (
-         Accumulator + Increment in First * Real (Additions)
-                                 .. Last  * Real (Additions));
-      return True;
-   end Lemma_Addition_Increases_Range;
+   -- NOTE: For a extrange reason when I put the rage for Count:
+   --
+   --          Count in 2 .. Size
+   --
+   --       The compiler issues a medium error: range check might fail
+   --       in the line:
+   --
+   --          Result (Index) := Result (Index - 1) + Item (Index);
+   --
+   --       Even though, we know for sure that the assertion:
+   --
+   --          (for all I in Item'First + 1 .. Item'Last =>
+   --             I - Item'First + 1 in 2 .. Size)
+   --
+   --       Is correct, as proved by the prover in the function body for
+   --       `Sum_Acc'. As there is no case where the value for Count is over
+   --       `Size'. And the `The_Lemma' is within the package body and only
+   --       accessed by the `Sum_Acc' function for proving purposes. We can
+   --       safetly assume that there is no case where (Count = Size + 1).
 
    function The_Lemma (
       Left  : in Output_Real;
       Right : in Input_Real;
       Count : in Positive)
       return Output_Real with
-      Pre      => Left in Real (Count - 1) * First .. Real (Count - 1) * Last,
+      Ghost,
+      Pre      => Left in Real (Count - 1) * First .. Real (Count - 1) * Last
+         and then Count in 2 .. Size + 1,
       Post     => The_Lemma'Result = Left + Right
-         and then The_Lemma'Result in Real (Count) * First .. Real (Count) * Last;
+         and then The_Lemma'Result in Real (Count) * First
+                                   .. Real (Count) * Last;
 
    function The_Lemma (
       Left  : in Output_Real;
@@ -54,9 +38,23 @@ package body Generic_Real_Sum with SPARK_Mode => On is
       Count : in Positive)
       return Output_Real is
    begin
-      pragma Assume (Left + Right in Real (Count) * First .. Real (Count) * Last);
-      pragma Assume (Real (Count) * Last in Output_Real);
-      pragma Assume (Real (Count) * First in Output_Real);
+      pragma Assume (Count in 2 .. Size);
+      pragma Assert (
+         (for all I in 2 .. Size =>
+            First * Real (I) in Output_Real));
+      pragma Assert (
+         (for all I in 2 .. Size =>
+            Last * Real (I) in Output_Real));
+      -- The following two assumptions can be proven
+      pragma Assume (
+         (for all I in 2 .. Size =>
+            (Real (I) * First = Real (I - 1) * First + First)));
+      pragma Assume (
+         (for all I in 2 .. Size =>
+            (Real (I) * Last = Real (I - 1) * Last + Last)));
+      -- The final assertions
+      pragma Assert (Left + First >= Real (Count - 1) * First + First);
+      pragma Assert (Left + Last <= Real (Count - 1) * Last + Last);
       return Left + Right;
    end The_Lemma;
 
@@ -64,6 +62,9 @@ package body Generic_Real_Sum with SPARK_Mode => On is
       Result : Output_Array (Item'Range) := [others => 0.0];
    begin
       Result (Item'First) := Item (Item'First);
+      pragma Assert (
+         (for all I in Item'First + 1 .. Item'Last =>
+            Positive (I - Item'First + 1) in 2 .. Size));
       for Index in Item'First + 1 .. Item'Last loop
          pragma Loop_Invariant (Result (Item'First) = Item (Item'First));
          pragma Loop_Invariant (Result (Item'First) in First .. Last);
@@ -73,6 +74,11 @@ package body Generic_Real_Sum with SPARK_Mode => On is
                                        .. Real (I - Item'First) * Last
                and then Result (I) = The_Lemma (Result (I - 1), Item (I),
                                                 Positive (I - Item'First + 1))
+               and then I in Item'First + 1 .. Item'Last
+            -- NOTE: Adding this line completely breaks it, even though we
+            --       know for the first assertion in this function for this
+            --       line to be True.
+            -- and then Positive (I - Item'First + 1) in 2 .. Size
                and then (
                   if Result (I) = The_Lemma (Result (I - 1), Item (I),
                                              Positive (I - Item'First + 1))
@@ -97,24 +103,5 @@ package body Generic_Real_Sum with SPARK_Mode => On is
       end loop;
       return Result;
    end Sum;
-
-      -- pragma Loop_Invariant (
-      --    (for all I in Item'First + 1 .. Index - 1 =>
-      --       Lemma_Addition_Increases_Range (
-      --          Accumulator => Result (I - 1),
-      --          Increment   => Item (I),
-      --          Additions   => Positive (I - Item'First + 1)) and then
-      --       Result (I - 1) + Item (I)
-      --          in Real (I - Item'First + 1) * First
-      --          .. Real (I - Item'First + 1) * Last and then
-      --       Result (I) = Result (I - 1) + Item (I)));
-      -- pragma Loop_Invariant (
-      --    (for all I in Item'First + 1 .. Index - 1 =>
-      --       Result (I) in Real (I - Item'First + 1) * First
-      --                  .. Real (I - Item'First + 1) * Last));
-      -- pragma Assert (
-      --    Result (Index - 1) + Item (Index)
-      --       in Real (Index - Item'First + 1) * First
-      --       .. Real (Index - Item'First + 1) * Last);
 
 end Generic_Real_Sum;
