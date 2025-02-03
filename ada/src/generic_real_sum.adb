@@ -55,7 +55,7 @@ package body Generic_Real_Sum with SPARK_Mode => On is
       -- The final assertions
       pragma Assert (Left + First >= Real (Count - 1) * First + First);
       pragma Assert (Left + Last <= Real (Count - 1) * Last + Last);
-      pragma Assume (Left + Right in First * Real (Count)   
+      pragma Assume (Left + Right in First * Real (Count)
                                   .. Last * Real (Count));
       return Left + Right;
    end The_Lemma;

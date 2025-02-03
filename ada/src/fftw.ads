@@ -16,13 +16,16 @@ package FFTW with Preelaborate, SPARK_Mode => On is
       type Float_Pointer is access all Float_Type;
    end Complex_Types;
 
+   pragma Warnings (Off, "function ""Create"" is not referenced");
+   pragma Warnings (Off, "procedure ""Execute"" is not referenced");
+   pragma Warnings (Off, "function ""Result"" is not referenced");
    generic
-      type Plan_Type is private;
+      type Plan_Type (<>) is limited private;
       with package Complex is new Complex_Types (<>);
       with function Create (Length : in Types.Positive_Count_Type)
          return Plan_Type;
-      with procedure Execute (Plan : in out Plan_Type);
-      with function Result (Plan : in Plan_Type) return Complex.Complex_Array;
+      with function Execute (Plan : in Plan_Type)
+         return Complex.Complex_Array;
    package Formal is
 
    end Formal;
