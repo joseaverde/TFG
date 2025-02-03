@@ -1,7 +1,7 @@
 with Ada.Text_IO;
 with CLI;
 with Generic_Detector, Generic_Batchs, Generic_Loader, Generic_Signals;
-with FFTW.Single, Types;
+with FFTW.Double, Types;
 procedure Detect with SPARK_Mode => On is
 
    subtype Real is Long_Float;

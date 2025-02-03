@@ -1,11 +1,11 @@
 private with FFTW.Implement;
 private with Interfaces.C;
 
-package FFTW.Single with Preelaborate, SPARK_Mode => On is
+package FFTW.Double with Preelaborate, SPARK_Mode => On is
 
    type Plan_Type (<>) is limited private;
 
-   package Complex is new Complex_Types (Float);
+   package Complex is new Complex_Types (Long_Float);
    function Create (Length : in Types.Positive_Count_Type) return Plan_Type;
    function Execute (Plan : in Plan_Type) return Complex.Complex_Array;
 
@@ -23,14 +23,14 @@ private
       Global        => null,
       Import        => True,
       Convention    => C,
-      External_Name => "fftwf_plan_dft_r2c_1d";
+      External_Name => "fftw_plan_dft_r2c_1d";
 
    procedure fftwf_execute (Plan : in FFTW.Plan_Type) with
       Pre           => Plan /= null,
       Global        => null,
       Import        => True,
       Convention    => C,
-      External_Name => "fftwf_execute",
+      External_Name => "fftw_execute",
       Always_Terminates;
 
    procedure fftwf_destroy_plan (Plan : in out FFTW.Plan_Type) with
@@ -39,7 +39,7 @@ private
       Global        => null,
       Import        => True,
       Convention    => C,
-      External_Name => "fftwf_destroy_plan",
+      External_Name => "fftw_destroy_plan",
       Always_Terminates;
 
    package Impl is new Implement (
@@ -61,4 +61,4 @@ private
       return Complex.Complex_Array is (
       Impl.Execute (Plan.Plan));
 
-end FFTW.Single;
+end FFTW.Double;
