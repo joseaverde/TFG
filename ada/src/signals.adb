@@ -1,4 +1,4 @@
-package body Generic_Signals with SPARK_Mode => On is
+package body Signals with SPARK_Mode => On is
 
    procedure Set (
       Item  : in out Signal;
@@ -9,4 +9,4 @@ package body Generic_Signals with SPARK_Mode => On is
       Item.Samples (Span.First - 1 + Index) := Value;
    end Set;
 
-end Generic_Signals;
+end Signals;

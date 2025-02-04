@@ -1,14 +1,20 @@
 with Ada.Unchecked_Deallocation;
-with Types; use Types;
+with Seizure_Algorithm_Config; use Seizure_Algorithm_Config;
+with Reals; use Reals;
 
-generic
-   type Real is digits <> or use Float;
-   Stride_Samples : Positive_Count_Type := 256;
-   Epoch_Strides  : Positive_Count_Type := 5;
-package Generic_Signals with SPARK_Mode => On is
+package Signals with Preelaborate, SPARK_Mode => On is
 
-   Stride_Size : constant Positive_Count_Type := Stride_Samples;
-   Epoch_Size  : constant Positive_Count_Type := Stride_Size * Epoch_Strides;
+   -->> Count Type <<--
+
+   type Count_Type is range 0 .. 1_000_000_000 with Size => 32;
+   subtype Positive_Count_Type is Count_Type range 1 .. Count_Type'Last;
+   subtype Extended_Index is Count_Type range 0 .. Count_Type'Last - 1;
+   subtype Index_Type is Extended_Index range 1 .. Extended_Index'Last;
+
+   -->> Constants <<--
+
+   Stride_Size : constant := Samples_Per_Stride;
+   Epoch_Size  : constant := Stride_Size * Strides_Per_Epoch;
 
    -->> Spans <<--
 
@@ -37,7 +43,7 @@ package Generic_Signals with SPARK_Mode => On is
          elsif Num - (Num rem Mult) >= Positive'Last - Mult then Num
          else Num + (Mult - (Num rem Mult)))) with
       Static;
-   Maximum_Sample : constant Real :=
+   Maximum_Sample : constant :=
       Real (Nearest_Multiple (100_000, Positive (Epoch_Size)));
 
    subtype Sample is Real range -Maximum_Sample .. Maximum_Sample;
@@ -85,4 +91,4 @@ package Generic_Signals with SPARK_Mode => On is
 
    procedure Free is new Ada.Unchecked_Deallocation (Signal, Signal_Access);
 
-end Generic_Signals;
+end Signals;

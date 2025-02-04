@@ -1,13 +1,9 @@
-with Generic_Algorithms;
+with Algorithms;
 
-package body Generic_Detector with
+package body Detector with
    SPARK_Mode    => On,
    Refined_State => (State => (Buffer, Span))
 is
-
-   package Algorithms is new Generic_Algorithms (Signals);
-
-   use Signals, Types;
 
    Buffer : Signal (Epoch_Size);
    Span   : Span_Type;
@@ -24,7 +20,7 @@ is
 
    procedure Write (
       Signal : in Signals.Signal;
-      Stride : in Signals.Stride_Span) is
+      Stride : in Stride_Span) is
    begin
       pragma Assert (Span.Last <= Epoch_Size);
       if Span.Last < Epoch_Size then
@@ -46,9 +42,9 @@ is
    end Write;
 
    function Is_Seizure (
-      Batch : in Batchs.Batch_Type)
+      Batch : in Batch_Type)
       return Boolean is
-      use Algorithms, Batchs;
+      use Algorithms;
    begin
       if Span not in Epoch_Span then
          return False;
@@ -63,4 +59,4 @@ is
       end if;
    end Is_Seizure;
 
-end Generic_Detector;
+end Detector;

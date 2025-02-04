@@ -11,6 +11,11 @@ tags = []
 
 executables = ["seizure_algorithm"]
 
+[configuration.variables]
+Samples_Per_Stride = {type = "Integer", first = 16, default = 256}
+Strides_Per_Epoch = {type = "Integer", first = 1, default = 3}
+Real_Type = {type = "Enum", default = "Double", values = ["Float", "Double", "Quad", "Fixed"]}
+
 [build-switches]
 
 "*".ada_version    = "Ada2022"

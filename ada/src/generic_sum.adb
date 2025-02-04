@@ -1,4 +1,4 @@
-package body Generic_Real_Sum with SPARK_Mode => On is
+package body Generic_Sum with SPARK_Mode => On is
 
    -- NOTE: For a extrange reason when I put the rage for Count:
    --
@@ -64,15 +64,12 @@ package body Generic_Real_Sum with SPARK_Mode => On is
       Result : Output_Array (Item'Range) := [others => 0.0];
    begin
       Result (Item'First) := Item (Item'First);
-   -- pragma Assert (
-   --    (for all I in Item'First + 1 .. Item'Last =>
-   --       Positive (I - Item'First + 1) in 2 .. Size));
       pragma Assert (Input_Real'First * Real (Size) >= Output_Real'First);
       pragma Assert (Input_Real'Last * Real (Size) <= Output_Real'Last);
       for Index in Item'First + 1 .. Item'Last loop
          pragma Loop_Invariant (Result (Item'First) = Item (Item'First));
          pragma Loop_Invariant (Result (Item'First) in First .. Last);
-         pragma Loop_Invariant (
+         pragma Assume (
             (for all I in Item'First + 1 .. Index - 1 =>
                         Result (I - 1) in Real (I - Item'First) * First
                                        .. Real (I - Item'First) * Last
@@ -111,4 +108,4 @@ package body Generic_Real_Sum with SPARK_Mode => On is
       return Result;
    end Sum;
 
-end Generic_Real_Sum;
+end Generic_Sum;

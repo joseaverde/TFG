@@ -1,6 +1,6 @@
-with Generic_Real_Sum, Types;
+with Generic_Sum;
 
-package body Generic_Algorithms with SPARK_Mode => On is
+package body Algorithms with SPARK_Mode => On is
 
 -- function Simpson (
 --    y     : in Signal;
@@ -17,7 +17,7 @@ package body Generic_Algorithms with SPARK_Mode => On is
       Max : Sample := Signal (Epoch, 1);
    begin
       pragma Assert (Min <= Max);
-      for I in 2 .. Epoch_Size loop
+      for I in Count_Type range 2 .. Epoch_Size loop
          Min := Sample'Min (Min, Signal (Epoch, I));
          Max := Sample'Max (Max, Signal (Epoch, I));
          pragma Loop_Invariant (Min <= Max);
@@ -25,24 +25,29 @@ package body Generic_Algorithms with SPARK_Mode => On is
       return Real (Max) - Real (Min);
    end Max_Dist;
 
-   type Real_Array is array (Types.Index_Type range <>) of Signals.Real;
+   type Real_Array is array (Index_Type range <>) of Real;
 
-   package Mean_Sum is new Generic_Real_Sum (
-      Size       => Positive (Signals.Epoch_Size),
-      Index_Type => Types.Index_Type,
-      Real       => Signals.Real,
-      Real_Array => Real_Array,
-      First      => Sample'First / Real (Signals.Epoch_Size),
-      Last       => Sample'Last / Real (Signals.Epoch_Size));
+   subtype Mean_Real is Real
+      range Sample'First / Real (Signals.Epoch_Size)
+         .. Sample'Last / Real (Signals.Epoch_Size);
 
-   package Energy_Sum is new Generic_Real_Sum (
+   subtype Energy_Real is Real
+      range 0.0
+         .. (Sample'Last - Sample'First) ** 2 / Real (Epoch_Size);
+
+   package Mean_Sum is new Generic_Sum (
       Size       => Positive (Signals.Epoch_Size),
-      Index_Type => Types.Index_Type,
-      Real       => Signals.Real,
+      Index_Type => Index_Type,
       Real_Array => Real_Array,
-      First      => 0.0,
-      Last       => (Sample'Last - Sample'First) ** 2
-                     / Real (Signals.Epoch_Size));
+      First      => Mean_Real'First,
+      Last       => Mean_Real'Last);
+
+   package Energy_Sum is new Generic_Sum (
+      Size       => Positive (Signals.Epoch_Size),
+      Index_Type => Index_Type,
+      Real_Array => Real_Array,
+      First      => Energy_Real'First,
+      Last       => Energy_Real'Last);
    -- The operation is: (Σ (x - mean)²) / epoch_size
    --
    -- The maximum value is when: x = Last, mean = First.
@@ -69,11 +74,11 @@ package body Generic_Algorithms with SPARK_Mode => On is
       end Step;
    begin
       pragma Assume (
-         (for all I in 1 .. Signals.Epoch_Size =>
+         (for all I in Count_Type range 1 .. Signals.Epoch_Size =>
             Step (Signal (Epoch, I), Mean) in Energy_Sum.Input_Real));
       return Energy_Sum.Sum (
-         [for I in 1 .. Signals.Epoch_Size =>
+         [for I in Count_Type range 1 .. Signals.Epoch_Size =>
             Step (Signal (Epoch, I), Mean)]);
    end Energy;
 
-end Generic_Algorithms;
+end Algorithms;

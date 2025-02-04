@@ -1,11 +1,11 @@
+with Reals; use Reals;
 generic
    type Index_Type is range <>;
-   type Real is digits <>;
    type Real_Array is array (Index_Type range <>) of Real;
    Size  : in Positive;
    First : in Real;
    Last  : in Real;
-package Generic_Real_Sum with Pure, SPARK_Mode => On is
+package Generic_Sum with Pure, SPARK_Mode => On is
 
    subtype Input_Real is Real range First .. Last;
    subtype Output_Real is Real
@@ -33,4 +33,4 @@ package Generic_Real_Sum with Pure, SPARK_Mode => On is
                and then (for all X of Item => X in Input_Real),
       Post => Sum'Result = Sum_Acc (Item) (Item'Last);
 
-end Generic_Real_Sum;
+end Generic_Sum;

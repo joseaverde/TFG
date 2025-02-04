@@ -3,7 +3,14 @@ with "sparklib.gpr";
 with "fftw3.gpr";
 project Seizure_Algorithm is
 
-   for Source_Dirs use ("src/", "config/", "src/unsafe");
+   Real_Path := "";
+   case Seizure_Algorithm_Config.Real_Type is
+      when "Float"  => Real_Path := "src/reals/single";
+      when "Double" => Real_Path := "src/reals/double";
+      when others  => null;
+   end case;
+
+   for Source_Dirs use ("src/", "config/", "src/unsafe", Real_Path);
    for Object_Dir use "obj/" & Seizure_Algorithm_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Exec_Dir use "bin";

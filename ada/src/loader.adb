@@ -1,11 +1,11 @@
-with Generic_Input_File, Types;
+with Generic_Input_File, Reals;
 
-procedure Generic_Loader (
+procedure Loader (
    Name   : in     String;
-   Signal :    out Signals.Signal_Access;
-   Batch  :    out Batchs.Batch_Access) is
+   Batch  :    out Batchs.Batch_Access;
+   Signal :    out Signals.Signal_Access) is
    pragma SPARK_Mode (On);
-   use Signals, Types;
+   use Signals, Reals;
    package File is new Generic_Input_File (Name);
    procedure Read is new File.Read (Count_Type'Base);
    procedure Read is new File.Read (Positive'Base);
@@ -47,4 +47,4 @@ begin
    -- Read the signal
    Signal := new Signals.Signal'(Last => Size, others => <>);
    Read (Signal.Samples, Success);
-end Generic_Loader;
+end Loader;

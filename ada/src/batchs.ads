@@ -1,9 +1,8 @@
-with Ada.Unchecked_Deallocation, Generic_Signals;
-generic
-   with package Signals is new Generic_Signals (<>);
-package Generic_Batchs with SPARK_Mode => On is
+with Ada.Unchecked_Deallocation, Signals, Reals;
 
-   subtype Real is Signals.Real;
+package Batchs with Preelaborate, SPARK_Mode => On is
+
+   use Reals;
 
    subtype Pattern_Type is Signals.Signal (Signals.Epoch_Size);
    type Pattern_Array is array (Positive range <>) of Pattern_Type;
@@ -25,8 +24,7 @@ package Generic_Batchs with SPARK_Mode => On is
    type Batch_Access is access Batch_Type;
    procedure Free is new Ada.Unchecked_Deallocation (Batch_Type, Batch_Access);
 
-   use all type Real;
    function Is_In (Item : in Real; Bound : in Bound_Type) return Boolean is (
       Bound.Low < Item and Item < Bound.High);
 
-end Generic_Batchs;
+end Batchs;

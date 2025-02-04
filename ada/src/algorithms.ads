@@ -1,10 +1,7 @@
-with Generic_Signals;
+with Reals, Signals;
+use Reals, Signals;
 
-generic
-   with package Signals is new Generic_Signals (<>);
-package Generic_Algorithms with SPARK_Mode => On is
-
-   use Signals;
+package Algorithms with Preelaborate, SPARK_Mode => On is
 
 -- function Simpson (
 --    y     : in Signal;
@@ -24,4 +21,4 @@ package Generic_Algorithms with SPARK_Mode => On is
       return Real with
       Pre => Signal.Is_Valid_Span (Epoch);
 
-end Generic_Algorithms;
+end Algorithms;
