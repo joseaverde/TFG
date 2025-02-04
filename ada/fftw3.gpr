@@ -1,0 +1,9 @@
+library project FFTW3 is
+
+   for Externally_Built use "true";
+   for Library_Dir use FFTW3'Project_Dir & "../root/lib";
+   for Library_Name use "fftw3";
+   for Source_Dirs use ();
+   for Library_Kind use "static";
+
+end FFTW3;

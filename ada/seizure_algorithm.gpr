@@ -1,5 +1,6 @@
 with "config/seizure_algorithm_config.gpr";
 with "sparklib.gpr";
+with "fftw3.gpr";
 project Seizure_Algorithm is
 
    for Source_Dirs use ("src/", "config/", "src/unsafe");
@@ -9,7 +10,8 @@ project Seizure_Algorithm is
    for Main use ("detect.adb");
 
    package Compiler is
-      for Default_Switches ("Ada") use Seizure_Algorithm_Config.Ada_Compiler_Switches;
+      for Default_Switches ("Ada") use
+         Seizure_Algorithm_Config.Ada_Compiler_Switches;
    end Compiler;
 
    package Binder is

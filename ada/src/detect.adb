@@ -1,7 +1,8 @@
 with Ada.Text_IO;
 with CLI;
 with Generic_Detector, Generic_Batchs, Generic_Loader, Generic_Signals;
-with FFTW.Double, Types;
+with Generic_Welch;
+with FFTW.Double.Formal, Types;
 procedure Detect with SPARK_Mode => On is
 
    subtype Real is Long_Float;
@@ -11,6 +12,7 @@ procedure Detect with SPARK_Mode => On is
    package Batchs is new Generic_Batchs (Signals);
    package Detector is new Generic_Detector (Signals, Batchs);
    procedure Loader is new Generic_Loader (Signals, Batchs);
+   package Welch is new Generic_Welch (FFTW.Double.Formal, Signals);
 
    use type Types.Count_Type, Signals.Signal_Access, Batchs.Batch_Access;
 

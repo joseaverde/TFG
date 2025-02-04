@@ -20,8 +20,9 @@ package FFTW with Preelaborate, SPARK_Mode => On is
    pragma Warnings (Off, "procedure ""Execute"" is not referenced");
    pragma Warnings (Off, "function ""Result"" is not referenced");
    generic
+      type Float_Type is digits <>;
       type Plan_Type (<>) is limited private;
-      with package Complex is new Complex_Types (<>);
+      with package Complex is new Complex_Types (Float_Type);
       with function Create (Length : in Types.Positive_Count_Type)
          return Plan_Type;
       with function Execute (Plan : in Plan_Type)
