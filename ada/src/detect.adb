@@ -17,6 +17,7 @@ begin
       return;
    end if;
    Loader (CLI.Argument (1), Batch, Signal);
+   T_IO.Put_Line (Batch.all'Image);
    pragma Assert (Detector.Invariant);
    if Signal /= null and then Batch /= null then
       Detection_Loop : while Signal.Is_Valid_Span (Stride) loop
@@ -24,10 +25,11 @@ begin
          pragma Loop_Invariant (Detector.Invariant);
          Detector.Write (Signal.all, Stride);
          if Detector.Is_Seizure (Batch.all) then
-            T_IO.Put ("Seizure at");
-            T_IO.Put (Signals.Count_Type'Image (
-               Stride.First / Signals.Stride_Size));
-            T_IO.Put_Line (" seconds!");
+            null;
+         -- T_IO.Put ("Seizure at");
+         -- T_IO.Put (Signals.Count_Type'Image (
+         --    Stride.First / Signals.Stride_Size));
+         -- T_IO.Put_Line (" seconds!");
          end if;
          -- Increment if no overflow
          if Stride.Last <= Signals.Index_Type'Last - Signals.Stride_Size then

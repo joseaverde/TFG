@@ -1,0 +1,15 @@
+name = "bin_fixed_seizure_detector"
+description = "SPARK-proved seizure detection algorithm (binary fixed point)"
+version = "0.1.0-dev"
+
+authors = ["JosÃ© Antonio Verde JimÃ©nez"]
+maintainers = ["JosÃ© Antonio Verde JimÃ©nez <joseaverde@protonmail.com>"]
+maintainers-logins = ["joseaverde"]
+licenses = "EUPL-1.2"
+website = ""
+tags = []
+
+executables = ["bin_fixed_seizure_detector"]
+
+[[depends-on]]
+gnatprove = "^14.1.1"

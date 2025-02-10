@@ -25,6 +25,7 @@ def process (patient    : str,
                       key='data_frame')
     ts = dfi[signal].values.reshape(1,-1)
     Scv = filter_data(ts, samplerate, lowcut, highcut, verbose=False)[0]
+    Scv = ts[0]
 
     # Get the batch
     query_size : Final[int] = 256 * 5
@@ -42,8 +43,12 @@ def process (patient    : str,
         for pattern in pj:
             for sample in pattern:
                 fp.write(struct.pack(format, sample))
+        c = 0
         for sample in Scv:
+            if sample != int(sample):
+                c+=1
             fp.write(struct.pack(format, sample))
+        print(100*c/len(Scv))
 
 process(patient    = "chb03",
         chbmit_dir = "/home/joseaverde/Development/seizure-algorithm/CHBMIT",
