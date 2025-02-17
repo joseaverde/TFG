@@ -1,0 +1,41 @@
+with "config/seizure_detector_config.gpr";
+project Seizure_Detector is
+
+   for Source_Dirs use ("src/", "config/", "src/unsafe");
+   for Object_Dir use "obj/" & Seizure_Detector_Config.Build_Profile;
+   for Create_Missing_Dirs use "True";
+   for Exec_Dir use "bin";
+   for Main use (
+      "seizure_detector.adb",                -- The detector itself
+      "seizure_detector_simulation.adb",     -- Real data benchmark
+      "seizure_detector_ftests.adb",         -- Functional tests
+      "seizure_detector_utests.adb",         -- Unit tests
+      "seizure_detector_benchmark.adb"       -- Embeddable worst case benchmark
+   );
+
+   package Compiler is
+      for Default_Switches ("Ada") use Seizure_Detector_Config.Ada_Compiler_Switches;
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
+   end Binder;
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
+
+   Reals := "seizure_detector_config-reals__";
+   case Seizure_Detector_Config.Real_Type is
+      when "Single"   => Reals := Reals & "single";
+      when "Double"   => Reals := Reals & "double";
+      when "Fixed_2"  => Reals := Reals & "fixed_2";
+      when "Fixed_10" => Reals := Reals & "fixed_10";
+   end case;
+
+   package Naming is
+      for Specification ("Seizure_Detector_Config.Reals") use Reals & ".ads";
+      for Implementation ("Seizure_Detector_Config.Reals") use Reals & ".adb";
+   end Naming;
+
+end Seizure_Detector;

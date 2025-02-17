@@ -1,1 +1,32 @@
 \chapter{Implementation and Deployment}\label{chap:implementation}
+\section{Algoritmos}
+\subsection{Distancia Máxima}
+O en inglés \textit{max distance} es uno de los parámetros para filtrar un
+\textit{epoch}
+
+\begin{algorithm}[h]
+    \caption{Distancia Máxima}
+    \KwData{$S$}
+    \KwResult{$M - m$}
+
+    \SetAlgoLined
+    $m \longleftarrow S(1)$\;
+    $M \longleftarrow S(1)$\;
+
+    \For{$I\in2 .. N$}{
+        \If{$S(I) < m$}{
+            $m \longleftarrow S(I)$\;
+        }
+        \If{$S(I) > M$}{
+            $M \longleftarrow S(I)$\;
+        }
+    }
+    \Return{$M - m$}
+\end{algorithm}
+
+\subsection{Energía}
+
+\begin{algorithm}[h]
+    \caption{Media}
+    \KwData{$S$}
+    \KwResult{$\sum_{i=1}^{N}

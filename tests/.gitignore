@@ -1,0 +1,5 @@
+/*.in
+/*.batch
+/*.out
+/venv
+__pycache__

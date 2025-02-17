@@ -1,0 +1,3 @@
+package Dec_Fixed_Seizure_Detector is
+
+end Dec_Fixed_Seizure_Detector;

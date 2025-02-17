@@ -25,7 +25,6 @@
 \newif\if@langes@pp\@langes@ppfalse  % check es language
 \DeclareOption{es}{\@langes@pptrue}
 
-\ExecuteOptions{es}  % defaults
 \ProcessOptions\relax
 
 
@@ -113,7 +112,7 @@
 %----------
 
 \if@langes@pp
-	\RequirePackage[spanish,es-tabla]{babel}
+	\RequirePackage[spanish,es-tabla,es-noshorthands]{babel}
 	\RequirePackage[babel,spanish=spanish]{csquotes}
 
 	\renewcommand{\bibname}{Referencias}
@@ -371,7 +370,6 @@
 \RequirePackage{svg}
 \RequirePackage{subcaption}  % \begin{subfigure}, etc.
 
-\graphicspath{{img/}}  % Images folder
 
 % Figures layout for engineering
 \captionsetup[figure]{
@@ -622,11 +620,42 @@
 \renewcommand*{\glslistgroupheaderfmt}[1]{\color{azulUC3M}#1}  % blue letter index
 \preto{\printglossaries}{\pagestyle{noheader}}
 
+
+% Command to create a glossary entry with correspondent acronym.
+% \newglossaryentrywithacronym{acronym/name}{long name}{description}
+\newcommand{\newglossaryentrywithacronym}[3]{
+    % The glossary entry the acronym links to
+    \newglossaryentry{#1_gls}{
+        name={#1},
+        long={#2},
+        description={#3}
+    }
+
+    % Acronym pointing to glossary
+    \newglossaryentry{#1}{
+        type=\acronymtype,
+        name={#1},
+        description={#2},
+        first={#2 (#1)\glsadd{#1_gls}},
+        see=[Glossary:]{#1_gls}
+    }
+}
+
+
+
 %----------
 % BIBLIOGRAPHY
 %----------
 
 \RequirePackage[backend=biber, style=ieee, isbn=false, sortcites, maxbibnames=6, minbibnames=1]{biblatex} % IEEE citation style
+% improve spanish style
+\DefineBibliographyStrings{spanish}{%
+	andothers = {et\addabbrvspace al\adddot},
+	url = {\adddot\space[En línea]\adddot\space Disponible en:},
+	urlseen = {Acceso:},
+	pages = {pp\adddot},
+	page = {p.\adddot}
+}
 \preto{\printbibliography}{\pagestyle{noheader}}
 
 % force break of lines when necessary

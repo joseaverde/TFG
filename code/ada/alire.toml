@@ -1,0 +1,45 @@
+name = "seizure_detector"
+description = "SPARK-proved seizure detector"
+version = "0.1.0-dev"
+
+authors = ["José Antonio Verde Jiménez"]
+maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
+maintainers-logins = ["joseaverde"]
+licenses = "EUPL-1.2"
+website = ""
+tags = []
+executables = ["seizure_detector"]
+
+[configuration.variables]
+Samples_Per_Stride = {type = "Integer", first = 16, default = 256}
+Strides_Per_Epoch = {type = "Integer", first = 1, default = 5}
+Real_Type = {type = "Enum", default = "Double", values = ["Single", "Double", "Fixed_2", "Fixed_10"]}
+Fractional_Digits = {type = "Integer", first = 1, default = 16}
+Whole_Digits = {type = "Integer", first = 1, default = 32}
+
+[build-switches]
+"*".ada_version    = "Ada2022"
+"*".style_checks = [ "-gnaty3"          # Indentation to 3
+                   , "-gnatya"          # Check attribute casing
+                   , "-gnatyA"          # Check array attribute indexes
+                   , "-gnatyb"          # No blanks at end of lines
+                   , "-gnatyC"          # Comment format: 1 space (-- comment)
+                   , "-gnatyd"          # No DOS line terminators
+                   , "-gnatye"          # end/exit labels present
+                   , "-gnatyf"          # No form feeds or vertical tabs
+                   , "-gnatyh"          # No horizontal tabs
+                   , "-gnaty-I"         # `in' is required in parameters
+                   , "-gnatyk"          # Check casing rules for keywords
+                   # , "-gnatyL6"         # Maximum nesting level
+                   , "-gnatyM79"        # Maximum 79 characters.
+                   , "-gnatyn"          # Check casing of package Standard identifiers
+                   , "-gnatyO"          # Check overriding indicators
+                   , "-gnatyp"          # Check pragma casing
+                   , "-gnatyr"          # Check casing for identifier references
+                   # , "-gnatyt"          # Check token separation rules
+                   , "-gnatyu"          # Check no unnecessary blank lines
+                   , "-gnatyx"          # Check extra parenthesis around conditionals
+                   ]
+
+[[depends-on]]
+gnatprove = "^14.1.1"
