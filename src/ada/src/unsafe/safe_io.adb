@@ -37,15 +37,23 @@ package body Safe_IO with SPARK_Mode => On is
       while not T_IO.End_Of_File loop
          T_IO.Look_Ahead (Char, EOL);
          exit when not EOL and then Char /= ' ';
-         T_IO.Get (Char);
+         if EOL then
+            T_IO.Skip_Line;
+         else
+            T_IO.Get (Char);
+         end if;
       end loop;
       -- Read word
       while Last + 1 in Value'Range loop
          exit when T_IO.End_Of_File;
          T_IO.Look_Ahead (Char, EOL);
          exit when EOL or else Char = ' ';
-         Last := Last + 1;
-         T_IO.Get (Value (Last));
+         if EOL then
+            T_IO.Skip_Line;
+         else
+            Last := Last + 1;
+            T_IO.Get (Value (Last));
+         end if;
       end loop;
       EOL := EOL or else T_IO.End_Of_File;
       Valid := Last in Value'Range and then (EOL or else Char = ' ');

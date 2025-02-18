@@ -3,6 +3,7 @@
 
 import sys
 import os
+import numpy as np
 
 def main(patient : str) -> int:
     # Read the solution
@@ -14,8 +15,8 @@ def main(patient : str) -> int:
         return [b1, b2] + xs
     here = os.path.dirname(sys.argv[0])
     with open(os.path.join(here, patient + ".out"), "r") as fp:
-        pre, sen, f_1 = map(float, fp.read_line()[:-1].split())
-        solution = list(map(convert, fp.read().split("\n")))
+        pre, sen, f_1 = map(float, fp.readline()[:-1].split())
+        solution = list(map(convert, filter(bool, fp.read().split("\n"))))
     # Read the result
     def convert(x):
         x = x.split()
@@ -31,14 +32,21 @@ def main(patient : str) -> int:
         except EOFError:
             reading = False
         else:
-            result.append(convert(line))
+            if line:
+                result.append(convert(line))
+            else:
+                break
     # Compare both of them
     if len(result) != len(solution):
         print(f"ERROR: The result has {len(result)} epochs,",
               f"{len(solution)} expected!")
         return 2
     for i in range(len(result)):
-        pass
+        dist = 0
+        for j in range(1, len(result[i])):
+            dist += (result[i][j] - solution[i][j + 1]) ** 2
+        dist = dist ** 0.5
+        print(dist)
     return 0
 
 if __name__ == "__main__":

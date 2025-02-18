@@ -5,7 +5,10 @@ import os
 root : Final[str] = os.path.dirname(os.path.dirname(os.path.join(os.getcwd(),
                                                                  sys.argv[0])))
 sys.path.append(os.path.join(root, "reference"))
+sys.path.append(os.path.join(root, "reference/mylibrary/computeDTW/EEGLib/"
+                                 + "build/lib.linux-x86_64-cpython-310"))
 
+import EEGLIB
 from typing import Final
 from mne.filter import filter_data
 import numpy as np
@@ -71,6 +74,7 @@ def load (patient : str, chbmit_dir : str, model_file : str):
     indices = map(int, get("batch").replace(" ", "").split(","))
 
     result = Patient()
+    Scv = Scv.astype("float32")
     result.signal = Scv
     result.batch = Batch()
     result.batch.psd_1    = (get("p1_min"), get("p1_max"))
@@ -150,13 +154,19 @@ def solve (patient : Patient) -> Result:
     result = Result()
     result.features = []
     epoch = 1280
+    stride = 256
+    max_warp = 16
     tp = tn = fp = fn = 0
-    for (view, idx) in zip(SlidingWindow(patient.signal, 1280, 256),
+    for (view, idx) in zip(SlidingWindow(patient.signal, epoch, stride),
                            itertools.count(epoch)):
-        psd_1, psd_2, psd_3 = call_psd_tri(view, 1280, 256, 1)[0]
-        energy = call_energy(view, 1280, 256, 1)[0]
-        max_dist = call_max_dist(view, 1280, 256, 1)[0]
-        dtws = [0.0]
+        psd_1, psd_2, psd_3 = call_psd_tri(view, epoch, stride, 1)[0]
+        energy = call_energy(view, epoch, stride, 1)[0]
+        max_dist = call_max_dist(view, epoch, stride, 1)[0]
+        dtws = []
+        for pattern in patient.batch.patterns:
+            d = EEGLIB.GetDistMtx(view, len(view), pattern, len(pattern),
+                                  epoch, stride, max_warp, False)[0]
+            dtws.append(d)
         guess = (within(psd_1,    patient.batch.psd_1)
              and within(psd_2,    patient.batch.psd_2)
              and within(psd_3,    patient.batch.psd_3)

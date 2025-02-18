@@ -58,7 +58,7 @@ begin
    Safe_IO.New_Line;
 
    Index := Signal.all'First;
-   while Index <= Count - Detector.Epoch_Size loop
+   while Index <= Count - Detector.Epoch_Size + 1 loop
       Epoch := Signal (Index .. Index + Detector.Epoch_Size - 1);
       Safe_IO.Put (Detector.Algorithms.Is_Seizure (Epoch, Batch)'Image);
       Safe_IO.Put (" ");

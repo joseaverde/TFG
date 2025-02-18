@@ -5,7 +5,7 @@
 #include <seizure>
 
 auto read_batch () {
-  Batch<Real, std::vector<std::vector<Real>>> batch;
+  Seizure::Batch<Real, std::vector<std::vector<Real>>> batch;
   std::size_t size;
   std::cin >> size
            >> batch.psd_1.first    >> batch.psd_1.second
@@ -21,7 +21,7 @@ auto read_batch () {
     for (std::size_t j = 0; j < epoch_size; ++j) {
       Real temp;
       std::cin >> temp;
-      batch.Pj[i][j] = temp;
+      batch.Pj[i].push_back(temp);
     }
   }
   return batch;

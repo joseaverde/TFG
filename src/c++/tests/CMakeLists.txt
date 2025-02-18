@@ -1,18 +1,20 @@
-find_package(nlohmann_json REQUIRED)
+# find_package(nlohmann_json REQUIRED)
 
-add_executable(test-validation test-validation.cpp utils.hpp)
-target_link_libraries(test-validation
-   PRIVATE Seizure
-      pybind11_all_do_not_use nlohmann_json::nlohmann_json rapidcsv::rapidcsv)
+set(COMMON common.hpp seizure_detector_config.hpp)
 
-add_executable(energy-benchmark energy-benchmark.cpp random_walk.hpp)
-target_link_libraries(energy-benchmark PRIVATE Seizure)
+add_executable(seizure_detector seizure_detector.cpp ${COMMON})
+target_link_libraries(seizure_detector PRIVATE Seizure)
 
-if (NOT ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
-   find_package(Boost REQUIRED)
-   add_executable(esp32 esp32.cpp utils.hpp)
-   target_link_libraries(esp32
-      PRIVATE Seizure
-         pybind11_all_do_not_use nlohmann_json::nlohmann_json rapidcsv::rapidcsv
-         boost::boost)
-endif()
+add_executable(seizure_detector_benchmark seizure_detector_benchmark.cpp ${COMMON})
+target_link_libraries(seizure_detector_benchmark PRIVATE Seizure)
+
+add_executable(seizure_detector_ftests seizure_detector_ftests.cpp ${COMMON})
+target_link_libraries(seizure_detector_ftests PRIVATE Seizure)
+
+add_executable(seizure_detector_utests seizure_detector_utests.cpp ${COMMON})
+target_link_libraries(seizure_detector_utests PRIVATE Seizure)
+
+add_executable(seizure_detector_simulation seizure_detector_simulation.cpp ${COMMON})
+target_link_libraries(seizure_detector_simulation PRIVATE Seizure)
+
+

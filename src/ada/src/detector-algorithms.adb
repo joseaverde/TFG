@@ -136,7 +136,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
                            Low                => PSD_3_Bounds.Low,
                            High               => PSD_3_Bounds.High),
                        Batch.PSD_3)
-      and then (for all Pattern of Batch.Patterns =>
+      and then (for some Pattern of Batch.Patterns =>
                   Dynamic_Time_Warping (Signal, Pattern, Batch.d_max_c)
                      <= Batch.d_max_c));
 
