@@ -14,6 +14,7 @@ def main(patient : str) -> int:
         return [b1, b2] + xs
     here = os.path.dirname(sys.argv[0])
     with open(os.path.join(here, patient + ".out"), "r") as fp:
+        pre, sen, f_1 = map(float, fp.read_line()[:-1].split())
         solution = list(map(convert, fp.read().split("\n")))
     # Read the result
     def convert(x):

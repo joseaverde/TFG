@@ -25,8 +25,8 @@ namespace Seizure {
       Bounds<T> psd_1;
       Bounds<T> psd_2;
       Bounds<T> psd_3;
-      Bounds<T> max_dist;
       Bounds<T> energy;
+      Bounds<T> max_dist;
       T d_max_c{std::numeric_limits<T>::infinity()};
       C Pj;
   };

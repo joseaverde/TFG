@@ -13,7 +13,7 @@ executables = ["seizure_detector"]
 [configuration.variables]
 Samples_Per_Stride = {type = "Integer", first = 16, default = 256}
 Strides_Per_Epoch = {type = "Integer", first = 1, default = 5}
-Real_Type = {type = "Enum", default = "Double", values = ["Single", "Double", "Fixed_2", "Fixed_10"]}
+Real_Type = {type = "Enum", values = ["Single", "Double", "Fixed_2", "Fixed_10"]}
 Fractional_Digits = {type = "Integer", first = 1, default = 16}
 Whole_Digits = {type = "Integer", first = 1, default = 32}
 
@@ -43,3 +43,4 @@ Whole_Digits = {type = "Integer", first = 1, default = 32}
 
 [[depends-on]]
 gnatprove = "^14.1.1"
+

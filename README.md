@@ -70,6 +70,7 @@ llamado `chbXX.out` con la salida que hubiera generado el programa original
 utilizando un formato parecido:
 
 ```plain
+<precisión> <sensibilidad> <f1 score>
 <esperado> <predicción> <energía> <distancia> <psd_1> <psd_2> <psd_3> <dtw>
 <esperado> <predicción> <energía> <distancia> <psd_1> <psd_2> <psd_3> <dtw>
 ...

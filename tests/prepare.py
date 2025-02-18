@@ -1,12 +1,21 @@
 from typing import Final
+import sys
+import os
+
+root : Final[str] = os.path.dirname(os.path.dirname(os.path.join(os.getcwd(),
+                                                                 sys.argv[0])))
+sys.path.append(os.path.join(root, "reference"))
+
+from typing import Final
 from mne.filter import filter_data
 import numpy as np
 import itertools
 import pandas as pd
 import json
 import csv
-import struct
-import mylib
+from mylibrary.optimizer.functions import f_validation
+from mylibrary.common.classes import DTW_Matrix
+from mylibrary.common.utils import call_psd_tri, call_energy, call_max_dist
 
 class Batch:
     psd_1    : tuple[float, float]
@@ -117,21 +126,60 @@ class Result:
 def within (x, t):
     return t[0] <= x <= t[1]
 
+def PRE(tp, tn, fp, fn):
+    if tp + fp == 0:
+        return 1
+    else:
+        return tp / (tp + fp)
+
+def SEN(tp, tn, fp, fn):
+    if tp + fn == 0:
+        return 0
+    else:
+        return tp / (tp + fn)
+
+def F_1(tp, tn, fp, fn):
+    sen = SEN(tp, tn, fp, fn)
+    pre = PRE(tp, tn, fp, fn)
+    if sen + pre == 0:
+        return 0
+    else:
+        return 2 * (pre * sen) / (pre + sen)
+
 def solve (patient : Patient) -> Result:
-    result = Result
+    result = Result()
     result.features = []
+    epoch = 1280
     tp = tn = fp = fn = 0
-    for (view, idx, dnc) in zip(SlidingWindow(patient.signal, 1280, 256),
-                                itertools.count(epoch),
-                                dncs):
-        psd_1, psd_2, psd_3 = mylib.call_psd_tri(view, 1280, 256, 1)
-        energy = mylib.call_energy(view, 1280, 256, 1)
-        max_dist = mylib.call_max_dist(view, 1280, 256, 1)
+    for (view, idx) in zip(SlidingWindow(patient.signal, 1280, 256),
+                           itertools.count(epoch)):
+        psd_1, psd_2, psd_3 = call_psd_tri(view, 1280, 256, 1)[0]
+        energy = call_energy(view, 1280, 256, 1)[0]
+        max_dist = call_max_dist(view, 1280, 256, 1)[0]
+        dtws = [0.0]
         guess = (within(psd_1,    patient.batch.psd_1)
              and within(psd_2,    patient.batch.psd_2)
              and within(psd_3,    patient.batch.psd_3)
              and within(energy,   patient.batch.energy)
-             and within(max_dist, patient.batch.max_dist))
+             and within(max_dist, patient.batch.max_dist)
+             and (all(dtw <= patient.batch.d_max_c for dtw in dtws)))
+        solution = guess
+        result.features.append((solution, guess, psd_1, psd_2, psd_3,
+                                energy, max_dist, *dtws))
+        if guess:
+            if solution:
+                tp += 1
+            else:
+                fp += 1
+        else:
+            if solution:
+                fn += 1
+            else:
+                tn += 1
+    result.pre = PRE(tp, tn, fp, fn)
+    result.sen = SEN(tp, tn, fp, fn)
+    result.f_1 = F_1(tp, tn, fp, fn)
+    return result
 
 def call_energy(signal, mw, stride, operations):
     vE = [np.nan]*operations
@@ -141,6 +189,12 @@ def call_energy(signal, mw, stride, operations):
         mu = window - np.mean(window)
         vE[idx] = np.sum(mu**2)/mw
     return vE
+
+def dump_output(result : Result, output : str):
+    with open(output, "w") as fp:
+        print(f"{result.pre} {result.sen} {result.f_1}", file=fp)
+        for feature in result.features:
+            print(" ".join(map(str, feature)), file=fp)
 
 chbmit_dir = "/home/joseaverde/Development/seizure-algorithm/CHBMIT"
 model_file = ("/home/joseaverde/Development/seizure-algorithm/datos/" +
@@ -157,4 +211,5 @@ for patient in range(1,8):
     print(f"  Executing model")
     result = solve(patient)
     print(f"  Generating output file")
-    dump_output(chb, f"{chb}.out")
+    dump_output(result, f"{chb}.out")
+    print(f"  Done")

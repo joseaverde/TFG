@@ -15,3 +15,5 @@ venv
 /build*
 CMakeCache.txt
 CMakeFiles
+/.venv
+/uv.lock
