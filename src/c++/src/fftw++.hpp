@@ -18,78 +18,63 @@
 
 #include <concepts>
 #include <fftw3.h>
-#include <memory>
 #include <type_traits>
+#include <complex>
 
 namespace Seizure {
 
-  /// @struct FFTW
-  /// @brief Specifies static functions and types for a given typename T.
-  ///
-  /// It declares the following types:
-  ///  * `plan_t':    fftw?_plan
-  ///  * `complex_t': fftw?_complex
-  ///
-  /// The functions: dft_r2c_1d and execute
-  ///
-  /// And the functor `destroy' for using with std::unique_ptr.
   template <typename T>
-  struct FFTW;
+  struct FFTW {
+    using Complex = std::complex<T>;
+    class Plan {
+      public:
+        Plan (int n, T * in, Complex * out) : n_{static_cast<std::size_t>(n)}, in_{in}, out_{out} { }
+        void execute () {
+          my_fft(std::span<const T>{in_, n_}, std::span<Complex>{out_, n_}, 1);
+        }
+      private:
 
-  template <>
-  struct FFTW<float> {
-      using Plan    = fftwf_plan;
-      using Complex = fftwf_complex;
+        std::size_t n_;
+        T * in_;
+        Complex * out_;
 
-      static Plan dft_r2c_1d(int n, float * in, fftwf_complex * out, unsigned flags) {
-        return fftwf_plan_dft_r2c_1d(n, in, out, flags);
-      }
+        static void my_fft (std::span<const T> const & input,
+                            std::span<Complex> const & output, int s) {
+          using namespace std::numbers;
+          auto const N = std::ssize(input);
+          if (N == 1) {
+            *output.begin() = {*input.begin(), 0};
+          } else if (N % 2 == 0) {
+            my_fft(input.subspan(0, N / 2), output.subspan(0, N / 2), 2 * s);
+            my_fft(input.subspan(s, N / 2), output.subspan(N / 2, N / 2), 2 * s);
+            for (int k = 0; k < N / 2; ++k) {
+              Complex p = output[k];
+              Complex q = std::exp(Complex{0, -2 * pi_v<T> * k / N}) * output[k + N/2];
+              output[k] = p + q;
+              output[k + N/2] = p - q;
+            }
+          } else {
+            for (int k = 0; k < N; ++k) {
+              output[k] = {0, 0};
+              for (int n = 0; n < N; ++n) {
+                output[k] += input[n * s] * std::exp(Complex{0, -2 * pi_v<T> / N * k * n});
+              }
+            }
+          }
+        }
 
-      static void execute(Plan const plan) { fftwf_execute(plan); }
 
-      struct destroy {
-          void operator()(Plan p) { fftwf_destroy_plan(p); }
-      };
-  };
+    };
 
-  template <>
-  struct FFTW<double> {
-      using Plan    = fftw_plan;
-      using Complex = fftw_complex;
-
-      static Plan dft_r2c_1d(int n, double * in, fftw_complex * out, unsigned flags) {
-        return fftw_plan_dft_r2c_1d(n, in, out, flags);
-      }
-
-      static void execute(Plan const plan) { fftw_execute(plan); }
-
-      struct destroy {
-          void operator()(Plan p) { fftw_destroy_plan(p); }
-      };
-  };
-
-  template <>
-  struct FFTW<long double> {
-      using Plan    = fftwl_plan;
-      using Complex = fftwl_complex;
-
-      static Plan dft_r2c_1d(int n, long double * in, fftwl_complex * out, unsigned flags) {
-        return fftwl_plan_dft_r2c_1d(n, in, out, flags);
-      }
-
-      static void execute(Plan const plan) { fftwl_execute(plan); }
-
-      struct destroy {
-          void operator()(Plan p) { fftwl_destroy_plan(p); }
-      };
+    static Plan dft_r2c_1d (int n, T * in, Complex * out, unsigned) { return Plan{n, in, out}; }
+    static void execute (Plan plan) { plan.execute(); }
+    struct destroy { void operator() (Plan) {} };
   };
 
   /// @brief Renames a std::unique_ptr for a plan type, it has the needed
   /// destructor.
   template <typename T>
-    requires std::floating_point<T>
-  using FFTW_plan = std::unique_ptr<typename std::remove_pointer_t<typename FFTW<T>::Plan>,
-                                    typename FFTW<T>::destroy>;
+  using FFTW_plan = FFTW<T>::Plan;
 }  // namespace Seizure
 
 #endif  // SEIZURE_FFTWPP_HPP

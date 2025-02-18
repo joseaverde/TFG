@@ -109,7 +109,7 @@ namespace Seizure {
         for (auto && win : windows) {
           auto win_view = ranges::views::zip_with(std::multiplies<Real>{}, win, window_);
           std::ranges::copy(win_view.begin(), win_view.end(), values_.begin());
-          Fftw::execute(plan_.get());
+          Fftw::execute(plan_);
           for (auto && [pxx_i, res_i] : ranges::views::zip(Pxx, result_)) {
             pxx_i += norm_squared(res_i) / (normalisation_factor_ * freq);
           }
