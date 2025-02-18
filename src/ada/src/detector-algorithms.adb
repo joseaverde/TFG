@@ -1,11 +1,17 @@
 with Ada.Numerics;
+with Safe_IO;
 
 package body Detector.Algorithms with SPARK_Mode => On is
 
+   -- TODO: Make it a parameter
+   Welch_Window_Size : constant := 512;
+
+   use Reals;
+
    Hann_Window : constant Sample_Array := [
-      for I in Count_Type range 1 .. Epoch_Size =>
-         0.5 - 0.5 * Reals.Cos (2.0 * Ada.Numerics.Pi * Real (I - 1) /
-                                 Real (Epoch_Size - 1))];
+      for I in Count_Type range 1 .. Welch_Window_Size =>
+         0.5 - 0.5 * Cos (2.0 * Ada.Numerics.Pi * Real (I - 1) /
+                          Real (Epoch_Size - 1))];
    Correction_Factor : constant Real :=
       [for C of Hann_Window => C ** 2]'Reduce ("+", 0.0);
 
@@ -28,35 +34,79 @@ package body Detector.Algorithms with SPARK_Mode => On is
       return Result;
    end Simpson;
 
--- procedure FFT (
---    Input  : in     Real_Array;
---    Output :    out Complex_Array;
---    Length : in     Positive_Count_Type;
---    Stride : in     Positive_Count_Type) is
--- begin
---    if Length = 1 then
---       Output (Output'First) = Input (Input'First);
---    elsif Length mod 2 = 0 then
---       FFT (
---          Input  => Input,
---          Output => Output (Output'First .. Output'First + Length / 2 - 1),
---          Length => Length / 2,
---          Stride => 2 * Stride);
---       FFT (
---          Input  => Input (Input'First + Stride - 1 .. Input'Last),
---          Output => Output (Output'First + Length / 2 .. Output'Last),
---          Length => Length / 2,
---          Stride => 2 * Stride);
---       for K in 0 .. Length / 2 - 1 loop
---          declare
---             -- p = output[k]
---             -- q = exp(-2πk/N) * output[k + N/2]
---             --   = [cos(-2πk/N) + i sin(-2πk/N)] * output[k + N/2]
---             -- output[k] = p + q
---             -- output[k + N/2] = p - q
---             q_s : constant Real := Sin
+   function Omega (K, N : Count_Type) return Real is (
+      -2.0 * Ada.Numerics.Pi * Real (K) / Real (N));
 
---       end loop;
+   function Exponent_Product (
+      Factor : in Complex;
+      K, N   : in Count_Type)
+      return Complex is (
+      Re => Factor.Re * Cos (Omega (K, N)) - Factor.Im * Sin (Omega (K, N)),
+      Im => Factor.Re * Sin (Omega (K, N)) + Factor.Im * Cos (Omega (K, N)));
+
+   function "+" (Left, Right : in Complex) return Complex is (
+      Re => Left.Re + Right.Re,
+      Im => Left.Im + Right.Im);
+
+   function "-" (Left, Right : in Complex) return Complex is (
+      Re => Left.Re - Right.Re,
+      Im => Left.Im - Right.Im);
+
+   procedure FFT (
+      Input  : in     Sample_Array;
+      Output :    out Complex_Array;
+      Size   : in     Count_Type;
+      Stride : in     Positive_Count_Type) is
+      Half : constant Count_Type := Size / 2;
+   begin
+      if Size = 1 then
+         Output (Output'First) := (Re => Input (Input'First), Im => 0.0);
+      elsif Size mod 2 = 0 then
+         FFT (
+            Input  => Input (Input'First .. Input'Last),
+            Output => Output (Output'First .. Output'First + Half - 1),
+            Size   => Half,
+            Stride => Stride * 2);
+         FFT (
+            Input  => Input (Input'First + Stride .. Input'Last),
+            Output => Output (Output'First + Half .. Output'Last),
+            Size   => Half,
+            Stride => Stride * 2);
+         for K in 0 .. Half - 1 loop
+            declare
+               Fst : constant Count_Type := Output'First + K;
+               Snd : constant Count_Type := Output'First + K + Half;
+               P   : constant Complex := Output (Fst);
+               Q   : constant Complex := Exponent_Product (Output (Snd),
+                                                           K, Size);
+            begin
+               Output (Fst) := P + Q;
+               Output (Snd) := P - Q;
+            end;
+         end loop;
+      else
+         for K in 0 .. Size - 1 loop
+            declare
+               Result : Complex := (0.0, 0.0);
+            begin
+               for N in 0 .. Size - 1 loop
+                  Result.Re := @ + Input (Input'First + N * Stride) *
+                                 Cos (Omega (K * N, Size));
+                  Result.Im := @ + Input (Input'First + N * Stride) *
+                                 Sin (Omega (K * N, Size));
+               end loop;
+               Output (Output'First + K) := Result;
+            end;
+         end loop;
+      end if;
+   end FFT;
+
+   procedure FFT (
+      Input  : in     Sample_Array;
+      Output :    out Complex_Array) is
+   begin
+      FFT (Input, Output, Input'Length, 1);
+   end FFT;
 
    function Mean (
       Signal : in Sample_Array)
@@ -95,6 +145,40 @@ package body Detector.Algorithms with SPARK_Mode => On is
       end loop;
       return Real (Max) - Real (Min);
    end Max_Distance;
+
+-- procedure Welch (
+--    Signal    : in Sample_Array;
+--    Overlap   : in Positive_Count_Type;
+--    Frequency : in Real) is
+--    Pxx   : Real_Array (1 .. Epoch_Size / 2 + 1);
+--    Steps : constant := (Signal'Length - Welch_WIndow_Size) / Overlap + 1;
+--    Freq  : cosntant Real := Frequency / 2;
+--    Output : Complex_Array (Input'Range);
+-- begin
+--    FFT (Input, Output);
+--    for I
+
+--   constexpr Channel operator()(Input_channel_of<Real> auto const & x, Real freq, Sample_count overlap) {
+--      // Precondition((overlap > 0 && overlap < window_size_) && (std::ssize(x) >= window_size_));
+--      Channel Pxx(window_size_ / 2 + 1);
+--      Sample_count const steps  = (std::ssize(x) - window_size_) / overlap + 1;
+--      freq                     /= 2;
+--      auto const windows        = x | sliding_window_view(window_size_, window_size_ - overlap);
+--      for (auto && win : windows) {
+--        auto win_view = ranges::views::zip_with(std::multiplies<Real>{}, win, window_);
+--        std::ranges::copy(win_view.begin(), win_view.end(), values_.begin());
+--        Fftw::execute(plan_);
+--        for (auto && [pxx_i, res_i] : ranges::views::zip(Pxx, result_)) {
+--          pxx_i += norm_squared(res_i) / (normalisation_factor_ * freq);
+--        }
+--      }
+--      Pxx |= ranges::actions::transform([steps](Real val) {
+--        return val / steps;
+--      });
+--      return Pxx;
+--    }
+
+
 
    function Power_Spectral_Density (
       Signal             : in Sample_Array;

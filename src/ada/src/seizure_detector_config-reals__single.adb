@@ -7,5 +7,7 @@ package body Seizure_Detector_Config.Reals with SPARK_Mode => On is
 
    function Cos (Item : in Real) return Real is (
       Elementary_Functions.Cos (Item));
+   function Sin (Item : in Real) return Real is (
+      Elementary_Functions.Sin (Item));
 
 end Seizure_Detector_Config.Reals;

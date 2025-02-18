@@ -15,6 +15,11 @@ package Detector.Algorithms with SPARK_Mode => On is
       return Real with
       Pre => Signal'Length = Epoch_Size;
 
+   procedure FFT (
+      Input  : in     Sample_Array;
+      Output :    out Complex_Array) with
+      Pre => Input'Length = Output'Length and then Input'Length >= 1;
+
    function Power_Spectral_Density (
       Signal             : in Sample_Array;
       Sampling_Frequency : in Sample;

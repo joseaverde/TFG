@@ -38,6 +38,7 @@ namespace Seizure {
         T * in_;
         Complex * out_;
 
+        // TODO: Don't use subspan, thank you
         static void my_fft (std::span<const T> const & input,
                             std::span<Complex> const & output, int s) {
           using namespace std::numbers;

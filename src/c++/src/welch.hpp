@@ -102,7 +102,7 @@ namespace Seizure {
       /// Window, the half of the Window's size is commonly used.
       constexpr Channel operator()(Input_channel_of<Real> auto const & x, Real freq, Sample_count overlap) {
         // Precondition((overlap > 0 && overlap < window_size_) && (std::ssize(x) >= window_size_));
-        Channel Pxx(window_size_ / 2 + 1);
+        Channel Pxx(window_size_ / 2 + 1, Real{});
         Sample_count const steps  = (std::ssize(x) - window_size_) / overlap + 1;
         freq                     /= 2;
         auto const windows        = x | sliding_window_view(window_size_, window_size_ - overlap);

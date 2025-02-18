@@ -6,7 +6,8 @@ int main () {
     << " " << REAL_NAME << std::endl;
   auto const batch = read_batch();
   auto const signal = read_signal();
-  auto const psd = Seizure::psd_default_ranges<Real>(epoch_size);
+  // 512!!!!!! We want 2.5 Hz (I think)
+  auto const psd = Seizure::psd_default_ranges<Real>(512);
   Seizure::DTW_params const dtw{epoch_size, stride_size, warping_window};
   std::vector<Real> dists(batch.Pj.size(), 0);
   for (auto && epoch : signal | Seizure::sliding_window_view(epoch_size, stride_size)) {

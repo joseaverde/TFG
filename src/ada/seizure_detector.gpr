@@ -5,6 +5,7 @@ project Seizure_Detector is
    for Object_Dir use "obj/" & Seizure_Detector_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Main use (
+      "fft_tests.adb",
       "seizure_detector.adb",                -- The detector itself
       "seizure_detector_simulation.adb",     -- Real data benchmark
       "seizure_detector_ftests.adb",         -- Functional tests
