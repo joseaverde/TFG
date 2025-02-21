@@ -10,6 +10,14 @@ package body Detector.Algorithms with SPARK_Mode => On is
                           Real (Welch_Window_Size - 1))];
    Normalisation_Factor : constant Real :=
       [for C of Hann_Window => C ** 2]'Reduce ("+", 0.0);
+   Sin_Omegas : constant
+            array (Count_Type range 0 .. Welch_Window_Size - 1) of Sample := [
+      for K in Count_Type range 0 .. Welch_Window_Size - 1 =>
+         Sin (-2.0 * Ada.Numerics.Pi * Real (K) / Real (Welch_Window_Size))];
+   Cos_Omegas : constant
+            array (Count_Type range 0 .. Welch_Window_Size - 1) of Sample := [
+      for K in Count_Type range 0 .. Welch_Window_Size - 1 =>
+         Cos (-2.0 * Ada.Numerics.Pi * Real (K) / Real (Welch_Window_Size))];
 
    function Simpson (
       Signal : in Real_Array;
@@ -32,15 +40,17 @@ package body Detector.Algorithms with SPARK_Mode => On is
       return Result;
    end Simpson;
 
-   function Omega (K, N : Count_Type) return Real is (
-      -2.0 * Ada.Numerics.Pi * Real (K) / Real (N));
+   function Sin_Omega (K, N : Count_Type'Base) return Real is (
+      Sin_Omegas ((K * (Welch_Window_Size / N)) mod Welch_Window_Size));
+   function Cos_Omega (K, N : Count_Type'Base) return Real is (
+      Cos_Omegas ((K * (Welch_Window_Size / N)) mod Welch_Window_Size));
 
    function Exponent_Product (
       Factor : in Complex;
       K, N   : in Count_Type)
       return Complex is (
-      Re => Factor.Re * Cos (Omega (K, N)) - Factor.Im * Sin (Omega (K, N)),
-      Im => Factor.Re * Sin (Omega (K, N)) + Factor.Im * Cos (Omega (K, N)));
+      Re => Factor.Re * Cos_Omega (K, N) - Factor.Im * Sin_Omega (K, N),
+      Im => Factor.Re * Sin_Omega (K, N) + Factor.Im * Cos_Omega (K, N));
 
    function "+" (Left, Right : in Complex) return Complex is (
       Re => Left.Re + Right.Re,
@@ -89,9 +99,9 @@ package body Detector.Algorithms with SPARK_Mode => On is
             begin
                for N in 0 .. Size - 1 loop
                   Result.Re := @ + Input (Input'First + N * Stride) *
-                                 Cos (Omega (K * N, Size));
+                                 Cos_Omega (K * N, Size);
                   Result.Im := @ + Input (Input'First + N * Stride) *
-                                 Sin (Omega (K * N, Size));
+                                 Sin_Omega (K * N, Size);
                end loop;
                Output (Output'First + K) := Result;
             end;
