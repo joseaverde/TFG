@@ -10,6 +10,10 @@ package Safe_IO with SPARK_Mode => On is
       Global => (In_Out => Ada.Text_IO.File_System);
    procedure New_Line with
       Global => (In_Out => Ada.Text_IO.File_System);
+   procedure Put_Error (Item : in String) with
+      Global => (In_Out => Ada.Text_IO.File_System);
+   procedure Put_Line_Error (Item : in String) with
+      Global => (In_Out => Ada.Text_IO.File_System);
 
    procedure Get_Word (
       Value : in out String;

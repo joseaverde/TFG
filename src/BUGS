@@ -1,0 +1,5 @@
+scipy:
+   La función `scipy.integrate.simps' está deprecada.
+   La salida de dicha función en scipy 1.10 y scipy 1.11 es completamente
+   distinta.
+   El modelo se entrenó con scipy=1.11. Así que no vale con otra.

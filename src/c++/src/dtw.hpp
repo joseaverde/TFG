@@ -131,7 +131,7 @@ namespace Seizure {
         Real const x_val = ((row < 1) or (k_idx + 1 > 2 * rows)) ? inf : prev[k_idx + 1] + current_dist;
         Real const z_val = ((row < 1) or (j < 1)) ? inf : prev[k_idx] + static_cast<int>(diagCost) * current_dist;
         cost[k_idx] = std::min({x_val, y_val, z_val});
-        if (cost[k_idx] > max) { return inf; }
+        // if (cost[k_idx] > max) { return inf; }
       }
       std::swap(cost, prev);
     }

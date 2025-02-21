@@ -1,9 +1,36 @@
 package Detector.Algorithms with SPARK_Mode => On is
 
+   type Span_Array is array (Positive_Count_Type range <>) of Real_Span;
+
    PSD_1_Bounds           : constant Real_Span := (2.0,  12.0);
    PSD_2_Bounds           : constant Real_Span := (12.0, 18.0);
    PSD_3_Bounds           : constant Real_Span := (18.0, 35.0);
+   PSD_Bounds : constant Span_Array (1 .. 3) := [
+      PSD_1_Bounds, PSD_2_Bounds, PSD_3_Bounds];
    PSD_Sampling_Frequency : constant Real      := Real (Stride_Size);
+
+   -- TODO: Make it a parameter
+   Welch_Window_Size      : constant := 512;
+   Welch_Window_Overlap   : constant := Welch_Window_Size / 2;
+   Result_Array_Size      : constant := Welch_Window_Size / 2 + 1;
+   Warping_Window         : constant := 16;
+
+   subtype Welch_Array is Real_Array (1 .. Result_Array_Size);
+   subtype Epoch_Array is Sample_Array (1 .. Epoch_Size);
+   subtype Stride_Array is Sample_Array (1 .. Stride_Size);
+   -- TODO: Replace everything with Epoch_Array
+
+   function Simpson (
+      Signal : in Real_Array;
+      dx     : in Sample)
+      return Real with
+      Pre => Signal'Size in 1 .. Epoch_Size;
+
+   procedure Welch (
+      Signal    : in     Sample_Array;
+      Pxx       :    out Welch_Array;
+      Overlap   : in     Positive_Count_Type;
+      Frequency : in     Real);
 
    function Energy (
       Signal : in Sample_Array)
@@ -26,6 +53,13 @@ package Detector.Algorithms with SPARK_Mode => On is
       Low                : in Sample;
       High               : in Sample)
       return Real with
+      Pre => Signal'Length = Epoch_Size;
+
+   function Power_Spectral_Density (
+      Signal             : in Sample_Array;
+      Sampling_Frequency : in Sample;
+      Bounds             : in Span_Array)
+      return Real_Array with
       Pre => Signal'Length = Epoch_Size;
 
    function Dynamic_Time_Warping (

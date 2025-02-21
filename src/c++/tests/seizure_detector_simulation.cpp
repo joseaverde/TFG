@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main () {
-  std::cout << "C++ simulation " << stride_size << " " << epochs_per_stride
+  std::cout << "C++ simulation " << stride_size << " " << strides_per_epoch
     << REAL_NAME << std::endl;
   return 0;
 }

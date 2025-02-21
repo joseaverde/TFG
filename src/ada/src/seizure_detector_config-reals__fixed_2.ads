@@ -1,6 +1,6 @@
-package Seizure_Detector_Config.Reals with Pure, SPARK_Mode => On is
+package Seizure_Detector_Config.Fixed_2 with Pure, SPARK_Mode => On is
 
-   subtype Real is Long_Float;
+   subtype Real is Float;
 
    function Cos (Item : in Real) return Real with
       Post => Cos'Result in -1.0 .. 1.0;
@@ -8,6 +8,5 @@ package Seizure_Detector_Config.Reals with Pure, SPARK_Mode => On is
       Post => Sin'Result in -1.0 .. 1.0;
    function Rounding (Item : in Real) return Real
       renames Real'Rounding;
-   function Sqrt (Item : in Real) return Real;
 
-end Seizure_Detector_Config.Reals;
+end Seizure_Detector_Config.Fixed_2;

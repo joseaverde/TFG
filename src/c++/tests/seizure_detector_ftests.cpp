@@ -2,7 +2,7 @@
 
 int main () {
   constexpr Real d_th = 1.05;
-  std::cout << "C++ ftests " << stride_size << " " << epochs_per_stride
+  std::cout << "C++ ftests " << stride_size << " " << strides_per_epoch
     << " " << REAL_NAME << std::endl;
   auto const batch = read_batch();
   auto const signal = read_signal();

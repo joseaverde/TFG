@@ -1,28 +1,26 @@
 with Ada.Numerics;
-with Safe_IO;
 
 package body Detector.Algorithms with SPARK_Mode => On is
 
-   -- TODO: Make it a parameter
-   Welch_Window_Size : constant := 512;
-
    use Reals;
 
-   Hann_Window : constant Sample_Array := [
-      for I in Count_Type range 1 .. Welch_Window_Size =>
+   Hann_Window : constant Real_Array (1 .. Welch_Window_Size) := [
+      for I in 1 .. Welch_Window_Size =>
          0.5 - 0.5 * Cos (2.0 * Ada.Numerics.Pi * Real (I - 1) /
-                          Real (Epoch_Size - 1))];
-   Correction_Factor : constant Real :=
+                          Real (Welch_Window_Size - 1))];
+   Normalisation_Factor : constant Real :=
       [for C of Hann_Window => C ** 2]'Reduce ("+", 0.0);
 
    function Simpson (
-      Signal : in Sample_Array;
+      Signal : in Real_Array;
       dx     : in Sample)
       return Real is
       Result : Real := 0.0;
+      I      : Count_Type := Signal'First + 2;
    begin
-      for I in Signal'First .. Signal'Last - 2 loop
-         Result := Signal (I) + 4.0 * Signal (I + 1) + Signal (I + 2);
+      while I in Signal'Range loop
+         Result := @ + Signal (I - 2) + 4.0 * Signal (I - 1) + Signal (I);
+         I := I + 2;
       end loop;
       Result := Result * dx / 3.0;
       if Signal'Length > 2 and then Signal'Length mod 2 = 0 then
@@ -146,39 +144,34 @@ package body Detector.Algorithms with SPARK_Mode => On is
       return Real (Max) - Real (Min);
    end Max_Distance;
 
--- procedure Welch (
---    Signal    : in Sample_Array;
---    Overlap   : in Positive_Count_Type;
---    Frequency : in Real) is
---    Pxx   : Real_Array (1 .. Epoch_Size / 2 + 1);
---    Steps : constant := (Signal'Length - Welch_WIndow_Size) / Overlap + 1;
---    Freq  : cosntant Real := Frequency / 2;
---    Output : Complex_Array (Input'Range);
--- begin
---    FFT (Input, Output);
---    for I
+   function Norm_Squared (Item : in Complex) return Real is (
+      Item.Re ** 2 + Item.Im ** 2);
 
---   constexpr Channel operator()(Input_channel_of<Real> auto const & x, Real freq, Sample_count overlap) {
---      // Precondition((overlap > 0 && overlap < window_size_) && (std::ssize(x) >= window_size_));
---      Channel Pxx(window_size_ / 2 + 1);
---      Sample_count const steps  = (std::ssize(x) - window_size_) / overlap + 1;
---      freq                     /= 2;
---      auto const windows        = x | sliding_window_view(window_size_, window_size_ - overlap);
---      for (auto && win : windows) {
---        auto win_view = ranges::views::zip_with(std::multiplies<Real>{}, win, window_);
---        std::ranges::copy(win_view.begin(), win_view.end(), values_.begin());
---        Fftw::execute(plan_);
---        for (auto && [pxx_i, res_i] : ranges::views::zip(Pxx, result_)) {
---          pxx_i += norm_squared(res_i) / (normalisation_factor_ * freq);
---        }
---      }
---      Pxx |= ranges::actions::transform([steps](Real val) {
---        return val / steps;
---      });
---      return Pxx;
---    }
-
-
+   procedure Welch (
+      Signal    : in     Sample_Array;
+      Pxx       :    out Welch_Array;
+      Overlap   : in     Positive_Count_Type;
+      Frequency : in     Real) is
+      Steps  : constant Real := Real (
+         (Signal'Length - Welch_Window_Size) / Overlap + 1);
+      Factor : constant Real := 2.0 / (Normalisation_Factor * Frequency);
+      Input  : Sample_Array (1 .. Welch_Window_Size);
+      Output : Complex_Array (1 .. Welch_Window_Size);
+      Index  : Count_Type := Signal'First;
+   begin
+      Pxx := [others => 0.0];
+      while Index <= Signal'Last - Welch_Window_Size + 1 loop
+         Input := [for I in Input'Range =>
+                     Hann_Window (Hann_Window'First + I - Input'First) *
+                     Signal (I - Input'First + Index)];
+         FFT (Input, Output);
+         for I in Pxx'Range loop
+            Pxx (I) := @ + Norm_Squared (Output (I)) * Factor;
+         end loop;
+         Index := Index + (Welch_Window_Size - Overlap);
+      end loop;
+      Pxx := [for I in Pxx'Range => Pxx (I) / Steps];
+   end Welch;
 
    function Power_Spectral_Density (
       Signal             : in Sample_Array;
@@ -186,15 +179,119 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Low                : in Sample;
       High               : in Sample)
       return Real is
+      Fq_Res : constant Real := Sampling_Frequency / Real (Welch_Window_Size);
+      First  : Count_Type;
+      Last   : Count_Type;
+      Pxx    : Welch_Array;
    begin
-      return Simpson (Signal, 0.0);
+      Welch (Signal, Pxx, Welch_Window_Overlap, Sampling_Frequency);
+      First := Count_Type (Rounding (Low / Fq_Res)) + Signal'First;
+      Last  := Count_Type (Rounding (High / Fq_Res)) + Signal'First - 1;
+      return Simpson (Pxx (First .. Last), Fq_Res);
    end Power_Spectral_Density;
+
+   function Power_Spectral_Density (
+      Signal             : in Sample_Array;
+      Sampling_Frequency : in Sample;
+      Bounds             : in Span_Array)
+      return Real_Array is
+      Result : Real_Array (Bounds'Range);
+      Fq_Res : constant Real := Sampling_Frequency / Real (Welch_Window_Size);
+      First  : Count_Type;
+      Last   : Count_Type;
+      Pxx    : Welch_Array;
+   begin
+      Welch (Signal, Pxx, Welch_Window_Overlap, Sampling_Frequency);
+      for I in Bounds'Range loop
+         First := Count_Type (Rounding (Bounds (I).Low / Fq_Res));
+         Last  := Count_Type (Rounding (Bounds (I).High / Fq_Res));
+         Result (I) := Simpson (
+            Pxx (First + Signal'First .. Last + Signal'First - 1), Fq_Res);
+      end loop;
+      return Result;
+   end Power_Spectral_Density;
+
+   function Distance (Left, Right : in Real) return Real is (
+      (Left - Right) * (Left - Right));
+
+   function Single_Dynamic_Time_Warping (
+      Signal  : in Epoch_Array;
+      Pattern : in Epoch_Array;
+      Max     : in Real)
+      return Real is
+      Diag_Cost : constant := 1.0;
+      Band_Size : constant := 2 * Warping_Window + 3;
+      Infinity  : constant Real := Real'Last;
+      function Saturated_Addition (Left, Right : in Real) return Real is (
+         Left + Right);
+      type Band_Pair is
+         array (
+            Boolean,
+            Count_Type range 0 .. Band_Size - 1)
+         of Real with
+         Default_Component_Value => Infinity;
+      Dist    : Real;
+      Index   : Count_Type := 1;
+      Bands   : Band_Pair;
+      Cost    : Boolean := False;
+      Prev    : Boolean := True;
+      X, Y, Z : Real;
+      F, L    : Count_Type;
+   begin
+      for Row in Count_Type range 1 .. Epoch_Size loop
+         Index := Count_Type'Max (0, Warping_Window - Row + 1) + 1;
+         F := Count_Type'Max (0, Row - 1 - Warping_Window) + 1;
+         L := Count_Type'Min (Epoch_Size - 1, Row - 1 + Warping_Window) + 1;
+         for Col in F .. L loop
+            Dist := Distance (Signal (Row), Pattern (Col));
+            if Row = 1 and Col = 1 then
+               Bands (Cost, Index) := Dist;
+            else
+               Y := Saturated_Addition (Bands (Cost, Index - 1), Dist);
+               X := Saturated_Addition (Bands (Prev, Index + 1), Dist);
+               Z := Saturated_Addition (Bands (Prev, Index), Diag_Cost * Dist);
+               Bands (Cost, Index) := Real'Min (Real'Min (X, Y), Z);
+            end if;
+            Index := Index + 1;
+         end loop;
+         Prev := not Prev;
+         Cost := not Cost;
+      end loop;
+      return Bands (Prev, Index - 1);
+   end Single_Dynamic_Time_Warping;
+
+   function Sum_Squares (
+      Item : in Sample_Array)
+      return Real is
+      Result : Real := 0.0;
+   begin
+      for I in Item'Range loop
+         Result := @ + Item (I) * Item (I);
+      end loop;
+      return Result;
+   end Sum_Squares;
+
+   function Normalise (
+      Item : in Sample_Array)
+      return Epoch_Array is
+      Mean : constant Real := Algorithms.Mean (Item);
+      Sum2 : constant Real := Sum_Squares (Item);
+      Inv_Dev : constant Real :=
+         1.0 / Sqrt ((Sum2 / Real (Epoch_Size)) - Mean * Mean);
+   begin
+      return [for I in Count_Type range 1 .. Epoch_Size =>
+                (Item (I - 1 + Item'First) - Mean) * Inv_Dev];
+   end Normalise;
 
    function Dynamic_Time_Warping (
       Signal  : in Sample_Array;
       Pattern : in Sample_Array;
       Maximum : in Real)
-      return Real is (0.0);
+      return Real is (
+      Single_Dynamic_Time_Warping (
+         Signal  => Normalise (Signal),
+         Pattern => Normalise (Pattern),
+         Max     => Maximum));
 
    function Is_Seizure (
       Signal : in Sample_Array;
@@ -202,26 +299,18 @@ package body Detector.Algorithms with SPARK_Mode => On is
       return Boolean is (
                Within (Energy (Signal), Batch.Energy)
       and then Within (Max_Distance (Signal), Batch.Max_Dist)
-      and then Within (Power_Spectral_Density (
-                           Signal             => Signal,
-                           Sampling_Frequency => PSD_Sampling_Frequency,
-                           Low                => PSD_1_Bounds.Low,
-                           High               => PSD_1_Bounds.High),
-                       Batch.PSD_1)
-      and then Within (Power_Spectral_Density (
-                           Signal             => Signal,
-                           Sampling_Frequency => PSD_Sampling_Frequency,
-                           Low                => PSD_2_Bounds.Low,
-                           High               => PSD_2_Bounds.High),
-                       Batch.PSD_2)
-      and then Within (Power_Spectral_Density (
-                           Signal             => Signal,
-                           Sampling_Frequency => PSD_Sampling_Frequency,
-                           Low                => PSD_3_Bounds.Low,
-                           High               => PSD_3_Bounds.High),
-                       Batch.PSD_3)
-      and then (for some Pattern of Batch.Patterns =>
+      and then (
+         declare
+            PSDS : constant Real_Array := Power_Spectral_Density (
+               Signal             => Signal,
+               Sampling_Frequency => PSD_Sampling_Frequency,
+               Bounds             => PSD_Bounds);
+         begin       Within (PSDS (1), Batch.PSD_1)
+            and then Within (PSDS (2), Batch.PSD_2)
+            and then Within (PSDS (3), Batch.PSD_3)
+            and then (
+               for some Pattern of Batch.Patterns =>
                   Dynamic_Time_Warping (Signal, Pattern, Batch.d_max_c)
-                     <= Batch.d_max_c));
+                  <= Batch.d_max_c)));
 
 end Detector.Algorithms;

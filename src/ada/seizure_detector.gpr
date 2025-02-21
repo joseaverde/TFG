@@ -2,7 +2,6 @@ with "config/seizure_detector_config.gpr";
 project Seizure_Detector is
 
    for Source_Dirs use ("src/", "config/", "src/unsafe");
-   for Object_Dir use "obj/" & Seizure_Detector_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Main use (
       "fft_tests.adb",
@@ -13,20 +12,20 @@ project Seizure_Detector is
       "seizure_detector_benchmark.adb"       -- Embeddable worst case benchmark
    );
 
-   Exec_Dir := "bin/";
-
+   Suffix := "";
    case Seizure_Detector_Config.Real_Type is
-      when "Single"   => Exec_Dir := Exec_Dir & "float32";
-      when "Double"   => Exec_Dir := Exec_Dir & "float64";
-      when "Fixed_2"  => Exec_Dir := Exec_Dir & "fixed2";
-      when "Fixed_10" => Exec_Dir := Exec_Dir & "fixed10";
+      when "Single"   => Suffix := "float32";
+      when "Double"   => Suffix := "float64";
+      when "Fixed_2"  => Suffix := "fixed2";
+      when "Fixed_10" => Suffix := "fixed10";
    end case;
-   Exec_Dir := Exec_Dir
+   Suffix := Suffix
       & "-s" & Seizure_Detector_Config.Samples_Per_Stride
       & "-e" & Seizure_Detector_Config.Strides_Per_Epoch
       ;
 
-   for Exec_Dir use Exec_Dir;
+   for Exec_Dir use "bin/" & Suffix;
+   for Object_Dir use "obj/" & Seizure_Detector_Config.Build_Profile & "-" & Suffix;
 
    package Compiler is
       for Default_Switches ("Ada") use Seizure_Detector_Config.Ada_Compiler_Switches;
@@ -47,6 +46,15 @@ project Seizure_Detector is
       when "Fixed_2"  => Reals := Reals & "fixed_2";
       when "Fixed_10" => Reals := Reals & "fixed_10";
    end case;
+
+   Pragmas := "";
+   case Seizure_Detector_Config.Build_Profile is
+      when "release" => Pragmas := "release.adc";
+      when others    => Pragmas := "debug.adc";
+   end case;
+   package Builder is
+      for Global_Configuration_Pragmas use Pragmas;
+   end Builder;
 
    package Naming is
       for Specification ("Seizure_Detector_Config.Reals") use Reals & ".ads";

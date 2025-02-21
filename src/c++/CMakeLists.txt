@@ -61,6 +61,7 @@ if (${SEIZURE_JSON_SUPPORT})
    list(APPEND SEIZURE_LIBRARIES nlohmann_json::nlohmann_json)
 endif()
 
+set(SEIZURE_PARALLEL_MODE "sequential")
 if ("${SEIZURE_PARALLEL_MODE}" STREQUAL "openmp")
    find_package(OpenMP REQUIRED)
    list(APPEND SEIZURE_LIBRARIES OpenMP::OpenMP_CXX)
