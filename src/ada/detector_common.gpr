@@ -1,0 +1,73 @@
+with "config/seizure_detector_config.gpr";
+abstract project Detector_Common is
+
+   -->> Cross Compilation <<--
+
+   Target := "";
+   Runtime := "default";
+   Compiler_Switches := ();
+   Executables := ();
+   System_Path := "";
+   case Seizure_Detector_Config.Target is
+      when "native"  =>
+         System_Path := "standard";
+         Executables := (
+            "fft_tests.adb",
+            "seizure_detector.adb",                -- The detector itself
+            "seizure_detector_simulation.adb",     -- Real data benchmark
+            "seizure_detector_ftests.adb",         -- Functional tests
+            "seizure_detector_utests.adb",         -- Unit tests
+            "seizure_detector_benchmark.adb");     -- Worst case benchmark
+      when "esp32c3" =>
+         System_Path       := "embedded";
+         Target            := "riscv64-elf";
+         Runtime           := "light-rv32imac";
+         Compiler_Switches := ("-march=rv32imc", "-mabi=ilp32");
+         Executables       := ("dummy.adb");
+   end case;
+
+   -->> Confguration <<--
+
+   Suffix := "";
+   case Seizure_Detector_Config.Real_Type is
+      when "Single"   => Suffix := "float32";
+      when "Double"   => Suffix := "float64";
+      when "Fixed_2"  => Suffix := "fixed2";
+      when "Fixed_10" => Suffix := "fixed10";
+   end case;
+   Suffix := Seizure_Detector_Config.Build_Profile & "-"
+      & Seizure_Detector_Config.Target
+      & "-"  & Suffix
+      & "-s" & Seizure_Detector_Config.Samples_Per_Stride
+      & "-e" & Seizure_Detector_Config.Strides_Per_Epoch;
+
+   -->> Compiler <<--
+
+   package Compiler is
+      for Default_Switches ("Ada") use Seizure_Detector_Config.Ada_Compiler_Switches;
+   end Compiler;
+
+   -->> Binder <<--
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
+   end Binder;
+
+   -->> Install <<--
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
+
+   -->> Builder <<--
+
+   Pragmas := "";
+   case Seizure_Detector_Config.Build_Profile is
+      when "release" => Pragmas := "release.adc";
+      when others    => Pragmas := "debug.adc";
+   end case;
+   package Builder is
+      for Global_Configuration_Pragmas use Pragmas;
+   end Builder;
+
+end Detector_Common;

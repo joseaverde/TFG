@@ -1,6 +1,6 @@
 package Seizure_Detector_Config.Reals with Pure, SPARK_Mode => On is
 
-   subtype Real is Float;
+   type Real is new Float;
 
    function Cos (Item : in Real) return Real with
       Post => Cos'Result in -1.0 .. 1.0;

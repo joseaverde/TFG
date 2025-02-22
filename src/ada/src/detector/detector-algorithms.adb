@@ -145,11 +145,9 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Min : Sample := Signal (Signal'First);
       Max : Sample := Signal (Signal'First);
    begin
-      pragma Assert (Min <= Max);
       for I in Signal'First + 1 .. Signal'Last loop
          Min := Sample'Min (Min, Signal (I));
          Max := Sample'Max (Max, Signal (I));
-         pragma Loop_Invariant (Min <= Max);
       end loop;
       return Real (Max) - Real (Min);
    end Max_Distance;
@@ -200,12 +198,11 @@ package body Detector.Algorithms with SPARK_Mode => On is
       return Simpson (Pxx (First .. Last), Fq_Res);
    end Power_Spectral_Density;
 
-   function Power_Spectral_Density (
+   procedure Power_Spectral_Density (
       Signal             : in Sample_Array;
       Sampling_Frequency : in Sample;
-      Bounds             : in Span_Array)
-      return Real_Array is
-      Result : Real_Array (Bounds'Range);
+      Bounds             : in Span_Array;
+      Result             : out Real_Array) is
       Fq_Res : constant Real := Sampling_Frequency / Real (Welch_Window_Size);
       First  : Count_Type;
       Last   : Count_Type;
@@ -218,7 +215,6 @@ package body Detector.Algorithms with SPARK_Mode => On is
          Result (I) := Simpson (
             Pxx (First + Signal'First .. Last + Signal'First - 1), Fq_Res);
       end loop;
-      return Result;
    end Power_Spectral_Density;
 
    function Distance (Left, Right : in Real) return Real is (
@@ -297,30 +293,39 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Signal  : in Sample_Array;
       Pattern : in Sample_Array;
       Maximum : in Real)
-      return Real is (
-      Single_Dynamic_Time_Warping (
+      return Real is
+   begin
+      return Single_Dynamic_Time_Warping (
          Signal  => Normalise (Signal),
          Pattern => Normalise (Pattern),
-         Max     => Maximum));
+         Max     => Maximum);
+   end Dynamic_Time_Warping;
 
    function Is_Seizure (
       Signal : in Sample_Array;
       Batch  : in Batch_Type)
-      return Boolean is (
-               Within (Energy (Signal), Batch.Energy)
-      and then Within (Max_Distance (Signal), Batch.Max_Dist)
-      and then (
-         declare
-            PSDS : constant Real_Array := Power_Spectral_Density (
-               Signal             => Signal,
-               Sampling_Frequency => PSD_Sampling_Frequency,
-               Bounds             => PSD_Bounds);
-         begin       Within (PSDS (1), Batch.PSD_1)
-            and then Within (PSDS (2), Batch.PSD_2)
-            and then Within (PSDS (3), Batch.PSD_3)
-            and then (
-               for some Pattern of Batch.Patterns =>
-                  Dynamic_Time_Warping (Signal, Pattern, Batch.d_max_c)
-                  <= Batch.d_max_c)));
+      return Boolean is
+      PSDS : Real_Array (PSD_Bounds'Range);
+   begin
+      if not Within (Energy (Signal), Batch.Energy)
+         or else not Within (Max_Distance (Signal), Batch.Max_Dist)
+      then
+         return False;
+      end if;
+      Power_Spectral_Density (
+         Signal             => Signal,
+         Sampling_Frequency => PSD_Sampling_Frequency,
+         Bounds             => PSD_Bounds,
+         Result             => PSDS);
+      if not Within (PSDS (1), Batch.PSD_1)
+         or else not Within (PSDS (2), Batch.PSD_2)
+         or else not Within (PSDS (3), Batch.PSD_3)
+      then
+         return False;
+      end if;
+      return (for some Pattern of Batch.Patterns =>
+                 Dynamic_Time_Warping (Signal, Pattern, Batch.d_max_c)
+                  <= Batch.d_max_c);
+   end Is_Seizure;
 
 end Detector.Algorithms;

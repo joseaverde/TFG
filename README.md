@@ -100,3 +100,7 @@ Estas pruebas se deben comprobar a mano.
 ### utest
 
 ### benchmark
+
+ * No secondary stack
+ * Sqrt doesn't work
+ * Stack size

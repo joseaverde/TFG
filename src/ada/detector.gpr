@@ -1,0 +1,45 @@
+with "config/seizure_detector_config.gpr";
+with "detector_common.gpr";
+library project Detector is
+
+   for Target use Detector_Common.Target;
+   for Runtime ("Ada") use Detector_Common.Runtime;
+
+   for Library_Kind use "static";
+   for Library_Name use "detector";
+   for Library_Dir use "lib/" & Detector_Common.Suffix;
+   for Library_Interface use (
+      "Detector",
+      "Detector.Algorithms",
+      "Detector.Benchmark",
+      "Safe_IO",
+      "Safe_Time",
+      "Seizure_Detector_Config",
+      "Seizure_Detector_Config.Reals");
+   for Object_Dir use "obj/" & Detector_Common.Suffix;
+   for Source_Dirs use (
+      "config",
+      "src/detector",
+      "src/detector/" & Detector_Common.System_Path);
+
+   package Compiler renames Detector_Common.Compiler;
+   package Binder is
+      for Switches ("Ada") use ("-Es", "-n", "-Lada"); --  Symbolic traceback
+   end Binder;
+   package Install renames Detector_Common.Install;
+   package Builder renames Detector_Common.Builder;
+
+   Reals := "seizure_detector_config-reals__";
+   case Seizure_Detector_Config.Real_Type is
+      when "Single"   => Reals := Reals & "single";
+      when "Double"   => Reals := Reals & "double";
+      when "Fixed_2"  => Reals := Reals & "fixed_2";
+      when "Fixed_10" => Reals := Reals & "fixed_10";
+   end case;
+
+   package Naming is
+      for Specification ("Seizure_Detector_Config.Reals") use Reals & ".ads";
+      for Implementation ("Seizure_Detector_Config.Reals") use Reals & ".adb";
+   end Naming;
+
+end Detector;

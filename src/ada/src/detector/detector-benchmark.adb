@@ -1,10 +1,9 @@
-with Ada.Calendar, Detector, Detector.Algorithms, Seizure_Detector_Config;
-use Ada.Calendar, Detector, Detector.Algorithms, Seizure_Detector_Config;
-with Safe_IO;
+with Safe_IO, Safe_Time, Detector.Algorithms, Seizure_Detector_Config;
+use Safe_Time, Detector.Algorithms, Seizure_Detector_Config;
 
-procedure Seizure_Detector_Benchmark is
-   Stride_Count  : constant := 10_000;
-   Pattern_Count : constant := 3;
+procedure Detector.Benchmark is
+   Stride_Count  : constant := 30;
+   Pattern_Count : constant := 1;
    The_Batch     : constant Batch_Type := (
       Count    => Pattern_Count,
       PSD_1    => (Real'First, Real'Last),
@@ -12,7 +11,7 @@ procedure Seizure_Detector_Benchmark is
       PSD_3    => (Real'First, Real'Last),
       Energy   => (Real'First, Real'Last),
       Max_Dist => (Real'First, Real'Last),
-      d_max_c  => Real'Last,
+      d_max_c  => 0.0,
       Patterns => [for I in Pattern_Index range 1 .. Pattern_Count =>
                      [for J in Count_Type range 1 .. Epoch_Size =>
                         Real (Count_Type (I - 1) * Epoch_Size + J)]]);
@@ -33,6 +32,36 @@ procedure Seizure_Detector_Benchmark is
       Safe_IO.Put (Item'Image);
    end Put;
 
+-- procedure Put (Item : in Duration) is
+--    Img   : String (1 .. 32);
+--    First : Positive := (Img'Last + Img'First) / 2;
+--    Last  : Natural := First;
+--    Temp  : Duration := Item;
+--    Dig   : Natural;
+-- begin
+
+--    Img (First) := '.';
+--    loop
+--       Dig := Integer (Temp) mod 10;
+--       Temp := Temp / 10.0;
+--       First := First - 1;
+--       Img (First) := Character'Val (Character'Pos ('0') + Dig);
+--       exit when Temp < 1.0;
+--    end loop;
+
+--    Temp := Item - Duration (Integer (Item));
+--    loop
+--       Dig := Integer (Temp * 10.0);
+--       Temp := Temp * 10.0;
+--       Temp := Temp - Duration (Integer (Temp));
+--       Last := Last + 1;
+--       Img (Last) := Character'Val (Character'Pos ('0') + Dig);
+--       exit when Temp <= 0.0;
+--    end loop;
+
+--    Safe_IO.Put (Img (First .. Last));
+-- end Put;
+
    Start, Stop : Time;
 
 begin
@@ -43,13 +72,16 @@ begin
          Epoch (1 + (Stride - 1) * Stride_Size .. Stride * Stride_Size));
    end loop;
    for Stride in Count_Type range Strides_Per_Epoch .. Stride_Count loop
+      Safe_IO.Put ("Second"); Safe_IO.Put (Stride'Image);
       Epoch (Epoch'First + Stride_Size .. Epoch'Last) :=
          Epoch (Epoch'First .. Epoch'Last - Stride_Size);
       Read_Stride (Stride,
          Epoch (Epoch'First .. Epoch'First + Stride_Size - 1));
       if Is_Seizure (Epoch, The_Batch) then
+         Safe_IO.Put (Character'Val (27) & "[31;1m[SEIZURE]");
          Detections := @ + 1;
       end if;
+      Safe_IO.New_Line;
    end loop;
    Stop := Clock;
 
@@ -57,10 +89,14 @@ begin
    Put (Stop - Start);
    Safe_IO.Put_Line (" s");
 
-   Safe_IO.Put (Count_Type'Image (
-      Count_Type (Float (Stride_Count) / Float (Stop - Start))));
+   Safe_IO.Put (Duration'Image (Duration (
+      Float (Stride_Count - Strides_Per_Epoch + 1) / Float (Stop - Start))));
    Safe_IO.Put_Line (" epochs/second");
+
+   Safe_IO.Put (Duration'Image (Duration (
+      Float (Stop - Start) / Float (Stride_Count - Strides_Per_Epoch + 1))));
+   Safe_IO.Put_Line (" seconds/epoch");
 
    Safe_IO.Put_Line (Detections'Image);
 
-end Seizure_Detector_Benchmark;
+end Detector.Benchmark;

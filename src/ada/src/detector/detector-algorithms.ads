@@ -1,5 +1,7 @@
 package Detector.Algorithms with SPARK_Mode => On is
 
+   use all type Real;
+
    type Span_Array is array (Positive_Count_Type range <>) of Real_Span;
 
    PSD_1_Bounds           : constant Real_Span := (2.0,  12.0);
@@ -55,12 +57,14 @@ package Detector.Algorithms with SPARK_Mode => On is
       return Real with
       Pre => Signal'Length = Epoch_Size;
 
-   function Power_Spectral_Density (
+   procedure Power_Spectral_Density (
       Signal             : in Sample_Array;
       Sampling_Frequency : in Sample;
-      Bounds             : in Span_Array)
-      return Real_Array with
-      Pre => Signal'Length = Epoch_Size;
+      Bounds             : in Span_Array;
+      Result             : out Real_Array) with
+      Pre      => Signal'Length = Epoch_Size
+         and then Bounds'First = Result'First
+         and then Bounds'Last = Result'Last;
 
    function Dynamic_Time_Warping (
       Signal  : in Sample_Array;

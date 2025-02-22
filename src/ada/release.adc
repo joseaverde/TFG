@@ -1,4 +1,5 @@
 pragma Suppress (All_Checks);
+pragma Restrictions (No_Secondary_Stack);
 
 -- En Ada:
 -- Ada CON cehcks: 4055 epochs/segundo

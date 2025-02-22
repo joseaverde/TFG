@@ -1,64 +1,20 @@
-with "config/seizure_detector_config.gpr";
+with "detector_common.gpr";
+with "detector.gpr";
 project Seizure_Detector is
 
-   for Source_Dirs use ("src/", "config/", "src/unsafe");
+   for Target use Detector_Common.Target;
+   for Runtime ("Ada") use Detector_Common.Runtime;
+
+   for Source_Dirs use ("src/main");
    for Create_Missing_Dirs use "True";
-   for Main use (
-      "fft_tests.adb",
-      "seizure_detector.adb",                -- The detector itself
-      "seizure_detector_simulation.adb",     -- Real data benchmark
-      "seizure_detector_ftests.adb",         -- Functional tests
-      "seizure_detector_utests.adb",         -- Unit tests
-      "seizure_detector_benchmark.adb"       -- Embeddable worst case benchmark
-   );
+   for Main use Detector_Common.Executables;
 
-   Suffix := "";
-   case Seizure_Detector_Config.Real_Type is
-      when "Single"   => Suffix := "float32";
-      when "Double"   => Suffix := "float64";
-      when "Fixed_2"  => Suffix := "fixed2";
-      when "Fixed_10" => Suffix := "fixed10";
-   end case;
-   Suffix := Suffix
-      & "-s" & Seizure_Detector_Config.Samples_Per_Stride
-      & "-e" & Seizure_Detector_Config.Strides_Per_Epoch
-      ;
+   for Exec_Dir use "bin/" & Detector_Common.Suffix;
+   for Object_Dir use "obj/" & Detector_Common.Suffix;
 
-   for Exec_Dir use "bin/" & Suffix;
-   for Object_Dir use "obj/" & Seizure_Detector_Config.Build_Profile & "-" & Suffix;
-
-   package Compiler is
-      for Default_Switches ("Ada") use Seizure_Detector_Config.Ada_Compiler_Switches;
-   end Compiler;
-
-   package Binder is
-      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
-   end Binder;
-
-   package Install is
-      for Artifacts (".") use ("share");
-   end Install;
-
-   Reals := "seizure_detector_config-reals__";
-   case Seizure_Detector_Config.Real_Type is
-      when "Single"   => Reals := Reals & "single";
-      when "Double"   => Reals := Reals & "double";
-      when "Fixed_2"  => Reals := Reals & "fixed_2";
-      when "Fixed_10" => Reals := Reals & "fixed_10";
-   end case;
-
-   Pragmas := "";
-   case Seizure_Detector_Config.Build_Profile is
-      when "release" => Pragmas := "release.adc";
-      when others    => Pragmas := "debug.adc";
-   end case;
-   package Builder is
-      for Global_Configuration_Pragmas use Pragmas;
-   end Builder;
-
-   package Naming is
-      for Specification ("Seizure_Detector_Config.Reals") use Reals & ".ads";
-      for Implementation ("Seizure_Detector_Config.Reals") use Reals & ".adb";
-   end Naming;
+   package Compiler renames Detector_Common.Compiler;
+   package Binder renames Detector_Common.Binder;
+   package Install renames Detector_Common.Install;
+   package Builder renames Detector_Common.Builder;
 
 end Seizure_Detector;
