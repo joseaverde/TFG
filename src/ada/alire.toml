@@ -8,7 +8,6 @@ maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""
 tags = []
-project-files = ["detector.gpr", "seizure_detector.gpr"]
 executables = ["seizure_detector"]
 
 [configuration.variables]
@@ -17,7 +16,7 @@ Strides_Per_Epoch = {type = "Integer", first = 1, default = 5}
 Real_Type = {type = "Enum", values = ["Single", "Double", "Fixed_2", "Fixed_10"]}
 Fractional_Digits = {type = "Integer", first = 1, default = 16}
 Whole_Digits = {type = "Integer", first = 1, default = 32}
-Target = {type = "Enum", values = ["native", "esp32c3"], default = "native"}
+Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
 
 [build-switches]
 "*".ada_version    = "Ada2022"
@@ -47,7 +46,5 @@ Target = {type = "Enum", values = ["native", "esp32c3"], default = "native"}
 gnatprove = "^14.1.1"
 gnat_native = "^14.1.1"
 gnat_riscv64_elf = "^14.1.1"
-
 [configuration.values]
 seizure_detector.real_type="Single"
-seizure_detector.target="esp32c3"

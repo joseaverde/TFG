@@ -8,6 +8,7 @@ abstract project Detector_Common is
    Compiler_Switches := ();
    Executables := ();
    System_Path := "";
+   Binder_Switches := ("-Es");
    case Seizure_Detector_Config.Target is
       when "native"  =>
          System_Path := "standard";
@@ -24,6 +25,9 @@ abstract project Detector_Common is
          Runtime           := "light-rv32imac";
          Compiler_Switches := ("-march=rv32imc", "-mabi=ilp32");
          Executables       := ("dummy.adb");
+         Binder_Switches   := ("-Es", "-n", "-Lada");
+      when others =>
+         null;
    end case;
 
    -->> Confguration <<--

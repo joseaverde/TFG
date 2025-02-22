@@ -3,7 +3,7 @@ use Safe_Time, Detector.Algorithms, Seizure_Detector_Config;
 
 procedure Detector.Benchmark is
    Stride_Count  : constant := 30;
-   Pattern_Count : constant := 1;
+   Pattern_Count : constant := 3;
    The_Batch     : constant Batch_Type := (
       Count    => Pattern_Count,
       PSD_1    => (Real'First, Real'Last),

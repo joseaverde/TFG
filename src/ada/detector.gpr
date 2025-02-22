@@ -24,7 +24,7 @@ library project Detector is
 
    package Compiler renames Detector_Common.Compiler;
    package Binder is
-      for Switches ("Ada") use ("-Es", "-n", "-Lada"); --  Symbolic traceback
+      for Switches ("Ada") use Detector_Common.Binder_Switches;
    end Binder;
    package Install renames Detector_Common.Install;
    package Builder renames Detector_Common.Builder;
