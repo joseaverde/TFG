@@ -32,36 +32,6 @@ procedure Detector.Benchmark is
       Safe_IO.Put (Item'Image);
    end Put;
 
--- procedure Put (Item : in Duration) is
---    Img   : String (1 .. 32);
---    First : Positive := (Img'Last + Img'First) / 2;
---    Last  : Natural := First;
---    Temp  : Duration := Item;
---    Dig   : Natural;
--- begin
-
---    Img (First) := '.';
---    loop
---       Dig := Integer (Temp) mod 10;
---       Temp := Temp / 10.0;
---       First := First - 1;
---       Img (First) := Character'Val (Character'Pos ('0') + Dig);
---       exit when Temp < 1.0;
---    end loop;
-
---    Temp := Item - Duration (Integer (Item));
---    loop
---       Dig := Integer (Temp * 10.0);
---       Temp := Temp * 10.0;
---       Temp := Temp - Duration (Integer (Temp));
---       Last := Last + 1;
---       Img (Last) := Character'Val (Character'Pos ('0') + Dig);
---       exit when Temp <= 0.0;
---    end loop;
-
---    Safe_IO.Put (Img (First .. Last));
--- end Put;
-
    Start, Stop : Time;
 
 begin

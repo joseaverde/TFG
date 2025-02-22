@@ -8,10 +8,14 @@ void __gnat_stop (void) {
   abort();
 }
 
+volatile float patata;
+
+#include <math.h>
+
 void app_main (void) {
   adainit();
   printf("Starting\n");
   seizure_detector_benchmark();
-  printf("%d\n", sizeof(time_t));
+  printf("Stopping\n");
   adainit();
 }

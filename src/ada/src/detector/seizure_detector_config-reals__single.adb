@@ -1,15 +1,14 @@
-with Ada.Numerics.Generic_Elementary_Functions;
-
 package body Seizure_Detector_Config.Reals with SPARK_Mode => On is
 
-   package Elementary_Functions is
-      new Ada.Numerics.Generic_Elementary_Functions (Real);
+   function c_cosf (x : in Real) return Real with
+      Import => True, Convention => C, External_Name => "cosf";
+   function c_sinf (x : in Real) return Real with
+      Import => True, Convention => C, External_Name => "sinf";
+   function c_powf (x, y : in Real) return Real with
+      Import => True, Convention => C, External_Name => "powf";
 
-   function Cos (Item : in Real) return Real is (
-      Elementary_Functions.Cos (Item));
-   function Sin (Item : in Real) return Real is (
-      Elementary_Functions.Sin (Item));
-   function Sqrt (Item : in Real) return Real is (Item / 2.0);
-   -- Elementary_Functions.Sqrt (Item));
+   function Cos (Item : in Real) return Real is (c_cosf (Item));
+   function Sin (Item : in Real) return Real is (c_sinf (Item));
+   function Sqrt (Item : in Real) return Real is (c_powf (Item, 0.5));
 
 end Seizure_Detector_Config.Reals;
