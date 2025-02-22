@@ -48,4 +48,3 @@ gnat_native = "^14.1.1"
 gnat_riscv64_elf = "^14.1.1"
 [configuration.values]
 seizure_detector.real_type="Single"
-seizure_detector.target="esp32c3"

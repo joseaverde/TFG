@@ -9,5 +9,6 @@ package Seizure_Detector_Config.Reals with Pure, SPARK_Mode => On is
    function Sqrt (Item : in Real) return Real;
    function Rounding (Item : in Real) return Real
       renames Real'Rounding;
+   function Squared (Item : in Real) return Real is (Item ** 2);
 
 end Seizure_Detector_Config.Reals;

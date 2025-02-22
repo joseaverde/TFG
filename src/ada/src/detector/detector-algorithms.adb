@@ -1,4 +1,5 @@
 with Ada.Numerics;
+with Safe_IO;
 
 package body Detector.Algorithms with SPARK_Mode => On is
 
@@ -6,18 +7,20 @@ package body Detector.Algorithms with SPARK_Mode => On is
 
    Hann_Window : constant Real_Array (1 .. Welch_Window_Size) := [
       for I in 1 .. Welch_Window_Size =>
-         0.5 - 0.5 * Cos (2.0 * Ada.Numerics.Pi * Real (I - 1) /
+         0.5 - 0.5 * Cos (Real (2.0 * Ada.Numerics.Pi * Real (I - 1)) /
                           Real (Welch_Window_Size - 1))];
    Normalisation_Factor : constant Real :=
-      [for C of Hann_Window => C ** 2]'Reduce ("+", 0.0);
+      [for C of Hann_Window => Squared (C)]'Reduce ("+", 0.0);
    Sin_Omegas : constant
             array (Count_Type range 0 .. Welch_Window_Size - 1) of Sample := [
       for K in Count_Type range 0 .. Welch_Window_Size - 1 =>
-         Sin (-2.0 * Ada.Numerics.Pi * Real (K) / Real (Welch_Window_Size))];
+         Sin (Real (-2.0 * Ada.Numerics.Pi * Real (K)) /
+              Real (Welch_Window_Size))];
    Cos_Omegas : constant
             array (Count_Type range 0 .. Welch_Window_Size - 1) of Sample := [
       for K in Count_Type range 0 .. Welch_Window_Size - 1 =>
-         Cos (-2.0 * Ada.Numerics.Pi * Real (K) / Real (Welch_Window_Size))];
+         Cos (Real (-2.0 * Ada.Numerics.Pi * Real (K)) /
+              Real (Welch_Window_Size))];
 
    function Simpson (
       Signal : in Real_Array;
@@ -30,12 +33,12 @@ package body Detector.Algorithms with SPARK_Mode => On is
          Result := @ + Signal (I - 2) + 4.0 * Signal (I - 1) + Signal (I);
          I := I + 2;
       end loop;
-      Result := Result * dx / 3.0;
+      Result := Real (Result * dx) / 3.0;
       if Signal'Length > 2 and then Signal'Length mod 2 = 0 then
-         Result := Result + dx * (
+         Result := Result + Real (dx * (
                    5.0 * Signal (Signal'Last)
                  + 8.0 * Signal (Signal'Last - 1)
-                 -       Signal (Signal'Last - 2)) / 12.0;
+                 -       Signal (Signal'Last - 2))) / 12.0;
       end if;
       return Result;
    end Simpson;
@@ -134,7 +137,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Result : Real := 0.0;
    begin
       for I in Signal'Range loop
-         Result := Result + (Signal (I) - Mean) ** 2;
+         Result := Result + Squared (Signal (I) - Mean);
       end loop;
       return Result / Real (Signal'Length);
    end Energy;
@@ -153,7 +156,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
    end Max_Distance;
 
    function Norm_Squared (Item : in Complex) return Real is (
-      Item.Re ** 2 + Item.Im ** 2);
+      Squared (Item.Re) + Squared (Item.Im));
 
    procedure Welch (
       Signal    : in     Sample_Array;
@@ -162,7 +165,8 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Frequency : in     Real) is
       Steps  : constant Real := Real (
          (Signal'Length - Welch_Window_Size) / Overlap + 1);
-      Factor : constant Real := 2.0 / (Normalisation_Factor * Frequency);
+      Factor : constant Real := Real (2.0)
+                              / Real (Normalisation_Factor * Frequency);
       Input  : Sample_Array (1 .. Welch_Window_Size);
       Output : Complex_Array (1 .. Welch_Window_Size);
       Index  : Count_Type := Signal'First;
@@ -218,7 +222,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
    end Power_Spectral_Density;
 
    function Distance (Left, Right : in Real) return Real is (
-      (Left - Right) * (Left - Right));
+      Squared (Left - Right));
 
    function Single_Dynamic_Time_Warping (
       Signal  : in Epoch_Array;
@@ -229,7 +233,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Band_Size : constant := 2 * Warping_Window + 3;
       Infinity  : constant Real := Real'Last;
       function Saturated_Addition (Left, Right : in Real) return Real is (
-         Left + Right);
+         (if Right >= Real'Last - Left then Real'Last else Right + Left));
       type Band_Pair is
          array (
             Boolean,
@@ -272,7 +276,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Result : Real := 0.0;
    begin
       for I in Item'Range loop
-         Result := @ + Item (I) * Item (I);
+         Result := @ + Squared (Item (I));
       end loop;
       return Result;
    end Sum_Squares;
@@ -283,7 +287,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Mean : constant Real := Algorithms.Mean (Item);
       Sum2 : constant Real := Sum_Squares (Item);
       Inv_Dev : constant Real :=
-         1.0 / Sqrt ((Sum2 / Real (Epoch_Size)) - Mean * Mean);
+         1.0 / Sqrt ((Sum2 / Real (Epoch_Size)) - Squared (Mean));
    begin
       return [for I in Count_Type range 1 .. Epoch_Size =>
                 (Item (I - 1 + Item'First) - Mean) * Inv_Dev];

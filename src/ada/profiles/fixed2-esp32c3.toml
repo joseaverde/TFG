@@ -1,0 +1,3 @@
+[configuration.values]
+seizure_detector.real_type="Fixed_2"
+seizure_detector.target="esp32c3"
