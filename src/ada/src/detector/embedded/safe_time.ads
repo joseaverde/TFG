@@ -7,7 +7,7 @@ package Safe_Time is
 
 private
 
-   subtype Int is Long_Long_Integer;
-   type Time is new Int;
+   type Long is range -2 ** 63 .. 2 ** 63 - 1 with Size => 64;
+   type Time is new Long;
 
 end Safe_Time;

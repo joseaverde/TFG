@@ -3,10 +3,8 @@ with System;
 
 package body Safe_Time is
 
-   type long is range -2 ** 63 .. 2 ** 63 - 1 with Size => 64;
-
-   subtype time_t is long;
-   subtype suseconds_t is long;
+   type time_t is range -2 ** 63 .. 2 ** 63 - 1 with Size => 64;
+   type suseconds_t is range -2 ** 31 .. 2 ** 31 - 1 with Size => 32;
 
    type timeval is record
       tv_sec  : time_t;
@@ -31,7 +29,7 @@ package body Safe_Time is
 
    function "-" (Left, Right : in Time) return Duration is
    begin
-      return Duration (Int (Left) - Int (Right)) / 1_000_000.0;
+      return Duration (Float (Long (Left) - Long (Right)) / 1_000_000.0);
    end "-";
 
 end Safe_Time;
