@@ -30,7 +30,7 @@ gnat_native = "^14.2.1"
                    , "-gnatyh"          # No horizontal tabs
                    , "-gnaty-I"         # `in' is required in parameters
                    , "-gnatyk"          # Check casing rules for keywords
-                   # , "-gnatyL6"         # Maximum nesting level
+                   , "-gnatyL4"         # Maximum nesting level
                    , "-gnatyM79"        # Maximum 79 characters.
                    , "-gnatyn"          # Check casing of package Standard identifiers
                    , "-gnatyO"          # Check overriding indicators
