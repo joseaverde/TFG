@@ -1,5 +1,42 @@
 package body Detector with SPARK_Mode => On is
 
+   -->> Trigonometric Functions <<--
+
+   function Cos (Item : in Trigonometric_Input_Type)
+      return Trigonometric_Output_Type is (
+      1.0);
+
+   function Sin (Item : in Trigonometric_Input_Type)
+      return Trigonometric_Output_Type is (
+      Trigonometric_Output_Type (
+         Trigonometric_Input_Type'Min (1.0,
+         Trigonometric_Input_Type'Max (Item, -1.0))));
+
+   -->> Windows <<--
+
+   type Trigonometric_Output_Array is
+      array (Count_Type range 0 .. Welch_Size - 1)
+      of Trigonometric_Output_Type;
+
+   subtype TOT is Trigonometric_Output_Type;
+   subtype TIT is Trigonometric_Input_Type;
+
+   Hann_Window : constant Trigonometric_Output_Array :=
+      [for I in Trigonometric_Output_Array'Range =>
+         TOT (0.5) - TOT (0.5)
+         * Cos (TIT (TIT (TIT (2.0) * TIT (I)) * TIT (π)) / TIT (Welch_Size))];
+   pragma Assert (
+      (for all I in Hann_Window'Range =>
+         Hann_Window (I) in 0.0 .. 1.0));
+
+   Sin_ω : constant Trigonometric_Output_Array :=
+      [for I in Trigonometric_Output_Array'Range =>
+         Sin (TIT (TIT (TIT (-2.0) * TIT (I)) * TIT (π)) / TIT (Welch_Size))];
+
+   Cos_ω : constant Trigonometric_Output_Array :=
+      [for I in Trigonometric_Output_Array'Range =>
+         Cos (TIT (TIT (TIT (-2.0) * TIT (I)) * TIT (π)) / TIT (Welch_Size))];
+
    -->> Max distance <<--
 
    function Acc_Maximum (
@@ -89,7 +126,7 @@ package body Detector with SPARK_Mode => On is
       return Feature_Type (Max) - Feature_Type (Min);
    end Max_Distance;
 
-   -->> Energy <<--
+   -->> Mean <<--
 
    function Acc_Sum (
       Item : in Sample_Epoch)
@@ -139,12 +176,32 @@ package body Detector with SPARK_Mode => On is
       return Result;
    end Acc_Sum;
 
--- function Mean (
---    Item : in Sample_Epoch)
---    return Sample_Type is
--- begin
---    return 0.0;
--- end Mean;
+   function Sum (
+      Item : in Sample_Epoch)
+      return Sample_Base_Type is
+      Result : Sample_Base_Type := Item (Item'First);
+   begin
+      for Index in Item'First + 1 .. Item'Last loop
+         pragma Loop_Invariant (Result = Acc_Sum (Item) (Index - 1));
+         Result := Result + Item (Index);
+      end loop;
+      return Result;
+   end Sum;
+
+   function Mean (
+      Item : in Sample_Epoch)
+      return Sample_Type is
+      Result : Sample_Base_Type;
+   begin
+      Result := Sum (Item);
+      pragma Assert (Result
+                        in Sample_Base_Type (Epoch_Size) * Sample_Type'First
+                        .. Sample_Base_Type (Epoch_Size) * Sample_Type'Last);
+      pragma Assert (Result / Sample_Base_Type (Epoch_Size) in Sample_Type);
+      return Result / Sample_Base_Type (Epoch_Size);
+   end Mean;
+
+   -->> Energy <<--
 
 -- function Energy (
 --    Item : in Sample_Epoch)
@@ -155,7 +212,7 @@ package body Detector with SPARK_Mode => On is
 -- begin
 --    for I in Item'Range loop
 --       Value := Feature_Type (Signal (I)) - Feature_Type (μ);
---       Result := Result + Value;
+--       Result := Result + Value * Value;
 --    end loop;
 --    return Result / Feature_Type (Signal'Length);
 -- end Energy;
