@@ -29,11 +29,11 @@ package body Detector with SPARK_Mode => On is
       (for all I in Hann_Window'Range =>
          Hann_Window (I) in 0.0 .. 1.0));
 
-   Sin_ω : constant Trigonometric_Output_Array :=
+   Sin_ω_Table : constant Trigonometric_Output_Array :=
       [for I in Trigonometric_Output_Array'Range =>
          Sin (TIT (TIT (TIT (-2.0) * TIT (I)) * TIT (π)) / TIT (Welch_Size))];
 
-   Cos_ω : constant Trigonometric_Output_Array :=
+   Cos_ω_Table : constant Trigonometric_Output_Array :=
       [for I in Trigonometric_Output_Array'Range =>
          Cos (TIT (TIT (TIT (-2.0) * TIT (I)) * TIT (π)) / TIT (Welch_Size))];
 
