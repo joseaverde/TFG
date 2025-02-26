@@ -9,7 +9,7 @@ package Detector with SPARK_Mode => On is
    type Count_Type is range 0 .. 2 ** (Bits - 1) - 1 with Size => Bits;
    subtype Index_Type is Count_Type range 1 .. Count_Type'Last;
 
-   function Log_2 (Item : in Count_Type) return Count_Type is (
+   function Log_2 (Item : in Count_Type) return Natural is (
       (case Item is
          when          0 ..          1 =>  0,
          when          2 ..          3 =>  1,
@@ -43,6 +43,8 @@ package Detector with SPARK_Mode => On is
          when  536870912 .. 1073741823 => 29,
          when 1073741824 .. 2147483647 => 30)) with
          Static => True;
+
+   pragma Assert (2 ** Log_2 (Welch_Size) = Welch_Size);
 
    -- Samples --
 
@@ -203,6 +205,20 @@ package Detector with SPARK_Mode => On is
    -- Overlap := Welch_Window_Size / 2
    -- Step := (Epoch_Size - Welch_Window_Size) / Overlap + 1
    -- Normalisation_Factor :=
+
+   -->> Fourier Transform <<--
+
+   type Complex is
+      record
+         Re : Sample_Base_Type;
+         Im : Sample_Base_Type;
+      end record;
+   subtype Fourier_Transform_Real_Array is Sample_Array (1 .. Welch_Size);
+   type Complex_Array is array (1 .. Welch_Size) of Complex;
+
+   procedure Fourier_Transform (
+      Input  : in     Fourier_Transform_Real_Array;
+      Output :    out Complex_Array);
 
    -->> Power Spectral Density <<--
    -- It is the
