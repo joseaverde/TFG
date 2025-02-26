@@ -256,12 +256,132 @@ package body Detector with SPARK_Mode => On is
    -- we have to move the objects in memory. We will be using a double buffer
    -- for this.
 
-   procedure Fourier_Transform (
-      Input  : in     Fourier_Transform_Real_Array;
-      Output :    out Complex_Array) is
+   function Sin_ω (K, N : Count_Type'Base)
+      return Trigonometric_Output_Type is (
+      Sin_ω_Table ((K * (Welch_Size / N)) mod Welch_Size)) with
+      Pre      => N in 1 .. Welch_Size
+         and then K in 0 .. Welch_Size * Welch_Size;
+
+   function Cos_ω (K, N : Count_Type'Base)
+      return Trigonometric_Output_Type is (
+      Cos_ω_Table ((K * (Welch_Size / N)) mod Welch_Size)) with
+      Pre      => N in 1 .. Welch_Size
+         and then K in 0 .. Welch_Size * Welch_Size;
+
+   function Product_By_ω (
+      Factor : in Complex;
+      K, N   : in Count_Type'Base;
+      Bound  : in Complex_Part)
+      return Complex with
+      Pre      => N in 1 .. Welch_Size
+         and then K in 0 .. Welch_Size * Welch_Size
+         and then Bound >= 0.0
+         and then -Bound >= Complex_Part'First / Complex_Part (2)
+         and then Bound <= Complex_Part'Last / Complex_Part (2)
+         and then Factor.Re in -Bound .. Bound
+         and then Factor.Im in -Bound .. Bound;
+
+   procedure Lemma_Product_By_Trigonometric_Output_Keeps_Range (
+      Left  : in Complex_Part;
+      Right : in Trigonometric_Output_Type;
+      Bound : in Complex_Part) with
+      Ghost,
+      Pre  => Bound >= 0.0 and then Left in -Bound .. Bound,
+      Post => Complex_Part (Left * Right) in -Bound .. Bound;
+
+   procedure Lemma_Product_By_Trigonometric_Output_Keeps_Range (
+      Left  : in Complex_Part;
+      Right : in Trigonometric_Output_Type;
+      Bound : in Complex_Part) is
+      Min : constant Trigonometric_Output_Type :=
+         Trigonometric_Output_Type'First;
+      Max : constant Trigonometric_Output_Type :=
+         Trigonometric_Output_Type'Last;
    begin
-      null;
-   end Fourier_Transform;
+      -- TODO: Maybe it needs more assertions in the future.
+      pragma Assert (Min = -1.0);
+      pragma Assert (Max = 1.0);
+      pragma Assert (Right in Min .. Max);
+      if Right = 0.0 then
+         pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
+      elsif Right > 0.0 then
+         if Left = 0.0 then
+            pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
+         elsif Left > 0.0 then
+            pragma Assert (Left > 0.0);
+            pragma Assert (Left <= Bound);
+            pragma Assert (Complex_Part (Bound * Max) = Bound);
+            pragma Assert (Complex_Part (Left * Max) = Left);
+            pragma Assert (Complex_Part (Left * Right) in 0.0 .. Bound);
+         elsif Left < 0.0 then
+            pragma Assert (Left < 0.0);
+            pragma Assert (Left >= -Bound);
+            pragma Assert (Complex_Part ((-Bound) * Max) = -Bound);
+            pragma Assert (Complex_Part (Left * Max) = Left);
+            pragma Assert (Complex_Part (Left * Right) in -Bound .. 0.0);
+         end if;
+      end if;
+      pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
+   end Lemma_Product_By_Trigonometric_Output_Keeps_Range;
+
+   function Product_By_ω (
+      Factor : in Complex;
+      K, N   : in Count_Type'Base;
+      Bound  : in Complex_Part)
+      return Complex is
+      Re : Complex_Part;
+      Im : Complex_Part;
+   begin
+      Lemma_Product_By_Trigonometric_Output_Keeps_Range (
+         Factor.Re, Cos_ω (K, N), Bound);
+      Re := Factor.Re * Cos_ω (K, N);
+      Lemma_Product_By_Trigonometric_Output_Keeps_Range (
+         Factor.Im, Sin_ω (K, N), Bound);
+      Re := Re - Factor.Im * Sin_ω (K, N);
+      pragma Assert (Re in Complex_Part (-2) * Bound
+                        .. Complex_Part (2) * Bound);
+      Lemma_Product_By_Trigonometric_Output_Keeps_Range (
+         Factor.Re, Sin_ω (K, N), Bound);
+      Im := Factor.Re * Sin_ω (K, N);
+      pragma Assert (Im in -Bound .. Bound);
+      Lemma_Product_By_Trigonometric_Output_Keeps_Range (
+         Factor.Im, Cos_ω (K, N), Bound);
+      Im := Im + Factor.Im * Cos_ω (K, N);
+      pragma Assert (Im in Complex_Part (-2) * Bound
+                        .. Complex_Part (2) * Bound);
+      return (Re, Im);
+   end Product_By_ω;
+
+-- procedure Fourier_Transform (
+--    Input  : in     Fourier_Transform_Real_Array;
+--    Output :    out Complex_Array) is
+--    Length      : constant Positive_Count_Type := Input'Length;
+--    Chunk_Size  : Positive_Count_Type := 1;
+--    Chunk_Count : Count_Type := Input'Length;
+--    Result      : Boolean := True;
+--    Temp        : Boolean := False;
+--    Buffer      : array (Boolean) of Complex_Array;
+-- begin
+--    -- Base case, Output (I) := Input (I)
+--    Buffer := (
+--       True  => [for I in Output'Range => (Input (I), 0.0)],
+--       False => [others => (0.0, 0.0)]);
+--    for Depth in 1 .. Log_2 (Length) loop        -- Log_2 (Length)
+--       -- Recursive case
+--       for Chunk in 0 .. Chunk_Count / 2 - 1 loop   -- Count * Size = Length
+--          for Index in 0 .. Chunk_Size - 1 loop
+--             declare
+--                Fst : constant Count_Type :=
+--             begin
+--                null;
+--             end;
+--          end loop;
+--       end loop;
+--       Chunk_Size := Chunk_Size * 2;
+--       Chunk_Count := Chunk_Count / 2;
+--    end loop;
+--    Output := Buffer (Result);
+-- end Fourier_Transform;
 
    -->> Energy <<--
 

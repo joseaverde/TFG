@@ -7,6 +7,7 @@ package Detector with SPARK_Mode => On is
    Welch_Size  : constant := 512;
 
    type Count_Type is range 0 .. 2 ** (Bits - 1) - 1 with Size => Bits;
+   subtype Positive_Count_Type is Count_Type range 1 .. Count_Type'Last;
    subtype Index_Type is Count_Type range 1 .. Count_Type'Last;
 
    function Log_2 (Item : in Count_Type) return Natural is (
@@ -208,17 +209,18 @@ package Detector with SPARK_Mode => On is
 
    -->> Fourier Transform <<--
 
+   subtype Complex_Part is Sample_Base_Type;
    type Complex is
       record
-         Re : Sample_Base_Type;
-         Im : Sample_Base_Type;
+         Re : Complex_Part;
+         Im : Complex_Part;
       end record;
    subtype Fourier_Transform_Real_Array is Sample_Array (1 .. Welch_Size);
-   type Complex_Array is array (1 .. Welch_Size) of Complex;
+   type Complex_Array is array (Index_Type range 1 .. Welch_Size) of Complex;
 
-   procedure Fourier_Transform (
-      Input  : in     Fourier_Transform_Real_Array;
-      Output :    out Complex_Array);
+-- procedure Fourier_Transform (
+--    Input  : in     Fourier_Transform_Real_Array;
+--    Output :    out Complex_Array);
 
    -->> Power Spectral Density <<--
    -- It is the
