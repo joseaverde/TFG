@@ -1,5 +1,8 @@
 package body Detector with SPARK_Mode => On is
 
+   pragma Warnings (Off,
+      "postcondition does not check the outcome of calling");
+
    -->> Trigonometric Functions <<--
 
    function Cos (Item : in Trigonometric_Input_Type)
@@ -276,10 +279,12 @@ package body Detector with SPARK_Mode => On is
       Pre      => N in 1 .. Welch_Size
          and then K in 0 .. Welch_Size * Welch_Size
          and then Bound >= 0.0
-         and then -Bound >= Complex_Part'First / Complex_Part (2)
-         and then Bound <= Complex_Part'Last / Complex_Part (2)
+         and then -Bound >= Complex_Part'First / 2
+         and then Bound <= Complex_Part'Last / 2
          and then Factor.Re in -Bound .. Bound
-         and then Factor.Im in -Bound .. Bound;
+         and then Factor.Im in -Bound .. Bound,
+      Post     => Product_By_ω'Result.Re in -2 * Bound .. 2 * Bound
+         and then Product_By_ω'Result.Im in -2 * Bound .. 2 * Bound;
 
    procedure Lemma_Product_By_Trigonometric_Output_Keeps_Range (
       Left  : in Complex_Part;
@@ -338,8 +343,7 @@ package body Detector with SPARK_Mode => On is
       Lemma_Product_By_Trigonometric_Output_Keeps_Range (
          Factor.Im, Sin_ω (K, N), Bound);
       Re := Re - Factor.Im * Sin_ω (K, N);
-      pragma Assert (Re in Complex_Part (-2) * Bound
-                        .. Complex_Part (2) * Bound);
+      pragma Assert (Re in -2 * Bound .. 2 * Bound);
       Lemma_Product_By_Trigonometric_Output_Keeps_Range (
          Factor.Re, Sin_ω (K, N), Bound);
       Im := Factor.Re * Sin_ω (K, N);
@@ -347,10 +351,53 @@ package body Detector with SPARK_Mode => On is
       Lemma_Product_By_Trigonometric_Output_Keeps_Range (
          Factor.Im, Cos_ω (K, N), Bound);
       Im := Im + Factor.Im * Cos_ω (K, N);
-      pragma Assert (Im in Complex_Part (-2) * Bound
-                        .. Complex_Part (2) * Bound);
+      pragma Assert (Im in -2 * Bound .. 2 * Bound);
       return (Re, Im);
    end Product_By_ω;
+
+   procedure Fourier_Transform_Conquer_Operation (
+      Left_Input   : in     Complex;
+      Right_Input  : in     Complex;
+      K, N         : in     Count_Type'Base;
+      Left_Output  :    out Complex;
+      Right_Output :    out Complex;
+      Bound        : in     Complex_Part) with
+      Inline   => True,
+      Pre      => Bound >= 0.0
+         and then Bound <= Complex_Part'Last / 3
+         and then Left_Input.Re in -Bound .. Bound
+         and then Left_Input.Im in -Bound .. Bound
+         and then Right_Input.Re in -Bound .. Bound
+         and then Right_Input.Im in -Bound .. Bound
+         and then K in 0 .. Welch_Size * Welch_Size
+         and then N in 1 .. Welch_Size,
+      Post     => Left_Input.Re in -3 * Bound .. 3 * Bound
+         and then Left_Input.Im in -3 * Bound .. 3 * Bound
+         and then Right_Input.Re in -3 * Bound .. 3 * Bound
+         and then Right_Input.Im in -3 * Bound .. 3 * Bound;
+
+   procedure Fourier_Transform_Conquer_Operation (
+      Left_Input   : in     Complex;
+      Right_Input  : in     Complex;
+      K, N         : in     Count_Type'Base;
+      Left_Output  :    out Complex;
+      Right_Output :    out Complex;
+      Bound        : in     Complex_Part) is
+      Offset : constant Complex := Product_By_ω (Right_Input, K, N, Bound);
+   begin
+      pragma Assert (Left_Input.Re in -Bound .. Bound);
+      pragma Assert (Offset.Re in -2 * Bound .. 2 * Bound);
+      pragma Assert (Left_Input.Re + Offset.Re in -3 * Bound .. 3 * Bound);
+      Left_Output := (Re => Left_Input.Re + Offset.Re,
+                      Im => Left_Input.Im + Offset.Im);
+      Right_Output := (Re => Left_Input.Re - Offset.Re,
+                       Im => Left_Input.Im - Offset.Im);
+   end Fourier_Transform_Conquer_Operation;
+
+-- procedure Fourier_Transform_Conquer (
+--    Input      : in     Fourier_Transform_Real_Array;
+--    Output     :    out Complex_Array;
+--    Chunk_Size : in     Positive_Count)
 
 -- procedure Fourier_Transform (
 --    Input  : in     Fourier_Transform_Real_Array;
