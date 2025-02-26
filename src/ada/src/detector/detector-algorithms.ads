@@ -1,6 +1,6 @@
 package Detector.Algorithms with SPARK_Mode => On is
 
-   use all type Real;
+   use type Real;
 
    type Span_Array is array (Positive_Count_Type range <>) of Real_Span;
 
@@ -26,7 +26,7 @@ package Detector.Algorithms with SPARK_Mode => On is
       Signal : in Real_Array;
       dx     : in Sample)
       return Real with
-      Pre => Signal'Size in 1 .. Epoch_Size;
+      Pre => Signal'Length in 1 .. Epoch_Size;
 
    procedure Welch (
       Signal    : in     Sample_Array;
@@ -50,7 +50,7 @@ package Detector.Algorithms with SPARK_Mode => On is
       Pre => Input'Length = Output'Length and then Input'Length >= 1;
 
    function Power_Spectral_Density (
-      Signal             : in Sample_Array;
+      Signal             : in Epoch_Array;
       Sampling_Frequency : in Sample;
       Low                : in Sample;
       High               : in Sample)
@@ -58,7 +58,7 @@ package Detector.Algorithms with SPARK_Mode => On is
       Pre => Signal'Length = Epoch_Size;
 
    procedure Power_Spectral_Density (
-      Signal             : in Sample_Array;
+      Signal             : in Epoch_Array;
       Sampling_Frequency : in Sample;
       Bounds             : in Span_Array;
       Result             : out Real_Array) with

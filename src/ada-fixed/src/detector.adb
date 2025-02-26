@@ -394,10 +394,43 @@ package body Detector with SPARK_Mode => On is
                        Im => Left_Input.Im - Offset.Im);
    end Fourier_Transform_Conquer_Operation;
 
--- procedure Fourier_Transform_Conquer (
---    Input      : in     Fourier_Transform_Real_Array;
---    Output     :    out Complex_Array;
---    Chunk_Size : in     Positive_Count)
+   procedure Fourier_Transform_Conquer (
+      Input      : in     Complex_Array;
+      Output     :    out Complex_Array;
+      Chunk_Size : in     Positive_Count_Type;
+      Bound      : in     Complex_Part) with
+      Pre      => Bound >= 0.0
+         and then Bound <= Complex_Part'Last / 3
+         and then Chunk_Size < Input'Length
+         and then Input'Length mod Chunk_Size = 0
+         and then (for all Item of Input =>
+                     Item.Re in -Bound .. Bound
+                     and then Item.Im in -Bound .. Bound),
+      Post     => (for all Item of Output =>
+                     Item.Re in -3 * Bound .. 3 * Bound
+                     and then Item.Im in -3 * Bound .. Bound);
+
+   procedure Fourier_Transform_Conquer (
+      Input      : in     Complex_Array;
+      Output     :    out Complex_Array;
+      Chunk_Size : in     Positive_Count_Type;
+      Bound      : in     Complex_Part) is
+      Count : constant := Input'Length / Chunk_Size;
+   begin
+      for Chunk in 0 .. Count / 2 - 1 loop      -- Count * Size = Length
+         for Index in 0 .. Chunk_Size - 1 loop
+            Fourier_Transform_Conquer_Operation (
+               Left_Input   => Input (),
+               Right_Input  => Input (),
+               K            => Index,
+               N            => Chunk_Size * 2,
+               Left_Output  => Output (),
+               Right_Output => Output (),
+               Bound        => Bound);
+         end loop;
+      end loop;
+      Output := Input;
+   end Fourier_Transform_Conquer;
 
 -- procedure Fourier_Transform (
 --    Input  : in     Fourier_Transform_Real_Array;

@@ -1,5 +1,4 @@
 with Ada.Numerics;
-with Safe_IO;
 
 package body Detector.Algorithms with SPARK_Mode => On is
 
@@ -186,7 +185,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
    end Welch;
 
    function Power_Spectral_Density (
-      Signal             : in Sample_Array;
+      Signal             : in Epoch_Array;
       Sampling_Frequency : in Sample;
       Low                : in Sample;
       High               : in Sample)
@@ -203,7 +202,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
    end Power_Spectral_Density;
 
    procedure Power_Spectral_Density (
-      Signal             : in Sample_Array;
+      Signal             : in Epoch_Array;
       Sampling_Frequency : in Sample;
       Bounds             : in Span_Array;
       Result             : out Real_Array) is
@@ -229,6 +228,7 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Pattern : in Epoch_Array;
       Max     : in Real)
       return Real is
+      pragma Unreferenced (Max);
       Diag_Cost : constant := 1.0;
       Band_Size : constant := 2 * Warping_Window + 3;
       Infinity  : constant Real := Real'Last;

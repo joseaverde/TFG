@@ -1,0 +1,19 @@
+#ifndef SEIZURE_
+#define SEIZURE_
+
+// CONFIGURATION MACROS:
+//  * SEIZURE_CSV_SUPPORT
+//  * SEIZURE_JSON_SUPPORT
+
+#include "signals.hpp"
+#include "welch.hpp"
+#include "dtw.hpp"
+#include "batch.hpp"
+#include "metadata.hpp"
+#include "validator.hpp"
+#include "detector.hpp"
+#include "serial.hpp"
+
+#endif//SEIZURE_
+
+// vim: ft=cpp

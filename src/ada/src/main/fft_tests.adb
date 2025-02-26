@@ -1,6 +1,7 @@
-with Detector.Algorithms, Safe_IO, Seizure_Detector_Config.Reals;
+with Detector.Algorithms, Safe_IO;
 procedure FFT_Tests is
-   use Detector, Detector.Algorithms, Safe_IO, Seizure_Detector_Config.Reals;
+   use Detector, Detector.Algorithms, Safe_IO;
+   use type Real;
    subtype Real is Detector.Real;
    procedure Put (Item : in Complex) is
    begin

@@ -12,7 +12,7 @@ procedure Seizure_Detector_Benchmark is
       PSD_3    => (Real'First, Real'Last),
       Energy   => (Real'First, Real'Last),
       Max_Dist => (Real'First, Real'Last),
-      d_max_c  => Real'Last,
+      d_max_c  => 0.0,
       Patterns => [for I in Pattern_Index range 1 .. Pattern_Count =>
                      [for J in Count_Type range 1 .. Epoch_Size =>
                         Real (Count_Type (I - 1) * Epoch_Size + J)]]);

@@ -1,10 +1,10 @@
 #include "seizure_detector_config.hpp"
-#include <seizure>
+#include "seizure"
 #include <iostream>
 #include <vector>
 #include <chrono>
 
-constexpr std::size_t stride_count = 10'000;
+constexpr std::size_t stride_count = 100;
 constexpr std::size_t pattern_count = 3;
 
 template <typename Output_it>
@@ -57,7 +57,7 @@ bool is_seizure (Container const & epoch, Batch const & batch) {
   return false;
 }
 
-int main () {
+extern "C" void app_main () {
   std::vector<Real> signal(epoch_size, Real{});
   std::size_t detections = 0;
   auto const batch = make_batch();
@@ -68,6 +68,7 @@ int main () {
     read_stride(signal.begin() + (i - 1) * stride_size, i);
   }
   for (std::size_t i = strides_per_epoch; i <= stride_count; ++i) {
+    std::cout << "Second " << i << std::endl;
     std::copy(signal.begin(), signal.begin() + (epoch_size - stride_size),
               signal.begin() + stride_size);
     read_stride(signal.begin(), i);
@@ -78,10 +79,10 @@ int main () {
   // Result
   const std::chrono::duration<double> elapsed{stop - start};
   std::cout << "Elapsed " << elapsed << " s\n";
-  std::cout << static_cast<std::size_t>(
-      static_cast<double>(stride_count) / elapsed.count())
+  const std::size_t processed = stride_count - strides_per_epoch + 1;
+  std::cout << static_cast<double>(processed) / elapsed.count()
             << " epochs/second\n";
+  std::cout << static_cast<double>(elapsed.count()) / processed
+            << " seconds per epoch\n";
   std::cout << detections << "\n";
-
-  return 0;
 }

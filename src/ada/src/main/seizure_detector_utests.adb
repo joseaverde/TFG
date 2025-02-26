@@ -1,5 +1,5 @@
-with Detector, Detector.Algorithms, Safe_IO, Seizure_Detector_Config;
-use Detector, Detector.Algorithms, Safe_IO, Seizure_Detector_Config;
+with Detector, Detector.Algorithms, Safe_IO;
+use Detector, Detector.Algorithms, Safe_IO;
 procedure Seizure_Detector_UTests is
    procedure Get_Count is
       new Safe_IO.Generic_Get (
