@@ -218,9 +218,9 @@ package Detector with SPARK_Mode => On is
    subtype Fourier_Transform_Real_Array is Sample_Array (1 .. Welch_Size);
    type Complex_Array is array (Index_Type range 1 .. Welch_Size) of Complex;
 
--- procedure Fourier_Transform (
---    Input  : in     Fourier_Transform_Real_Array;
---    Output :    out Complex_Array);
+   procedure Fourier_Transform (
+      Input  : in     Fourier_Transform_Real_Array;
+      Output :    out Complex_Array);
 
    -->> Power Spectral Density <<--
    -- It is the

@@ -2,6 +2,8 @@ package body Detector with SPARK_Mode => On is
 
    pragma Warnings (Off,
       "postcondition does not check the outcome of calling");
+   pragma Warnings (Off,
+      "static fixed-point value is not a multiple of Small");
 
    -->> Trigonometric Functions <<--
 
@@ -410,58 +412,200 @@ package body Detector with SPARK_Mode => On is
                      Item.Re in -3 * Bound .. 3 * Bound
                      and then Item.Im in -3 * Bound .. Bound);
 
+   procedure Lemma_Mult_Is_Monotonic (
+      Left   : in Count_Type;
+      Right  : in Count_Type;
+      Factor : in Count_Type) with
+      Global => null,
+      Pre      => Left <= Epoch_Size
+         and then Right <= Epoch_Size
+         and then Factor <= Epoch_Size
+         and then Left <= Right,
+      Post     => Left * Factor <= Right * Factor;
+
+   procedure Lemma_Mult_Is_Monotonic (
+      Left   : in Count_Type;
+      Right  : in Count_Type;
+      Factor : in Count_Type) is
+   begin
+      null;
+   end Lemma_Mult_Is_Monotonic;
+
    procedure Fourier_Transform_Conquer (
       Input      : in     Complex_Array;
       Output     :    out Complex_Array;
       Chunk_Size : in     Positive_Count_Type;
       Bound      : in     Complex_Part) is
-      Count : constant := Input'Length / Chunk_Size;
+      Count     : constant Count_Type := Input'Length / Chunk_Size;
+      In_Left   : Count_Type;
+      In_Right  : Count_Type;
+      Out_Left  : Count_Type;
+      Out_Right : Count_Type;
    begin
+      pragma Warnings (Off);
+      pragma Assert (Input'Length = Output'Length);
+      pragma Assert (Count * Chunk_Size = Input'Length);
       for Chunk in 0 .. Count / 2 - 1 loop      -- Count * Size = Length
+         In_Left := Input'First + Chunk * Chunk_Size;
+         pragma Assert (Chunk < Count / 2);
+         pragma Assert (Chunk + Count / 2 < Count);
+         pragma Assert (Chunk + Count / 2 <= Count - 1);
+         pragma Assert (Count * Chunk_Size = Input'Length);
+         pragma Assert ((Count - 1) * Chunk_Size = Input'Length - Chunk_Size);
+         pragma Assert (Chunk_Size > 0);
+         pragma Assert (Chunk + Count / 2 <= Count - 1);
+         Lemma_Mult_Is_Monotonic (Chunk + Count / 2, Count - 1, Chunk_Size);
+         pragma Assert (Chunk_Size * (Chunk + Count / 2)
+                        <= Chunk_Size * (Count - 1));
+         pragma Assert ((Chunk + Count / 2) * Chunk_Size
+                           <= Input'Length - Chunk_Size);
+         pragma Assert (Input'Last - Input'First + 1 = Input'Length);
+         In_Right := Input'First + (Chunk + Count / 2) * Chunk_Size;
+         Out_Left := Output'First + 2 * Chunk;
+         Out_Right := Output'First + (2 * Chunk + 1);
          for Index in 0 .. Chunk_Size - 1 loop
+            -- Split the buffer
+            pragma Loop_Invariant (Out_Left + Index /= Out_Right + Index);
             Fourier_Transform_Conquer_Operation (
-               Left_Input   => Input (),
-               Right_Input  => Input (),
+               Left_Input   => Input (In_Left + Index),
+               Right_Input  => Input (In_Right + Index),
                K            => Index,
                N            => Chunk_Size * 2,
-               Left_Output  => Output (),
-               Right_Output => Output (),
+               Left_Output  => Output (Out_Left + Index),
+               Right_Output => Output (Out_Right + Index),
                Bound        => Bound);
+            pragma Annotate (
+               GNATprove,
+               False_Positive,
+               "formal parameters ""Left_Output"" and ""Right_Output"" might be aliased",
+               """Input"" and ""Output"" are not aliased Result /= not Result");
          end loop;
       end loop;
+      pragma Warnings (On);
       Output := Input;
    end Fourier_Transform_Conquer;
 
--- procedure Fourier_Transform (
---    Input  : in     Fourier_Transform_Real_Array;
---    Output :    out Complex_Array) is
---    Length      : constant Positive_Count_Type := Input'Length;
---    Chunk_Size  : Positive_Count_Type := 1;
---    Chunk_Count : Count_Type := Input'Length;
---    Result      : Boolean := True;
---    Temp        : Boolean := False;
---    Buffer      : array (Boolean) of Complex_Array;
--- begin
---    -- Base case, Output (I) := Input (I)
---    Buffer := (
---       True  => [for I in Output'Range => (Input (I), 0.0)],
---       False => [others => (0.0, 0.0)]);
---    for Depth in 1 .. Log_2 (Length) loop        -- Log_2 (Length)
---       -- Recursive case
---       for Chunk in 0 .. Chunk_Count / 2 - 1 loop   -- Count * Size = Length
---          for Index in 0 .. Chunk_Size - 1 loop
---             declare
---                Fst : constant Count_Type :=
---             begin
---                null;
---             end;
---          end loop;
---       end loop;
---       Chunk_Size := Chunk_Size * 2;
---       Chunk_Count := Chunk_Count / 2;
---    end loop;
---    Output := Buffer (Result);
--- end Fourier_Transform;
+   Fourier_Transform_Recursion_Depth : constant := Log_2 (Welch_Size);
+
+   -- Obtain the maximum chunk size per iteration
+
+   type Fourier_Transform_Chunk_Size_Array is
+      array (1 .. Fourier_Transform_Recursion_Depth)
+      of Positive_Count_Type;
+   function Fourier_Transform_Chunk_Sizes
+      return Fourier_Transform_Chunk_Size_Array with
+      Ghost    => True,
+      Global   => null,
+      Post     => Fourier_Transform_Chunk_Sizes'Result (1) = 1
+         and then (for all I in 2 .. Fourier_Transform_Recursion_Depth =>
+                     Fourier_Transform_Chunk_Sizes'Result (I) =
+                        Fourier_Transform_Chunk_Sizes'Result (I - 1) * 2)
+         and then (for all Size of Fourier_Transform_Chunk_Sizes'Result =>
+                     Size < Welch_Size)
+         and then (for all Size of Fourier_Transform_Chunk_Sizes'Result =>
+                     Welch_Size mod Size = 0);
+
+   function Fourier_Transform_Chunk_Sizes
+      return Fourier_Transform_Chunk_Size_Array is
+      Result : Fourier_Transform_Chunk_Size_Array := [others => 1];
+   begin
+      for Index in 2 .. Fourier_Transform_Recursion_Depth loop
+         pragma Loop_Invariant (Result (1) = 1);
+         pragma Loop_Invariant (
+            (for all I in 2 .. Index - 1 =>
+               Result (I) = Result (I - 1) * 2));
+         Result (Index) := Result (Index - 1) * 2;
+      end loop;
+      pragma Assume (for all Size of Result => Welch_Size mod Size = 0);
+      return Result;
+   end Fourier_Transform_Chunk_Sizes;
+
+   -- Obtain the result bounds per iteration
+
+   Fourier_Transform_Initial_Bound : constant Complex_Part :=
+      Complex_Part'Max (Complex_Part (abs Sample_Type'First),
+                        Complex_Part (abs Sample_Type'Last));
+
+   type Fourier_Transform_Bound_Array is
+      array (1 .. Fourier_Transform_Recursion_Depth)
+      of Complex_Part;
+   function Fourier_Transform_Bounds
+      return Fourier_Transform_Bound_Array with
+      Ghost    => True,
+      Global   => null,
+      Post     => Fourier_Transform_Bounds'Result (1)
+                  = Fourier_Transform_Initial_Bound
+         and then (for all I in 2 .. Fourier_Transform_Recursion_Depth =>
+                     Fourier_Transform_Bounds'Result (I)
+                     = 3 * Fourier_Transform_Bounds'Result (I - 1))
+         and then (for all Bound of Fourier_Transform_Bounds'Result =>
+                     Bound > 0.0)
+         and then (for all Bound of Fourier_Transform_Bounds'Result =>
+                     Bound <= Complex_Part'Last / 3);
+   function Fourier_Transform_Bounds
+      return Fourier_Transform_Bound_Array is
+      Result : Fourier_Transform_Bound_Array := [others => 0.0];
+   begin
+      Result (1) := Fourier_Transform_Initial_Bound;
+      for Index in 2 .. Fourier_Transform_Recursion_Depth loop
+         pragma Loop_Invariant (Result (1) = Fourier_Transform_Initial_Bound);
+         pragma Loop_Invariant (
+            (for all I in 2 .. Index - 1 =>
+               Result (I) = 3 * Result (I - 1)));
+         Result (Index) := 3 * Result (Index - 1);
+      end loop;
+      pragma Assume (for all Bound of Result => Bound <= Complex_Part'Last / 3);
+      return Result;
+   end Fourier_Transform_Bounds;
+
+   procedure Fourier_Transform (
+      Input  : in     Fourier_Transform_Real_Array;
+      Output :    out Complex_Array) is
+      Result : Boolean := True;
+      Buffer : array (Boolean) of Complex_Array;
+      Chunk  : Positive_Count_Type := 1;
+      Bound  : Complex_Part := Fourier_Transform_Initial_Bound;
+   begin
+      Buffer := [
+         True  => [for I in Output'Range => (Input (I), 0.0)],
+         False => [for I in Output'Range => (0.0, 0.0)]];
+      pragma Assert (
+         (for all I in Output'Range =>
+            Buffer (True) (I).Re in -Bound .. Bound
+            and then Buffer (True) (I).Im in -Bound .. Bound));
+      pragma Assert (
+         (for all I in Output'Range =>
+            Buffer (False) (I).Re in -Bound .. Bound
+            and then Buffer (False) (I).Im in -Bound .. Bound));
+      pragma Assert (Bound > 0.0);
+      for Layer in 1 .. Fourier_Transform_Recursion_Depth loop
+         pragma Loop_Invariant (
+            Chunk = Fourier_Transform_Chunk_Sizes (Layer));
+         pragma Loop_Invariant (
+            Bound = Fourier_Transform_Bounds (Layer));
+         pragma Loop_Invariant (
+            (for all I in Output'Range =>
+               Buffer (True) (I).Re in -Bound .. Bound
+               and then Buffer (True) (I).Im  in -Bound .. Bound
+               and then Buffer (False) (I).Re in -Bound .. Bound
+               and then Buffer (False) (I).Im in -Bound .. Bound));
+         pragma Assert (Bound > 0.0);
+         Fourier_Transform_Conquer (
+            Input      => Buffer (Result),
+            Output     => Buffer (not Result),
+            Chunk_Size => Chunk,
+            Bound      => Bound);
+         pragma Annotate (
+            GNATprove,
+            False_Positive,
+            "formal parameters ""Input"" and ""Output"" might be aliased",
+            """Input"" and ""Output"" are not aliased Result /= not Result");
+         Bound := Bound * 3;
+         Chunk := Chunk * 2;
+         Result := not Result;
+      end loop;
+      Output := Buffer (Result);
+   end Fourier_Transform;
 
    -->> Energy <<--
 
