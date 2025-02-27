@@ -9,6 +9,10 @@ package Detector with SPARK_Mode => On is
    type Count_Type is range 0 .. 2 ** (Bits - 1) - 1 with Size => Bits;
    subtype Positive_Count_Type is Count_Type range 1 .. Count_Type'Last;
    subtype Index_Type is Count_Type range 1 .. Count_Type'Last;
+   subtype Multiplication_Safe_Count is
+      Count_Type range 0 .. 2 ** (Bits / 2 - 1);
+   subtype Positive_Multiplication_Safe_Count is
+      Multiplication_Safe_Count range 1 .. Multiplication_Safe_Count'Last;
 
    function Log_2 (Item : in Count_Type) return Natural is (
       (case Item is

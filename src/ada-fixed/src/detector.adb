@@ -505,6 +505,83 @@ package body Detector with SPARK_Mode => On is
          and then (for all Size of Fourier_Transform_Chunk_Sizes'Result =>
                      Welch_Size mod Size = 0);
 
+   pragma Warnings (Off);
+   procedure Lemma_Modulo_By_Definition (
+      A : in Positive_Multiplication_Safe_Count;
+      B : in Positive_Multiplication_Safe_Count;
+      N : in Positive_Multiplication_Safe_Count) with
+      Pre  => A = B * N,
+      Post => A mod B = 0;
+   pragma Warnings (On);
+
+   procedure Lemma_Modulo_By_Definition (
+      A : in Positive_Multiplication_Safe_Count;
+      B : in Positive_Multiplication_Safe_Count;
+      N : in Positive_Multiplication_Safe_Count) is
+   begin
+      null;
+   end Lemma_Modulo_By_Definition;
+
+   pragma Warnings (Off);
+   procedure Lemma_Modulo_Divisor_Is_Also_Modulo (
+      A : in Positive_Multiplication_Safe_Count;
+      K : in Positive_Multiplication_Safe_Count;
+      B : in Positive_Multiplication_Safe_Count) with
+      Pre  => A mod (K * B) = 0,
+      Post => A mod B = 0;
+   pragma Warnings (On);
+
+   procedure Lemma_Modulo_Divisor_Is_Also_Modulo (
+      A : in Positive_Multiplication_Safe_Count;
+      K : in Positive_Multiplication_Safe_Count;
+      B : in Positive_Multiplication_Safe_Count) is
+      N : Positive_Multiplication_Safe_Count;
+   begin
+      -- A ≡ 0 (mód K * B)
+      -- ∃N: A = K * B * N
+      -- A mod B = 0
+      -- A mod K = 0
+      -- A mod N = 0
+      pragma Assert (A >= K * B);
+      pragma Assert (A mod (K * B) = 0);
+      N := A / (K * B);
+      pragma Assert (A = N * (K * B));
+      Lemma_Modulo_By_Definition (A, B, N * K);
+   end Lemma_Modulo_Divisor_Is_Also_Modulo;
+
+   pragma Warnings (Off);
+   procedure
+      Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0 (
+      A : in Multiplication_Safe_Count;
+      B : in Positive_Multiplication_Safe_Count) with
+      Ghost    => True,
+      Global   => null,
+      Pre      => A mod B = 0 and then (A / B) mod 2 = 0,
+      Post     => A mod (B * 2) = 0;
+   pragma Warnings (On);
+
+   procedure
+      Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0 (
+      A : in Multiplication_Safe_Count;
+      B : in Positive_Multiplication_Safe_Count) is
+      K : Positive_Multiplication_Safe_Count;
+   begin
+      if A = 0 then
+         pragma Assert (A mod (B * 2) = 0);
+      else
+         pragma Assert (A >= B);
+         pragma Assert ((A / B) mod 2 = 0);
+         -- ∃K : A / B = 2 * K => K = A / B / 2;
+         K := A / B / 2;
+         pragma Assert (K <= A);
+         pragma Assert (K * 2 = (A / B));
+         pragma Assert (K * 2 * B = A);
+         pragma Assert (A mod (K * 2 * B) = 0);
+         Lemma_Modulo_Divisor_Is_Also_Modulo (A, K, 2 * B);
+         pragma Assert (A mod (2 * B) = 0);
+      end if;
+   end Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0;
+
    function Fourier_Transform_Chunk_Sizes
       return Fourier_Transform_Chunk_Size_Array is
       Result : Fourier_Transform_Chunk_Size_Array := [others => 1];
