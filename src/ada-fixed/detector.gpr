@@ -1,25 +1,20 @@
 with "detector_common.gpr";
-with "detector.gpr";
-project Seizure_Detector_Fixed is
+library project Detector is
 
    for Target use Detector_Common.Target;
    for Runtime ("Ada") use Detector_Common.Runtime;
    for Create_Missing_Dirs use "True";
 
-   for Source_Dirs use ("main-src/");
+   for Library_Kind use "static";
+   for Library_Name use "SeizureDetectorFixed";
+   for Library_Dir use "lib/" & Detector_Common.Suffix;
+   for Library_Interface use ("Detector", "Detector.Lemmas", "Detector.Run");
    for Object_Dir use "obj/" & Detector_Common.Suffix;
-   for Exec_Dir use "bin/" & Detector_Common.Suffix;
-
-   Mains := ();
-   case Detector_Common.Target_Name is
-      when "native" => Mains := ("seizure_detector_fixed.adb");
-      when  others  => Mains := ();
-   end case;
-   for Main use Mains;
+   for Source_Dirs use ("config", "detector-src");
 
    package Compiler renames Detector_Common.Compiler;
    package Binder renames Detector_Common.Binder;
    package Install renames Detector_Common.Install;
    package Builder renames Detector_Common.Builder;
 
-end Seizure_Detector_Fixed;
+end Detector;

@@ -1,0 +1,47 @@
+with "config/seizure_detector_fixed_config.gpr";
+abstract project Detector_Common is
+
+   -->> Cross Compilation <<--
+
+   Target_Name : Seizure_Detector_Fixed_Config.Target_Kind :=
+      External ("SEIZURE_DETECTOR_TARGET",
+                Seizure_Detector_Fixed_Config.Target);
+
+   Target            := "";
+   Runtime           := "";
+   Compiler_Switches := ();
+
+   case Target_Name is
+      when "native" =>
+         Target  := "";
+         Runtime := "default";
+         Compiler_Switches := ();
+      when "esp32c3" =>
+         Target := "riscv64-elf";
+         Runtime := "light-rv32imac";
+         Compiler_Switches := ("-march=rv32imc", "-mabi=ilp32");
+   end case;
+
+   -->> Configuration <<--
+
+   Suffix := Seizure_Detector_Fixed_Config.Build_Profile & "-" & Target_Name;
+
+   package Compiler is
+      for Default_Switches ("Ada") use
+         Seizure_Detector_Fixed_Config.Ada_Compiler_Switches
+         & Compiler_Switches;
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es");
+   end Binder;
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
+
+   package Builder is
+      for Global_Configuration_Pragmas use "gnat.adc";
+   end Builder;
+
+end Detector_Common;

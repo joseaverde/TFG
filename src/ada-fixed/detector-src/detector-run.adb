@@ -8,6 +8,35 @@ procedure Detector.Run is
 
    C_State : Interfaces.C.int with Import => True, Convention => C;
 
+   procedure Put (
+      Item : in Character) with
+      Always_Terminates => True,
+      Global            => C_State,
+      Import            => True,
+      Convention        => C,
+      External_Name     => "eeg_putchar";
+
+   procedure Put (Item : in String) with
+      Global => C_State is
+   begin
+      for C of Item loop
+         Put (C);
+      end loop;
+   end Put;
+
+   procedure New_Line with
+      Global => C_State is
+   begin
+      Put (Character'Val (10));
+   end New_Line;
+
+   procedure Put_Line (Item : in String) with
+      Global => C_State is
+   begin
+      Put (Item);
+      New_Line;
+   end Put_Line;
+
    procedure Read_Sample (
       Numerator   : out Interfaces.C.int;
       Denominator : out Interfaces.C.int) with
@@ -74,10 +103,10 @@ procedure Detector.Run is
       end loop;
    end Read_Stride;
 
-   Signal    : Sample_Epoch with Relaxed_Initialization;
+   Signal    : Sample_Epoch := [others => 0.0];
    Truncated : Natural;
    Patterns  : constant := 3;
-   Batch     : Batch_Type := (
+   Batch     : constant Batch_Type := (
       Count    => Patterns,
       PSD_1    => (Feature_Type'First, Feature_Type'Last),
       PSD_2    => (Feature_Type'First, Feature_Type'Last),
@@ -90,16 +119,16 @@ procedure Detector.Run is
                         (Sample_Type (I) * Sample_Type (J))]]);
 
 begin
-   for I in Count_Type range 1 .. Strides_Per_Epoch loop
-      Read_Stride (
-         Item      => Signal (1 + (I - 1) * Stride_Size .. I * Stride_Size),
-         Truncated => Truncated);
-   end loop;
    Detection_Loop : loop
       Signal (1 + Stride_Size .. Signal'Last) :=
          Signal (1 .. Signal'Last - Stride_Size);
       Read_Stride (
          Item      => Signal (1 .. Stride_Size),
          Truncated => Truncated);
+      if Is_Seizure (Signal, Batch) then
+         Put_Line ("Seizure!");
+      else
+         Put_Line (".");
+      end if;
    end loop Detection_Loop;
 end Detector.Run;

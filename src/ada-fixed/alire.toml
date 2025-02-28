@@ -9,13 +9,10 @@ licenses = "EUPL-1.2"
 website = ""
 tags = []
 
-executables = ["seizure_detector_fixed"]
+executables = ["detector.gpr", "seizure_detector_fixed.gpr"]
 
-[[depends-on]]
-gnatprove = "^14.1.1"
-
-[[depends-on]]
-gnat_native = "^14.2.1"
+[configuration.variables]
+Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
 
 [build-switches]
 "*".ada_version    = "Ada2022"
@@ -41,4 +38,7 @@ gnat_native = "^14.2.1"
                    , "-gnatyx"          # Check extra parenthesis around conditionals
                    ]
 
-
+[[depends-on]]
+gnatprove = "^14.1.1"
+gnat_native = "^14.2.1"
+gnat_riscv64_elf = "^14.1.1"
