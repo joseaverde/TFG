@@ -19,4 +19,8 @@ project Seizure_Detector_Fixed is
       for Artifacts (".") use ("share");
    end Install;
 
+   package Builder is
+      for Global_Configuration_Pragmas use "gnat.adc";
+   end Builder;
+
 end Seizure_Detector_Fixed;

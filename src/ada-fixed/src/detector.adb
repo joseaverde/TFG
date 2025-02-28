@@ -1,9 +1,7 @@
 package body Detector with SPARK_Mode => On is
 
-   pragma Warnings (Off,
-      "postcondition does not check the outcome of calling");
-   pragma Warnings (Off,
-      "static fixed-point value is not a multiple of Small");
+   pragma Warnings (Off, "postcondition does not check the outcome of calling");
+   pragma Warnings (Off, "static fixed-point value is not a multiple of Small");
 
    -->> Trigonometric Functions <<--
 
@@ -138,7 +136,6 @@ package body Detector with SPARK_Mode => On is
       return Sample_Base_Epoch is
       Result : Sample_Base_Epoch := [others => 0.0];
 
-      pragma Warnings (Off);
       function Lemma_Sample_Increment (
          Left  : in Sample_Base_Type;
          Right : in Sample_Base_Type;
@@ -152,7 +149,6 @@ package body Detector with SPARK_Mode => On is
             and then Left + Right
                         in Sample_Base_Type (Index + 1) * Sample_Type'First
                         .. Sample_Base_Type (Index + 1) * Sample_Type'Last;
-      pragma Warnings (On);
 
       function Lemma_Sample_Increment (
          Left  : in Sample_Base_Type;
@@ -442,11 +438,13 @@ package body Detector with SPARK_Mode => On is
       Out_Left  : Count_Type;
       Out_Right : Count_Type;
    begin
-      pragma Warnings (Off);
       pragma Assert (Input'Length = Output'Length);
       pragma Assert (Count * Chunk_Size = Input'Length);
       for Chunk in 0 .. Count / 2 - 1 loop      -- Count * Size = Length
+         pragma Warnings (GNATProve, Off, "unused assignment",
+            Reason => "It is used as the index offset in the loop");
          In_Left := Input'First + Chunk * Chunk_Size;
+         pragma Warnings (GNATProve, On, "unused assignment");
          pragma Assert (Chunk < Count / 2);
          pragma Assert (Chunk + Count / 2 < Count);
          pragma Assert (Chunk + Count / 2 <= Count - 1);
@@ -460,12 +458,19 @@ package body Detector with SPARK_Mode => On is
          pragma Assert ((Chunk + Count / 2) * Chunk_Size
                            <= Input'Length - Chunk_Size);
          pragma Assert (Input'Last - Input'First + 1 = Input'Length);
+         pragma Warnings (GNATProve, Off, "unused assignment",
+            Reason => "It is used as the index offset in the loop");
          In_Right := Input'First + (Chunk + Count / 2) * Chunk_Size;
+         pragma Warnings (GNATProve, On, "unused assignment");
          Out_Left := Output'First + 2 * Chunk;
          Out_Right := Output'First + (2 * Chunk + 1);
          for Index in 0 .. Chunk_Size - 1 loop
             -- Split the buffer
             pragma Loop_Invariant (Out_Left + Index /= Out_Right + Index);
+            pragma Warnings (GNATProve, Off, "statement has no effect",
+               Reason => "False, it modifies `Left_Output' and `Right_Output' params.");
+            pragma Warnings (GNATProve, Off, """Output"" is set by ""Fourier_Transform_Conquer_Operation"" but not used after the call",
+               Reason => "It is not used as it is because it is the output parameter");
             Fourier_Transform_Conquer_Operation (
                Left_Input   => Input (In_Left + Index),
                Right_Input  => Input (In_Right + Index),
@@ -479,9 +484,10 @@ package body Detector with SPARK_Mode => On is
                False_Positive,
                "formal parameters ""Left_Output"" and ""Right_Output"" might be aliased",
                """Input"" and ""Output"" are not aliased Result /= not Result");
+            pragma Warnings (GNATProve, On, "statement has no effect");
+            pragma Warnings (GNATProve, On, """Output"" is set by ""Fourier_Transform_Conquer_Operation"" but not used after the call");
          end loop;
       end loop;
-      pragma Warnings (On);
       Output := Input;
    end Fourier_Transform_Conquer;
 
@@ -489,30 +495,28 @@ package body Detector with SPARK_Mode => On is
 
    -- Obtain the maximum chunk size per iteration
 
-   type Fourier_Transform_Chunk_Size_Array is
-      array (1 .. Fourier_Transform_Recursion_Depth)
-      of Positive_Count_Type;
-   function Fourier_Transform_Chunk_Sizes
-      return Fourier_Transform_Chunk_Size_Array with
-      Ghost    => True,
-      Global   => null,
-      Post     => Fourier_Transform_Chunk_Sizes'Result (1) = 1
-         and then (for all I in 2 .. Fourier_Transform_Recursion_Depth =>
-                     Fourier_Transform_Chunk_Sizes'Result (I) =
-                        Fourier_Transform_Chunk_Sizes'Result (I - 1) * 2)
-         and then (for all Size of Fourier_Transform_Chunk_Sizes'Result =>
-                     Size < Welch_Size)
-         and then (for all Size of Fourier_Transform_Chunk_Sizes'Result =>
-                     Welch_Size mod Size = 0);
-
-   pragma Warnings (Off);
    procedure Lemma_Modulo_By_Definition (
       A : in Positive_Multiplication_Safe_Count;
       B : in Positive_Multiplication_Safe_Count;
       N : in Positive_Multiplication_Safe_Count) with
       Pre  => A = B * N,
       Post => A mod B = 0;
-   pragma Warnings (On);
+
+   procedure Lemma_Modulo_Divisor_Is_Also_Modulo (
+      A : in Positive_Multiplication_Safe_Count;
+      K : in Positive_Multiplication_Safe_Count;
+      B : in Positive_Multiplication_Safe_Count) with
+      Pre  => A mod (K * B) = 0,
+      Post => A mod B = 0;
+
+   procedure
+      Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0 (
+      A : in Multiplication_Safe_Count;
+      B : in Positive_Multiplication_Safe_Count) with
+      Ghost    => True,
+      Global   => null,
+      Pre      => A mod B = 0 and then (A / B) mod 2 = 0,
+      Post     => A mod (B * 2) = 0;
 
    procedure Lemma_Modulo_By_Definition (
       A : in Positive_Multiplication_Safe_Count;
@@ -521,15 +525,6 @@ package body Detector with SPARK_Mode => On is
    begin
       null;
    end Lemma_Modulo_By_Definition;
-
-   pragma Warnings (Off);
-   procedure Lemma_Modulo_Divisor_Is_Also_Modulo (
-      A : in Positive_Multiplication_Safe_Count;
-      K : in Positive_Multiplication_Safe_Count;
-      B : in Positive_Multiplication_Safe_Count) with
-      Pre  => A mod (K * B) = 0,
-      Post => A mod B = 0;
-   pragma Warnings (On);
 
    procedure Lemma_Modulo_Divisor_Is_Also_Modulo (
       A : in Positive_Multiplication_Safe_Count;
@@ -548,17 +543,6 @@ package body Detector with SPARK_Mode => On is
       pragma Assert (A = N * (K * B));
       Lemma_Modulo_By_Definition (A, B, N * K);
    end Lemma_Modulo_Divisor_Is_Also_Modulo;
-
-   pragma Warnings (Off);
-   procedure
-      Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0 (
-      A : in Multiplication_Safe_Count;
-      B : in Positive_Multiplication_Safe_Count) with
-      Ghost    => True,
-      Global   => null,
-      Pre      => A mod B = 0 and then (A / B) mod 2 = 0,
-      Post     => A mod (B * 2) = 0;
-   pragma Warnings (On);
 
    procedure
       Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0 (
@@ -582,18 +566,44 @@ package body Detector with SPARK_Mode => On is
       end if;
    end Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0;
 
+   type Fourier_Transform_Chunk_Size_Array is
+      array (1 .. Fourier_Transform_Recursion_Depth)
+      of Positive_Count_Type;
+   function Fourier_Transform_Chunk_Sizes
+      return Fourier_Transform_Chunk_Size_Array with
+      Ghost    => True,
+      Global   => null,
+      Post     => Fourier_Transform_Chunk_Sizes'Result (1) = 1
+         and then (for all I in 2 .. Fourier_Transform_Recursion_Depth =>
+                     Fourier_Transform_Chunk_Sizes'Result (I) =
+                        Fourier_Transform_Chunk_Sizes'Result (I - 1) * 2)
+         and then Fourier_Transform_Chunk_Sizes'Result (1) = 2 ** (1 - 1)
+         and then (for all I in 2 .. Fourier_Transform_Recursion_Depth =>
+                     Fourier_Transform_Chunk_Sizes'Result (I) = 2 ** (I - 1));
+
    function Fourier_Transform_Chunk_Sizes
       return Fourier_Transform_Chunk_Size_Array is
       Result : Fourier_Transform_Chunk_Size_Array := [others => 1];
    begin
       for Index in 2 .. Fourier_Transform_Recursion_Depth loop
          pragma Loop_Invariant (Result (1) = 1);
+         pragma Loop_Invariant (Result (1) = 2 ** (1 - 1));
          pragma Loop_Invariant (
             (for all I in 2 .. Index - 1 =>
                Result (I) = Result (I - 1) * 2));
          Result (Index) := Result (Index - 1) * 2;
       end loop;
-      pragma Assume (for all Size of Result => Welch_Size mod Size = 0);
+      pragma Assert (Result (1) = 1);
+      pragma Assert (
+         (for all I in 2 .. Result'Last =>
+            Result (I) = Result (I - 1) * 2));
+      pragma Assert (Result (1) = 2 ** (1 - 1));
+      pragma Assert (
+         (for all I in 2 .. Result'Last =>
+            (if Result (I - 1) = 2 ** (I - 2)
+               and then Result (I) = Result (I - 1) * 2
+               and then 2 ** (I - 2) * 2 = 2 ** (I - 1)
+               then Result (I) = 2 ** (I - 1))));
       return Result;
    end Fourier_Transform_Chunk_Sizes;
 
