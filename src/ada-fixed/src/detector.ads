@@ -2,9 +2,10 @@ package Detector with SPARK_Mode => On is
 
    Bits : constant := 32;
 
-   Stride_Size : constant := 256;
-   Epoch_Size  : constant := 1280;
-   Welch_Size  : constant := 512;
+   Stride_Size       : constant := 256;
+   Strides_Per_Epoch : constant := 5;
+   Epoch_Size        : constant := Stride_Size * Strides_Per_Epoch;
+   Welch_Size        : constant := 512;
 
    type Count_Type is range 0 .. 2 ** (Bits - 1) - 1 with Size => Bits;
    subtype Positive_Count_Type is Count_Type range 1 .. Count_Type'Last;
@@ -249,5 +250,23 @@ package Detector with SPARK_Mode => On is
       return Trigonometric_Output_Type;
    function Sin (Item : in Trigonometric_Input_Type)
       return Trigonometric_Output_Type;
+
+   -->> Batchs <<--
+
+   type Pattern_Index is range 1 .. 5;
+   subtype Pattern_Type is Sample_Array (1 .. Epoch_Size);
+   type Pattern_Array is array (Pattern_Index range <>) of Pattern_Type;
+   type Real_Span is record Low, High : Feature_Type; end record;
+
+   type Batch_Type (Count : Pattern_Index := 1) is record
+      PSD_1, PSD_2, PSD_3, Energy, Max_Dist : Real_Span;
+      d_max_c                               : Feature_Type;
+      Patterns                              : Pattern_Array (1 .. Count);
+   end record;
+
+   function Is_Seizure (
+      Item  : in Sample_Epoch;
+      Batch : in Batch_Type)
+      return Boolean;
 
 end Detector;

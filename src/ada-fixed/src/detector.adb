@@ -1,3 +1,5 @@
+with Detector.Lemmas; use Detector.Lemmas;
+
 package body Detector with SPARK_Mode => On is
 
    pragma Warnings (Off, "postcondition does not check the outcome of calling");
@@ -135,27 +137,6 @@ package body Detector with SPARK_Mode => On is
       Item : in Sample_Epoch)
       return Sample_Base_Epoch is
       Result : Sample_Base_Epoch := [others => 0.0];
-
-      function Lemma_Sample_Increment (
-         Left  : in Sample_Base_Type;
-         Right : in Sample_Base_Type;
-         Index : in Count_Type)
-         return Boolean with
-         Pre      => Index in 1 .. Epoch_Size - 1
-            and then Left in Sample_Base_Type (Index) * Sample_Type'First
-                          .. Sample_Base_Type (Index) * Sample_Type'Last
-            and then Right in Sample_Type,
-         Post     => Lemma_Sample_Increment'Result = True
-            and then Left + Right
-                        in Sample_Base_Type (Index + 1) * Sample_Type'First
-                        .. Sample_Base_Type (Index + 1) * Sample_Type'Last;
-
-      function Lemma_Sample_Increment (
-         Left  : in Sample_Base_Type;
-         Right : in Sample_Base_Type;
-         Index : in Count_Type)
-         return Boolean is (True);
-
    begin
       Result (Item'First) := Item (Item'First);
       pragma Assert (Result (Item'First) in Sample_Type);
@@ -284,49 +265,6 @@ package body Detector with SPARK_Mode => On is
       Post     => Product_By_ω'Result.Re in -2 * Bound .. 2 * Bound
          and then Product_By_ω'Result.Im in -2 * Bound .. 2 * Bound;
 
-   procedure Lemma_Product_By_Trigonometric_Output_Keeps_Range (
-      Left  : in Complex_Part;
-      Right : in Trigonometric_Output_Type;
-      Bound : in Complex_Part) with
-      Ghost,
-      Pre  => Bound >= 0.0 and then Left in -Bound .. Bound,
-      Post => Complex_Part (Left * Right) in -Bound .. Bound;
-
-   procedure Lemma_Product_By_Trigonometric_Output_Keeps_Range (
-      Left  : in Complex_Part;
-      Right : in Trigonometric_Output_Type;
-      Bound : in Complex_Part) is
-      Min : constant Trigonometric_Output_Type :=
-         Trigonometric_Output_Type'First;
-      Max : constant Trigonometric_Output_Type :=
-         Trigonometric_Output_Type'Last;
-   begin
-      -- TODO: Maybe it needs more assertions in the future.
-      pragma Assert (Min = -1.0);
-      pragma Assert (Max = 1.0);
-      pragma Assert (Right in Min .. Max);
-      if Right = 0.0 then
-         pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
-      elsif Right > 0.0 then
-         if Left = 0.0 then
-            pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
-         elsif Left > 0.0 then
-            pragma Assert (Left > 0.0);
-            pragma Assert (Left <= Bound);
-            pragma Assert (Complex_Part (Bound * Max) = Bound);
-            pragma Assert (Complex_Part (Left * Max) = Left);
-            pragma Assert (Complex_Part (Left * Right) in 0.0 .. Bound);
-         elsif Left < 0.0 then
-            pragma Assert (Left < 0.0);
-            pragma Assert (Left >= -Bound);
-            pragma Assert (Complex_Part ((-Bound) * Max) = -Bound);
-            pragma Assert (Complex_Part (Left * Max) = Left);
-            pragma Assert (Complex_Part (Left * Right) in -Bound .. 0.0);
-         end if;
-      end if;
-      pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
-   end Lemma_Product_By_Trigonometric_Output_Keeps_Range;
-
    function Product_By_ω (
       Factor : in Complex;
       K, N   : in Count_Type'Base;
@@ -408,25 +346,6 @@ package body Detector with SPARK_Mode => On is
                      Item.Re in -3 * Bound .. 3 * Bound
                      and then Item.Im in -3 * Bound .. Bound);
 
-   procedure Lemma_Mult_Is_Monotonic (
-      Left   : in Count_Type;
-      Right  : in Count_Type;
-      Factor : in Count_Type) with
-      Global => null,
-      Pre      => Left <= Epoch_Size
-         and then Right <= Epoch_Size
-         and then Factor <= Epoch_Size
-         and then Left <= Right,
-      Post     => Left * Factor <= Right * Factor;
-
-   procedure Lemma_Mult_Is_Monotonic (
-      Left   : in Count_Type;
-      Right  : in Count_Type;
-      Factor : in Count_Type) is
-   begin
-      null;
-   end Lemma_Mult_Is_Monotonic;
-
    procedure Fourier_Transform_Conquer (
       Input      : in     Complex_Array;
       Output     :    out Complex_Array;
@@ -494,77 +413,6 @@ package body Detector with SPARK_Mode => On is
    Fourier_Transform_Recursion_Depth : constant := Log_2 (Welch_Size);
 
    -- Obtain the maximum chunk size per iteration
-
-   procedure Lemma_Modulo_By_Definition (
-      A : in Positive_Multiplication_Safe_Count;
-      B : in Positive_Multiplication_Safe_Count;
-      N : in Positive_Multiplication_Safe_Count) with
-      Pre  => A = B * N,
-      Post => A mod B = 0;
-
-   procedure Lemma_Modulo_Divisor_Is_Also_Modulo (
-      A : in Positive_Multiplication_Safe_Count;
-      K : in Positive_Multiplication_Safe_Count;
-      B : in Positive_Multiplication_Safe_Count) with
-      Pre  => A mod (K * B) = 0,
-      Post => A mod B = 0;
-
-   procedure
-      Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0 (
-      A : in Multiplication_Safe_Count;
-      B : in Positive_Multiplication_Safe_Count) with
-      Ghost    => True,
-      Global   => null,
-      Pre      => A mod B = 0 and then (A / B) mod 2 = 0,
-      Post     => A mod (B * 2) = 0;
-
-   procedure Lemma_Modulo_By_Definition (
-      A : in Positive_Multiplication_Safe_Count;
-      B : in Positive_Multiplication_Safe_Count;
-      N : in Positive_Multiplication_Safe_Count) is
-   begin
-      null;
-   end Lemma_Modulo_By_Definition;
-
-   procedure Lemma_Modulo_Divisor_Is_Also_Modulo (
-      A : in Positive_Multiplication_Safe_Count;
-      K : in Positive_Multiplication_Safe_Count;
-      B : in Positive_Multiplication_Safe_Count) is
-      N : Positive_Multiplication_Safe_Count;
-   begin
-      -- A ≡ 0 (mód K * B)
-      -- ∃N: A = K * B * N
-      -- A mod B = 0
-      -- A mod K = 0
-      -- A mod N = 0
-      pragma Assert (A >= K * B);
-      pragma Assert (A mod (K * B) = 0);
-      N := A / (K * B);
-      pragma Assert (A = N * (K * B));
-      Lemma_Modulo_By_Definition (A, B, N * K);
-   end Lemma_Modulo_Divisor_Is_Also_Modulo;
-
-   procedure
-      Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0 (
-      A : in Multiplication_Safe_Count;
-      B : in Positive_Multiplication_Safe_Count) is
-      K : Positive_Multiplication_Safe_Count;
-   begin
-      if A = 0 then
-         pragma Assert (A mod (B * 2) = 0);
-      else
-         pragma Assert (A >= B);
-         pragma Assert ((A / B) mod 2 = 0);
-         -- ∃K : A / B = 2 * K => K = A / B / 2;
-         K := A / B / 2;
-         pragma Assert (K <= A);
-         pragma Assert (K * 2 = (A / B));
-         pragma Assert (K * 2 * B = A);
-         pragma Assert (A mod (K * 2 * B) = 0);
-         Lemma_Modulo_Divisor_Is_Also_Modulo (A, K, 2 * B);
-         pragma Assert (A mod (2 * B) = 0);
-      end if;
-   end Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0;
 
    type Fourier_Transform_Chunk_Size_Array is
       array (1 .. Fourier_Transform_Recursion_Depth)
@@ -709,5 +557,23 @@ package body Detector with SPARK_Mode => On is
 --    end loop;
 --    return Result / Feature_Type (Signal'Length);
 -- end Energy;
+
+   function Within (
+      Item : in Feature_Type;
+      Span : in Real_Span)
+      return Boolean is (
+      Span.Low <= Item and then Item <= Span.High);
+
+   function Is_Seizure (
+      Item  : in Sample_Epoch;
+      Batch : in Batch_Type)
+      return Boolean is
+   begin
+      if not Within (Max_Distance (Item), Batch.Max_Dist) then
+         return False;
+      end if;
+      -- TODO: Add more features
+      return True;
+   end Is_Seizure;
 
 end Detector;

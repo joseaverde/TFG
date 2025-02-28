@@ -1,5 +1,5 @@
-with Detector;
+with Detector.Run;
 procedure Seizure_Detector_Fixed is
 begin
-   null;
+   Detector.Run;
 end Seizure_Detector_Fixed;
