@@ -126,6 +126,7 @@ begin
          Item      => Signal (1 .. Stride_Size),
          Truncated => Truncated);
       if Is_Seizure (Signal, Batch) then
+         New_Line;
          Put_Line ("Seizure!");
       else
          Put_Line (".");

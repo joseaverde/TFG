@@ -6,6 +6,7 @@ package Detector with SPARK_Mode => On is
    Strides_Per_Epoch : constant := 5;
    Epoch_Size        : constant := Stride_Size * Strides_Per_Epoch;
    Welch_Size        : constant := 512;
+   Welch_Overlap     : constant := Welch_Size / 2;
 
    type Count_Type is range 0 .. 2 ** (Bits - 1) - 1 with Size => Bits;
    subtype Positive_Count_Type is Count_Type range 1 .. Count_Type'Last;

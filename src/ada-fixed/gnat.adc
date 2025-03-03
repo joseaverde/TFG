@@ -12,3 +12,4 @@ pragma Restrictions (
    No_Implicit_Dynamic_Code,
    No_Secondary_Stack);
 pragma Profile (Ravenscar);
+pragma Suppress (All_Checks);
