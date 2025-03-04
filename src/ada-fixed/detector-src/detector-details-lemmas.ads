@@ -1,4 +1,4 @@
-private package Detector.Lemmas with SPARK_Mode => On is
+package Detector.Details.Lemmas with SPARK_Mode => On is
 
    pragma Warnings (Off, "postcondition does not check the outcome of calling");
    pragma Warnings (GNATProve, Off, "subprogram ""Lemma_Modulo_By_Definition"" has no effect",
@@ -29,22 +29,6 @@ private package Detector.Lemmas with SPARK_Mode => On is
       Pre      => A mod B = 0 and then (A / B) mod 2 = 0,
       Post     => A mod (B * 2) = 0;
 
-   function Lemma_Sample_Increment (
-      Left  : in Sample_Base_Type;
-      Right : in Sample_Base_Type;
-      Index : in Count_Type)
-      return Boolean with
-      Ghost    => True,
-      Global   => null,
-      Pre      => Index in 1 .. Epoch_Size - 1
-         and then Left in Sample_Base_Type (Index) * Sample_Type'First
-                       .. Sample_Base_Type (Index) * Sample_Type'Last
-         and then Right in Sample_Type,
-      Post     => Lemma_Sample_Increment'Result = True
-         and then Left + Right
-                     in Sample_Base_Type (Index + 1) * Sample_Type'First
-                     .. Sample_Base_Type (Index + 1) * Sample_Type'Last;
-
    procedure Lemma_Mult_Is_Monotonic (
       Left   : in Count_Type;
       Right  : in Count_Type;
@@ -56,14 +40,6 @@ private package Detector.Lemmas with SPARK_Mode => On is
          and then Left <= Right,
       Post     => Left * Factor <= Right * Factor;
 
-   procedure Lemma_Product_By_Trigonometric_Output_Keeps_Range (
-      Left  : in Complex_Part;
-      Right : in Trigonometric_Output_Type;
-      Bound : in Complex_Part) with
-      Ghost,
-      Pre  => Bound >= 0.0 and then Left in -Bound .. Bound,
-      Post => Complex_Part (Left * Right) in -Bound .. Bound;
-
    pragma Warnings (On, "postcondition does not check the outcome of calling");
 
-end Detector.Lemmas;
+end Detector.Details.Lemmas;

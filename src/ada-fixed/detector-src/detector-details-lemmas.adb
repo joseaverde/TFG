@@ -1,4 +1,4 @@
-package body Detector.Lemmas with SPARK_Mode => On is
+package body Detector.Details.Lemmas with SPARK_Mode => On is
 
    procedure Lemma_Modulo_By_Definition (
       A : in Positive_Multiplication_Safe_Count;
@@ -48,12 +48,6 @@ package body Detector.Lemmas with SPARK_Mode => On is
       end if;
    end Lemma_If_B_Divides_A_And_A_Div_B_Mod_2_Is_0_Then_A_Mod_2_Times_B_Is_0;
 
-   function Lemma_Sample_Increment (
-      Left  : in Sample_Base_Type;
-      Right : in Sample_Base_Type;
-      Index : in Count_Type)
-      return Boolean is (True);
-
    procedure Lemma_Mult_Is_Monotonic (
       Left   : in Count_Type;
       Right  : in Count_Type;
@@ -62,39 +56,4 @@ package body Detector.Lemmas with SPARK_Mode => On is
       null;
    end Lemma_Mult_Is_Monotonic;
 
-   procedure Lemma_Product_By_Trigonometric_Output_Keeps_Range (
-      Left  : in Complex_Part;
-      Right : in Trigonometric_Output_Type;
-      Bound : in Complex_Part) is
-      Min : constant Trigonometric_Output_Type :=
-         Trigonometric_Output_Type'First;
-      Max : constant Trigonometric_Output_Type :=
-         Trigonometric_Output_Type'Last;
-   begin
-      -- TODO: Maybe it needs more assertions in the future.
-      pragma Assert (Min = -1.0);
-      pragma Assert (Max = 1.0);
-      pragma Assert (Right in Min .. Max);
-      if Right = 0.0 then
-         pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
-      elsif Right > 0.0 then
-         if Left = 0.0 then
-            pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
-         elsif Left > 0.0 then
-            pragma Assert (Left > 0.0);
-            pragma Assert (Left <= Bound);
-            pragma Assert (Complex_Part (Bound * Max) = Bound);
-            pragma Assert (Complex_Part (Left * Max) = Left);
-            pragma Assert (Complex_Part (Left * Right) in 0.0 .. Bound);
-         elsif Left < 0.0 then
-            pragma Assert (Left < 0.0);
-            pragma Assert (Left >= -Bound);
-            pragma Assert (Complex_Part ((-Bound) * Max) = -Bound);
-            pragma Assert (Complex_Part (Left * Max) = Left);
-            pragma Assert (Complex_Part (Left * Right) in -Bound .. 0.0);
-         end if;
-      end if;
-      pragma Assert (Complex_Part (Left * Right) in -Bound .. Bound);
-   end Lemma_Product_By_Trigonometric_Output_Keeps_Range;
-
-end Detector.Lemmas;
+end Detector.Details.Lemmas;

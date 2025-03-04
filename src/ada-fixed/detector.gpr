@@ -8,7 +8,15 @@ library project Detector is
    for Library_Kind use "static";
    for Library_Name use "SeizureDetectorFixed";
    for Library_Dir use "lib/" & Detector_Common.Suffix;
-   for Library_Interface use ("Detector", "Detector.Lemmas", "Detector.Run");
+   for Library_Interface use (
+      "Detector",
+      "Detector.Details",
+      "Detector.Details.Fourier_Transform",
+      "Detector.Details.Lemmas",
+      "Detector.Details.Max_Distance",
+      "Detector.Details.Mean",
+      "Detector.Details.Trigonometric",
+      "Detector.Run");
    for Object_Dir use "obj/" & Detector_Common.Suffix;
    for Source_Dirs use ("config", "detector-src");
 

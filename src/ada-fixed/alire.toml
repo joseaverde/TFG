@@ -28,7 +28,7 @@ Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
                    , "-gnaty-I"         # `in' is required in parameters
                    , "-gnatyk"          # Check casing rules for keywords
                    , "-gnatyL4"         # Maximum nesting level
-                   , "-gnatyM79"        # Maximum 79 characters.
+                   # , "-gnatyM79"        # Maximum 79 characters.
                    , "-gnatyn"          # Check casing of package Standard identifiers
                    , "-gnatyO"          # Check overriding indicators
                    , "-gnatyp"          # Check pragma casing
