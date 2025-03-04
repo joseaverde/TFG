@@ -11,6 +11,7 @@ library project Detector is
    for Library_Interface use (
       "Detector",
       "Detector.Details",
+      "Detector.Details.Energy",
       "Detector.Details.Fourier_Transform",
       "Detector.Details.Lemmas",
       "Detector.Details.Max_Distance",

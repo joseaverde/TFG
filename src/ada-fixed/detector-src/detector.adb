@@ -1,8 +1,14 @@
-with Detector.Details.Max_Distance; use Detector.Details.Max_Distance;
-with Detector.Details.Trigonometric; use Detector.Details.Trigonometric;
+with Detector.Details.Energy;
 with Detector.Details.Fourier_Transform;
+with Detector.Details.Max_Distance;
+with Detector.Details.Mean;
+with Detector.Details.Trigonometric;
+
+use Detector.Details.Energy;
 use Detector.Details.Fourier_Transform;
-with Detector.Details.Mean; use Detector.Details.Mean;
+use Detector.Details.Max_Distance;
+use Detector.Details.Mean;
+use Detector.Details.Trigonometric;
 
 package body Detector with SPARK_Mode => On is
 
@@ -56,10 +62,6 @@ package body Detector with SPARK_Mode => On is
       subtype Welch_Array is Feature_Array (1 .. Welch_Size);
       Warping_Window : constant := 16;
 
-      function Energy (
-         Signal : in Sample_Epoch)
-         return Feature_Type;
-
       procedure Power_Spectral_Density (
          Signal              : in     Sample_Epoch;
          Sampling_Frequency  : in     Feature_Type;
@@ -80,18 +82,6 @@ package body Detector with SPARK_Mode => On is
 
       function Squared (Item : in Feature_Type)
          return Feature_Type is (Item * Item);
-
-      function Energy (
-         Signal : in Sample_Epoch)
-         return Feature_Type is
-         μ      : constant Sample_Type := Mean (Signal);
-         Result : Feature_Type := 0.0;
-      begin
-         for I in Signal'Range loop
-            Result := Result + Squared (Feature_Type (Signal (I) - μ));
-         end loop;
-         return Result / Feature_Type (Signal'Length);
-      end Energy;
 
       Normalisation_Factor : constant Feature_Type :=
          [for C of Hann_Window =>

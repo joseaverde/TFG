@@ -73,7 +73,12 @@ package Detector with SPARK_Mode => On is
 
    -- Features --
 
-   type Feature_Type is delta 2.0 ** (-10) range -20_000.0 .. 20_000.0 with
+   Feature_Mantissa : constant := 8;
+   Feature_Delta    : constant := 2.0 ** (-Feature_Mantissa);
+   type Feature_Type is
+      delta Feature_Delta
+      range -2.0 ** (Bits - Feature_Mantissa - 1)
+         .. 2.0 ** (Bits - Feature_Mantissa - 1) - Feature_Delta with
       Size => Bits;
 
    -->> Max distance <<--
