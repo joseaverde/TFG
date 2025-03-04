@@ -11,6 +11,7 @@ library project Detector is
    for Library_Interface use (
       "Detector",
       "Detector.Details",
+      "Detector.Details.Dynamic_Time_Warping",
       "Detector.Details.Energy",
       "Detector.Details.Fourier_Transform",
       "Detector.Details.Lemmas",

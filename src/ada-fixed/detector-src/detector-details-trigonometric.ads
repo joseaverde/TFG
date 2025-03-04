@@ -13,7 +13,7 @@ package Detector.Details.Trigonometric with SPARK_Mode => On is
       range -1.0 ..  1.0 with
       Size => Bits;
 
-   function Cos (Item : in Trigonometric_Input_Type with Unreferenced)
+   function Cos (Item : in Trigonometric_Input_Type)
       return Trigonometric_Output_Type;
 
    function Sin (Item : in Trigonometric_Input_Type)

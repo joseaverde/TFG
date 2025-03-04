@@ -267,10 +267,16 @@ package body Detector with SPARK_Mode => On is
          Item : in Sample_Array)
          return Sample_Epoch is
          μ    : constant Sample_Type := Mean (Item);
+         -- μ in First .. Last
          Sum2 : constant Feature_Type'Base := Sum_Squares (Item);
+         -- Sum2 in 0.0 .. Length * Max (First, Last) ** 2
          Inv_Dev : constant Feature_Type'Base :=
             1.0 / Sqrt ((Sum2 / Feature_Type'Base (Epoch_Size))
             - Squared (Feature_Type (μ)));
+         -- Inv_Dev = 1 / Sqrt (Sum2 / Length - μ ** 2)
+         -- Inv_Dev ∈ 1 / Sqrt ([-Max (First, Last) ** 2,
+         --                      Max (First, Last)**2])
+         -- Inv_Dev ∈ 1 / [-Max (First, Last), Max (First, Last)]
       begin
          return [for I in Count_Type range 1 .. Epoch_Size =>
                   Feature_Type (Item (I - 1 + Item'First) - μ) * Inv_Dev];
@@ -311,8 +317,8 @@ package body Detector with SPARK_Mode => On is
       Power_Spectral_Density (Item, Feature_Type (Stride_Size),
          PSD_1, PSD_2, PSD_3);
       if not Within (PSD_1, Batch.PSD_1)
-         or else not Within(PSD_2, Batch.PSD_2)
-         or else not Within(PSD_3, Batch.PSD_3)
+         or else not Within (PSD_2, Batch.PSD_2)
+         or else not Within (PSD_3, Batch.PSD_3)
       then
          return False;
       end if;
