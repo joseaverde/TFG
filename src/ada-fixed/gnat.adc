@@ -7,7 +7,7 @@ pragma Restrictions (
    No_Protected_Types,
    No_Delay,
    No_Recursion,
-   No_Allocators,
+-- No_Allocators,
    No_Dispatch,
    No_Implicit_Dynamic_Code,
    No_Secondary_Stack);

@@ -81,7 +81,7 @@ package Detector with SPARK_Mode => On is
          .. 2.0 ** (Bits - Feature_Mantissa - 1) - Feature_Delta with
       Size => Bits;
 
-   -->> Max distance <<--
+   -->> Features <<--
 
    function Max_Distance (
       Item : in Sample_Epoch)
@@ -96,6 +96,12 @@ package Detector with SPARK_Mode => On is
          and then Max_Distance'Result in 0.0
                                       .. Feature_Type (Sample_Type'Last)
                                          - Feature_Type (Sample_Type'First);
+
+   function Energy (
+      Item : in Sample_Epoch)
+      return Feature_Type with
+      Global => null,
+      Post   => Energy'Result >= 0.0;
 
    -- procedure Fast_Fourier_Transform (
 

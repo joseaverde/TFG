@@ -51,7 +51,31 @@ package body Detector with SPARK_Mode => On is
       return Feature_Type (Max) - Feature_Type (Min);
    end Max_Distance;
 
-   --
+   function Energy (
+      Item : in Sample_Epoch)
+      return Feature_Type is
+      μ      : constant Real := Real (Mean (Item));
+      Value  : Real;
+      Result : Real := 0.0;
+      As_Arr : constant Real_Epoch := Scale_Array (Item, μ) with Ghost;
+   begin
+
+      for I in Item'Range loop
+         Value := Real (Item (I)) - μ;
+         pragma Assert (Value in S_First - S_Last .. S_Last - S_First);
+         Value := Value * Value;
+         pragma Assert (Value in 0.0 .. Max_Sq);
+         pragma Assert (Value = (Real (Item (I)) - μ) * (Real (Item (I)) - μ));
+         pragma Assert (Value = As_Arr (I));
+         Result := Result + Value;
+         pragma Loop_Invariant (Result = Acc_Energy_Sum (As_Arr) (I));
+      end loop;
+
+      pragma Assert (Result >= 0.0);
+      Result := Result / Real (Item'Length);
+      pragma Assert (Result >= 0.0);
+      return Feature_Type ((if Result > F_Last then F_Last else Result));
+   end Energy;
 
    package Unproved is
 

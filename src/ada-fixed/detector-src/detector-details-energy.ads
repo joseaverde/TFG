@@ -55,10 +55,4 @@ package Detector.Details.Energy with SPARK_Mode => On is
                         (Real (Item (I)) - μ) * (Real (Item (I)) - μ)
                      and then Scale_Array'Result (I) in 0.0 .. Max_Sq);
 
-   function Energy (
-      Item : in Sample_Epoch)
-      return Feature_Type with
-      Global => null,
-      Post   => Energy'Result >= 0.0;
-
 end Detector.Details.Energy;
