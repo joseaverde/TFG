@@ -73,7 +73,7 @@ package body Detector.Details.Dynamic_Time_Warping with SPARK_Mode => On is
       μ2     : constant Real := Real (μ) * Real (μ);
       Sum2   : constant Real := Sum_Squares (Item) / Epoch_Size;
       Dev    : Real;
-      Result : Normalised_Array := [others => Sample_Type'Last];
+      Result : Normalised_Array := [others => Normalised_Sample'Last];
       Value  : Real;
    begin
       if Sum2 < μ2 then

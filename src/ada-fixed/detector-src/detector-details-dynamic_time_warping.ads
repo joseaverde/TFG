@@ -56,7 +56,16 @@ package Detector.Details.Dynamic_Time_Warping with SPARK_Mode => On is
 
    -->> Normalise <<--
 
-   type Normalised_Array is array (Sample_Epoch'Range) of Sample_Type;
+   Normalised_Mantissa : constant := 8;
+   Normalised_Delta    : constant := 2.0 ** (-Normalised_Mantissa);
+
+   type Normalised_Sample is
+      delta Normalised_Delta
+      range -2.0 ** (Bits - Normalised_Mantissa - 1)
+         .. 2.0 ** (Bits - Normalised_Mantissa - 1) - Normalised_Delta with
+      Size => Bits;
+
+   type Normalised_Array is array (Sample_Epoch'Range) of Normalised_Sample;
 
    function Normalise(
       Item : in Sample_Epoch)
