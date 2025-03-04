@@ -13,6 +13,7 @@
 #include "welch.hpp"
 
 #include <gsl/gsl>
+#include <iostream>
 #include <range/v3/all.hpp>
 
 namespace Seizure {

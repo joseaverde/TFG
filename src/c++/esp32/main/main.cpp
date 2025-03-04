@@ -5,7 +5,7 @@
 #include <chrono>
 
 constexpr std::size_t stride_count = 100;
-constexpr std::size_t pattern_count = 3;
+constexpr std::size_t pattern_count = 1;
 
 template <typename Output_it>
 void read_stride (Output_it out, std::size_t part) {

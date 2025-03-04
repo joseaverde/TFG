@@ -196,8 +196,8 @@ package body Detector.Algorithms with SPARK_Mode => On is
       Pxx    : Welch_Array;
    begin
       Welch (Signal, Pxx, Welch_Window_Overlap, Sampling_Frequency);
-      First := Count_Type (Rounding (Low / Fq_Res)) + Signal'First;
-      Last  := Count_Type (Rounding (High / Fq_Res)) + Signal'First - 1;
+      First := Count_Type (Low / Fq_Res) + Signal'First;
+      Last  := Count_Type (High / Fq_Res) + Signal'First - 1;
       return Simpson (Pxx (First .. Last), Fq_Res);
    end Power_Spectral_Density;
 

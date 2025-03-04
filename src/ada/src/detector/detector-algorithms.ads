@@ -4,7 +4,7 @@ package Detector.Algorithms with SPARK_Mode => On is
 
    type Span_Array is array (Positive_Count_Type range <>) of Real_Span;
 
-   PSD_1_Bounds           : constant Real_Span := (2.0,  12.0);
+   PSD_1_Bounds           : constant Real_Span := (2.5,  12.0);
    PSD_2_Bounds           : constant Real_Span := (12.0, 18.0);
    PSD_3_Bounds           : constant Real_Span := (18.0, 35.0);
    PSD_Bounds : constant Span_Array (1 .. 3) := [
