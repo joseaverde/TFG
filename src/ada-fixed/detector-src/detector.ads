@@ -1,3 +1,17 @@
+-------------------------------------------------------------------------------
+--                                                                           --
+--                              D E T E C T O R                              --
+--                                                                           --
+--                      S E I Z U R E   D E T E C T O R                      --
+--                                                                           --
+--                              A D A   S P E C                              --
+--                                                                           --
+-------------------------------------------------------------------------------
+--  Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved  --
+-------------------------------------------------------------------------------
+--                                                                           --
+-------------------------------------------------------------------------------
+
 package Detector with SPARK_Mode => On is
 
    Bits : constant := 32;
@@ -115,7 +129,13 @@ package Detector with SPARK_Mode => On is
    -- Step := (Epoch_Size - Welch_Window_Size) / Overlap + 1
    -- Normalisation_Factor :=
 
-   -->> Fourier Transform <<--
+   type Feature_Array is array (Positive_Count_Type range <>) of Feature_Type;
+   procedure Power_Spectral_Density (
+      Signal              : in     Sample_Epoch;
+      Sampling_Frequency  : in     Feature_Type;
+      PSD_1, PSD_2, PSD_3 :    out Feature_Type) with
+      Pre => Sampling_Frequency = Feature_Type (Stride_Size),
+      Always_Terminates;
 
    -->> Batchs <<--
 

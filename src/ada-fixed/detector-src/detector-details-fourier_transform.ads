@@ -154,9 +154,7 @@ package Detector.Details.Fourier_Transform with SPARK_Mode => On is
                      Fourier_Transform_Bounds'Result (I)
                      = 3 * Fourier_Transform_Bounds'Result (I - 1))
          and then (for all Bound of Fourier_Transform_Bounds'Result =>
-                     Bound > 0.0)
-         and then (for all Bound of Fourier_Transform_Bounds'Result =>
-                     Bound <= Complex_Part'Last / 3);
+                     Bound > 0.0 and then Bound <= Complex_Part'Last / 3);
 
    pragma Warnings (Off, "postcondition does not check the outcome of calling");
    procedure Lemma_Product_By_Trigonometric_Output_Keeps_Range (

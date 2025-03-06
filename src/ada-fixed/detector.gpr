@@ -17,7 +17,9 @@ library project Detector is
       "Detector.Details.Lemmas",
       "Detector.Details.Max_Distance",
       "Detector.Details.Mean",
+      "Detector.Details.Simpson",
       "Detector.Details.Trigonometric",
+      "Detector.Details.Welch",
       "Detector.Run");
    for Object_Dir use "obj/" & Detector_Common.Suffix;
    for Source_Dirs use ("config", "detector-src");
