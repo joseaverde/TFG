@@ -1,9 +1,11 @@
+with Detector.Details.Dynamic_Time_Warping;
 with Detector.Details.Energy;
 with Detector.Details.Fourier_Transform;
 with Detector.Details.Max_Distance;
 with Detector.Details.Mean;
 with Detector.Details.Trigonometric;
 
+use Detector.Details.Dynamic_Time_Warping;
 use Detector.Details.Energy;
 use Detector.Details.Fourier_Transform;
 use Detector.Details.Max_Distance;
@@ -54,6 +56,8 @@ package body Detector with SPARK_Mode => On is
    function Energy (
       Item : in Sample_Epoch)
       return Feature_Type is
+      subtype Real is Details.Energy.Real;
+      subtype Real_Epoch is Details.Energy.Real_Epoch;
       μ      : constant Real := Real (Mean (Item));
       Value  : Real;
       Result : Real := 0.0;
@@ -64,7 +68,7 @@ package body Detector with SPARK_Mode => On is
          Value := Real (Item (I)) - μ;
          pragma Assert (Value in S_First - S_Last .. S_Last - S_First);
          Value := Value * Value;
-         pragma Assert (Value in 0.0 .. Max_Sq);
+         pragma Assert (Value in 0.0 .. Details.Energy.Max_Sq);
          pragma Assert (Value = (Real (Item (I)) - μ) * (Real (Item (I)) - μ));
          pragma Assert (Value = As_Arr (I));
          Result := Result + Value;
@@ -77,6 +81,18 @@ package body Detector with SPARK_Mode => On is
       return Feature_Type ((if Result > F_Last then F_Last else Result));
    end Energy;
 
+   function Dynamic_Time_Warping (
+      Signal  : in Sample_Epoch;
+      Pattern : in Sample_Epoch;
+      Maximum : in Feature_Type)
+      return Feature_Type is
+   begin
+      return Single_Dynamic_Time_Warping (
+         Signal  => Normalise (Signal),
+         Pattern => Normalise (Pattern),
+         Max     => Maximum);
+   end Dynamic_Time_Warping;
+
    package Unproved is
 
       -- TODO: Prove :)
@@ -84,19 +100,12 @@ package body Detector with SPARK_Mode => On is
       type Feature_Array is
          array (Positive_Count_Type range <>) of Feature_Type;
       subtype Welch_Array is Feature_Array (1 .. Welch_Size);
-      Warping_Window : constant := 16;
 
       procedure Power_Spectral_Density (
          Signal              : in     Sample_Epoch;
          Sampling_Frequency  : in     Feature_Type;
          PSD_1, PSD_2, PSD_3 :    out Feature_Type) with
          Always_Terminates;
-
-      function Dynamic_Time_Warping (
-         Signal  : in Sample_Array;
-         Pattern : in Sample_Array;
-         Maximum : in Feature_Type)
-         return Feature_Type'Base;
 
    end Unproved;
 
@@ -189,110 +198,6 @@ package body Detector with SPARK_Mode => On is
          PSD_3 := Simpson (
             Pxx (First + Signal'First .. Last + Signal'First - 1), Fq_Res);
       end Power_Spectral_Density;
-
-      function Distance (Left, Right : in Sample_Base_Type)
-         return Feature_Type'Base is (
-         Squared (Feature_Type (Left) - Feature_Type (Right)));
-
-      function Single_Dynamic_Time_Warping (
-         Signal  : in Sample_Epoch;
-         Pattern : in Sample_Epoch;
-         Max     : in Feature_Type'Base)
-         return Feature_Type'Base is
-         pragma Unreferenced (Max);
-         Diag_Cost : constant := 1.0;
-         Band_Size : constant := 2 * Warping_Window + 3;
-         Infinity  : constant Feature_Type'Base := Feature_Type'Base'Last;
-         function Saturated_Addition (Left, Right : in Feature_Type'Base)
-            return Feature_Type'Base is (
-            (if Right >= Feature_Type'Base'Last - Left
-               then Feature_Type'Base'Last else Right + Left));
-         type Band_Pair is
-            array (
-               Boolean,
-               Count_Type range 0 .. Band_Size - 1)
-            of Feature_Type'Base with
-            Default_Component_Value => Infinity;
-         Dist    : Feature_Type'Base;
-         Index   : Count_Type := 1;
-         Bands   : Band_Pair;
-         Cost    : Boolean := False;
-         Prev    : Boolean := True;
-         X, Y, Z : Feature_Type'Base;
-         F, L    : Count_Type;
-      begin
-         for Row in Count_Type range 1 .. Epoch_Size loop
-            Index := Count_Type'Max (0, Warping_Window - Row + 1) + 1;
-            F := Count_Type'Max (0, Row - 1 - Warping_Window) + 1;
-            L := Count_Type'Min (Epoch_Size - 1, Row - 1 + Warping_Window) + 1;
-            for Col in F .. L loop
-               Dist := Distance (Signal (Row), Pattern (Col));
-               if Row = 1 and Col = 1 then
-                  Bands (Cost, Index) := Dist;
-               else
-                  Y := Saturated_Addition (Bands (Cost, Index - 1), Dist);
-                  X := Saturated_Addition (Bands (Prev, Index + 1), Dist);
-                  Z := Saturated_Addition (
-                     Bands (Prev, Index), Diag_Cost * Dist);
-                  Bands (Cost, Index) :=
-                     Feature_Type'Base'Min (Feature_Type'Base'Min (X, Y), Z);
-               end if;
-               Index := Index + 1;
-            end loop;
-            Prev := not Prev;
-            Cost := not Cost;
-         end loop;
-         return Bands (Prev, Index - 1);
-      end Single_Dynamic_Time_Warping;
-
-      function Sum_Squares (
-         Item : in Sample_Array)
-         return Feature_Type'Base is
-         Result : Feature_Type'Base := 0.0;
-      begin
-         for I in Item'Range loop
-            Result := @ + Squared (Feature_Type (Item (I)));
-         end loop;
-         return Result;
-      end Sum_Squares;
-
-      function Sqrt (Item : in Feature_Type'Base) return Feature_Type'Base is
-         function powf (a, b : Float) return Float with
-            Import => True, Convention => C, External_Name => "powf";
-      begin
-         return Feature_Type'Base (powf (Float (Item), 0.5));
-      end Sqrt;
-
-      function Normalise (
-         Item : in Sample_Array)
-         return Sample_Epoch is
-         μ    : constant Sample_Type := Mean (Item);
-         -- μ in First .. Last
-         Sum2 : constant Feature_Type'Base := Sum_Squares (Item);
-         -- Sum2 in 0.0 .. Length * Max (First, Last) ** 2
-         Inv_Dev : constant Feature_Type'Base :=
-            1.0 / Sqrt ((Sum2 / Feature_Type'Base (Epoch_Size))
-            - Squared (Feature_Type (μ)));
-         -- Inv_Dev = 1 / Sqrt (Sum2 / Length - μ ** 2)
-         -- Inv_Dev ∈ 1 / Sqrt ([-Max (First, Last) ** 2,
-         --                      Max (First, Last)**2])
-         -- Inv_Dev ∈ 1 / [-Max (First, Last), Max (First, Last)]
-      begin
-         return [for I in Count_Type range 1 .. Epoch_Size =>
-                  Feature_Type (Item (I - 1 + Item'First) - μ) * Inv_Dev];
-      end Normalise;
-
-      function Dynamic_Time_Warping (
-         Signal  : in Sample_Array;
-         Pattern : in Sample_Array;
-         Maximum : in Feature_Type)
-         return Feature_Type'Base is
-      begin
-         return abs (Single_Dynamic_Time_Warping (
-            Signal  => Normalise (Signal),
-            Pattern => Normalise (Pattern),
-            Max     => Maximum) + 0.1);
-      end Dynamic_Time_Warping;
 
    end Unproved;
 

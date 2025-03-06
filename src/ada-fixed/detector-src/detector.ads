@@ -7,6 +7,7 @@ package Detector with SPARK_Mode => On is
    Epoch_Size        : constant := Stride_Size * Strides_Per_Epoch;
    Welch_Size        : constant := 512;
    Welch_Overlap     : constant := Welch_Size / 2;
+   Warping_Window    : constant := 16;
 
    type Count_Type is range 0 .. 2 ** (Bits - 1) - 1 with Size => Bits;
    subtype Positive_Count_Type is Count_Type range 1 .. Count_Type'Last;
@@ -103,7 +104,11 @@ package Detector with SPARK_Mode => On is
       Global => null,
       Post   => Energy'Result >= 0.0;
 
-   -- procedure Fast_Fourier_Transform (
+   function Dynamic_Time_Warping (
+      Signal  : in Sample_Epoch;
+      Pattern : in Sample_Epoch;
+      Maximum : in Feature_Type)
+      return Feature_Type;
 
    -->> Welch <<--
    -- Overlap := Welch_Window_Size / 2

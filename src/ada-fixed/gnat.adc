@@ -9,7 +9,8 @@ pragma Restrictions (
    No_Recursion,
 -- No_Allocators,
    No_Dispatch,
-   No_Implicit_Dynamic_Code,
-   No_Secondary_Stack);
+-- No_Secondary_Stack,
+   No_Implicit_Dynamic_Code
+);
 pragma Profile (Ravenscar);
 pragma Suppress (All_Checks);

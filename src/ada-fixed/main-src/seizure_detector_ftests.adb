@@ -74,11 +74,11 @@ begin
       Put (Energy (Epoch)'Image);
       Put (" ");
       Put (Max_Distance (Epoch)'Image);
-   -- for I in 1 .. Batch.Count loop
-   --    Put (" ");
-   --    Put (Dynamic_Time_Warping (
-   --       Epoch, Batch.Patterns (I), Batch.d_max_c)'Image);
-   -- end loop;
+      for I in 1 .. Batch.Count loop
+         Put (" ");
+         Put (Dynamic_Time_Warping (
+            Epoch, Batch.Patterns (I), Batch.d_max_c)'Image);
+      end loop;
       New_Line;
       Index := Index + Stride_Size;
    end loop;
