@@ -208,6 +208,7 @@ namespace Seizure {
       return DTWCPU_u<with_sqrt>(S, Q, blk, params, max);
     }
   }
+
 }  // namespace Seizure
 // NOLINTEND(readability-function-size)
 

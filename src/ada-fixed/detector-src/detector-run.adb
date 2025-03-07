@@ -128,8 +128,8 @@ begin
       if Is_Seizure (Signal, Batch) then
          New_Line;
          Put_Line ("Seizure!");
-      else
-         Put_Line (".");
+      -- else
+      --    Put ('.');
       end if;
    end loop Detection_Loop;
 end Detector.Run;
