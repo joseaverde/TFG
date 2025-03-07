@@ -18,6 +18,7 @@ procedure Seizure_Detector_FTests with SPARK_Mode => Off is
    Count  : Count_Type;
    Index  : Count_Type;
    Epoch  : Sample_Epoch;
+   Normal : Normalised_Epoch;
 begin
 
    Get (Count);
@@ -29,9 +30,10 @@ begin
    Get (Batch.Max_Dist.Low); Get (Batch.Max_Dist.High);
    Get (Batch.d_max_c);
    for P in 1 .. Pattern_Index (Count) loop
-      for I in Pattern_Type'Range loop
-         Get (Batch.Patterns (P) (I));
+      for I in Epoch'Range loop
+         Get (Epoch (I));
       end loop;
+      Batch.Patterns (P) := Detector.Normalise (Epoch);
    end loop;
 
    Get (Count);
@@ -74,10 +76,11 @@ begin
       Put (Energy (Epoch)'Image);
       Put (" ");
       Put (Max_Distance (Epoch)'Image);
+      Normal := Normalise (Epoch);
       for I in 1 .. Batch.Count loop
          Put (" ");
          Put (Dynamic_Time_Warping (
-            Epoch, Batch.Patterns (I), Batch.d_max_c)'Image);
+            Normal, Batch.Patterns (I), Batch.d_max_c)'Image);
       end loop;
       New_Line;
       Index := Index + Stride_Size;

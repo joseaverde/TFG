@@ -68,6 +68,18 @@ package body Detector with SPARK_Mode => On is
 
    -->> Dynamic Time Warping <<--
 
+   function Normalise (
+      Item : in Sample_Epoch)
+      return Normalised_Epoch renames
+      Detector.Details.Dynamic_Time_Warping.Normalise;
+
+   function Dynamic_Time_Warping (
+      Signal  : in Normalised_Epoch;
+      Pattern : in Normalised_Epoch;
+      Maximum : in Feature_Type)
+      return Feature_Type
+      renames Single_Dynamic_Time_Warping;
+
    function Dynamic_Time_Warping (
       Signal  : in Sample_Epoch;
       Pattern : in Sample_Epoch;
@@ -138,10 +150,13 @@ package body Detector with SPARK_Mode => On is
          return False;
       end if;
 
-      return
-         (for some I in 1 .. Batch.Count =>
-            Dynamic_Time_Warping (Item, Batch.Patterns (I), Batch.d_max_c)
-            <= Batch.d_max_c);
+      return (
+         declare
+            Epoch : constant Normalised_Epoch := Normalise (Item);
+         begin
+            (for some I in 1 .. Batch.Count =>
+               Dynamic_Time_Warping (Epoch, Batch.Patterns (I), Batch.d_max_c)
+               < Batch.d_max_c));
    end Is_Seizure;
 
 end Detector;

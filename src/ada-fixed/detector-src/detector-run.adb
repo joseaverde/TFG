@@ -115,8 +115,8 @@ procedure Detector.Run is
       Max_Dist => (Feature_Type'First, Feature_Type'Last),
       d_max_c  => 0.0,
       Patterns => [for I in 1 .. Patterns =>
-                     [for J in Sample_Epoch'Range =>
-                        (Sample_Type (I) * Sample_Type (J))]]);
+                     Normalise ([for J in Sample_Epoch'Range =>
+                                   (Sample_Type (I) * Sample_Type (J))])]);
 
 begin
    Detection_Loop : loop

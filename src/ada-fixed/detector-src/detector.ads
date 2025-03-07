@@ -118,6 +118,19 @@ package Detector with SPARK_Mode => On is
       Global => null,
       Post   => Energy'Result >= 0.0;
 
+   type Normalised_Epoch is private;
+
+   function Normalise (
+      Item : in Sample_Epoch)
+      return Normalised_Epoch with
+      Global => null;
+
+   function Dynamic_Time_Warping (
+      Signal  : in Normalised_Epoch;
+      Pattern : in Normalised_Epoch;
+      Maximum : in Feature_Type)
+      return Feature_Type;
+
    function Dynamic_Time_Warping (
       Signal  : in Sample_Epoch;
       Pattern : in Sample_Epoch;
@@ -140,8 +153,7 @@ package Detector with SPARK_Mode => On is
    -->> Batchs <<--
 
    type Pattern_Index is range 1 .. 5;
-   subtype Pattern_Type is Sample_Array (1 .. Epoch_Size);
-   type Pattern_Array is array (Pattern_Index range <>) of Pattern_Type;
+   type Pattern_Array is array (Pattern_Index range <>) of Normalised_Epoch;
    type Real_Span is record Low, High : Feature_Type; end record;
 
    type Batch_Type (Count : Pattern_Index := 1) is record
@@ -154,5 +166,26 @@ package Detector with SPARK_Mode => On is
       Item  : in Sample_Epoch;
       Batch : in Batch_Type)
       return Boolean;
+
+private
+
+   Normalised_Mantissa : constant := 7;
+   Normalised_Delta    : constant := 2.0 ** (-Normalised_Mantissa);
+
+   pragma Assert (Normalised_Mantissa mod 2 = 1);
+
+   -- The mantissa should be odd, so that we can compute the sqrt(max)
+
+   type Normalised_Sample is
+      delta Normalised_Delta
+      range -2.0 ** (Bits - Normalised_Mantissa - 1)
+         .. 2.0 ** (Bits - Normalised_Mantissa - 1) - Normalised_Delta with
+      Size => Bits;
+
+   Sqrt_Last_Static : constant :=
+      2.0 ** ((Bits - Normalised_Mantissa - 1) / 2) - 1.0;
+   Sqrt_Last : constant Normalised_Sample := Sqrt_Last_Static;
+
+   type Normalised_Epoch is array (Sample_Epoch'Range) of Normalised_Sample;
 
 end Detector;

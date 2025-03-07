@@ -56,24 +56,6 @@ package Detector.Details.Dynamic_Time_Warping with SPARK_Mode => On is
 
    -->> Normalise <<--
 
-   Normalised_Mantissa : constant := 7;
-   Normalised_Delta    : constant := 2.0 ** (-Normalised_Mantissa);
-
-   -- The mantissa should be odd, so that we can compute the sqrt(max)
-   pragma Assert (Normalised_Mantissa mod 2 = 1);
-
-   type Normalised_Sample is
-      delta Normalised_Delta
-      range -2.0 ** (Bits - Normalised_Mantissa - 1)
-         .. 2.0 ** (Bits - Normalised_Mantissa - 1) - Normalised_Delta with
-      Size => Bits;
-
-   Sqrt_Last_Static : constant :=
-      2.0 ** ((Bits - Normalised_Mantissa - 1) / 2) - 1.0;
-   Sqrt_Last : constant Normalised_Sample := Sqrt_Last_Static;
-
-   type Normalised_Epoch is array (Sample_Epoch'Range) of Normalised_Sample;
-
    function Normalise (
       Item : in Sample_Epoch)
       return Normalised_Epoch;
