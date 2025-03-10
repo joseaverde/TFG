@@ -16,9 +16,12 @@ library project Detector is
       "Detector.Details.Fourier_Transform",
       "Detector.Details.Lemmas",
       "Detector.Details.Max_Distance",
+      "Detector.Details.Normalise",
       "Detector.Details.Mean",
       "Detector.Details.Simpson",
+      "Detector.Details.Square_Root",
       "Detector.Details.Trigonometric",
+      "Detector.Details.Variance",
       "Detector.Details.Welch",
       "Detector.Run");
    for Object_Dir use "obj/" & Detector_Common.Suffix;

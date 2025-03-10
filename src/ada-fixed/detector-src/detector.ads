@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------
 --                                                                           --
---                              D E T E C T O R                              --
+--                          D E T E C T O R . A D S                          --
 --                                                                           --
 --                      S E I Z U R E   D E T E C T O R                      --
 --                                                                           --
@@ -169,22 +169,31 @@ package Detector with SPARK_Mode => On is
 
 private
 
-   Normalised_Mantissa : constant := 7;
+   Normalised_Mantissa : constant := 13;
    Normalised_Delta    : constant := 2.0 ** (-Normalised_Mantissa);
 
    pragma Assert (Normalised_Mantissa mod 2 = 1);
 
    -- The mantissa should be odd, so that we can compute the sqrt(max)
 
-   type Normalised_Sample is
+   type Base_Normalised_Sample is
       delta Normalised_Delta
       range -2.0 ** (Bits - Normalised_Mantissa - 1)
          .. 2.0 ** (Bits - Normalised_Mantissa - 1) - Normalised_Delta with
       Size => Bits;
 
+   subtype Normalised_Sample is Base_Normalised_Sample range -16.0 .. 16.0;
+
+   pragma Assert (Base_Normalised_Sample (
+      2 ** Log_2 (Count_Type (Normalised_Sample'Last)))
+      = Normalised_Sample'Last);
+   pragma Assert (Base_Normalised_Sample (
+      -2 ** Log_2 (Count_Type (abs Normalised_Sample'First)))
+      = Normalised_Sample'First);
+
    Sqrt_Last_Static : constant :=
       2.0 ** ((Bits - Normalised_Mantissa - 1) / 2) - 1.0;
-   Sqrt_Last : constant Normalised_Sample := Sqrt_Last_Static;
+   Sqrt_Last : constant Base_Normalised_Sample := Sqrt_Last_Static;
 
    type Normalised_Epoch is array (Sample_Epoch'Range) of Normalised_Sample;
 

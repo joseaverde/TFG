@@ -1,6 +1,7 @@
 with Detector.Details.Dynamic_Time_Warping;
 with Detector.Details.Energy;
 with Detector.Details.Max_Distance;
+with Detector.Details.Normalise;
 with Detector.Details.Mean;
 with Detector.Details.Simpson;
 with Detector.Details.Welch;
@@ -8,6 +9,7 @@ with Detector.Details.Welch;
 use Detector.Details.Dynamic_Time_Warping;
 use Detector.Details.Energy;
 use Detector.Details.Max_Distance;
+use Detector.Details.Normalise;
 use Detector.Details.Mean;
 use Detector.Details.Simpson;
 use Detector.Details.Welch;
@@ -71,7 +73,7 @@ package body Detector with SPARK_Mode => On is
    function Normalise (
       Item : in Sample_Epoch)
       return Normalised_Epoch renames
-      Detector.Details.Dynamic_Time_Warping.Normalise;
+      Detector.Details.Normalise.Normalise;
 
    function Dynamic_Time_Warping (
       Signal  : in Normalised_Epoch;
