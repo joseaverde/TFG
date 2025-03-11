@@ -152,13 +152,12 @@ package body Detector with SPARK_Mode => On is
          return False;
       end if;
 
-      return (
-         declare
-            Epoch : constant Normalised_Epoch := Normalise (Item);
-         begin
-            (for some I in 1 .. Batch.Count =>
-               Dynamic_Time_Warping (Epoch, Batch.Patterns (I), Batch.d_max_c)
-               < Batch.d_max_c));
+      return (declare
+         Epoch : constant Normalised_Epoch := Normalise (Item);
+      begin
+         (for some I in 1 .. Batch.Count =>
+            Dynamic_Time_Warping (Epoch, Batch.Patterns (I), Batch.d_max_c)
+            < Batch.d_max_c));
    end Is_Seizure;
 
 end Detector;

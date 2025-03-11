@@ -46,8 +46,8 @@ package body Detector.Details.Normalise with SPARK_Mode => On is
    -- If Value < 0.0 then
    --    Value / Dev < 0.0    [Dev > 0.0 and Value < 0.0]
    --    Value / Dev >= NF    [As per postcondition]
-   --    Value >= NF * Dev    [Multiply by NF both sides]
-   --    Dev <= Value / NF    [Divide by NF < 0.0]
+   --    Value >= NF * Dev    [Multiply by Dev both sides]
+   --    Dev >= Value / NF    [Divide by NF < 0.0]
    --
    -- Now we know the values of Dev that do not overflow.
 
@@ -60,12 +60,16 @@ package body Detector.Details.Normalise with SPARK_Mode => On is
       pragma Assert (Normalised_Sample'(Left / Right) <= NL);
    end Lemma_Positive_Safe_Division;
 
--- procedure Lemma_Negative_Safe_Division (
---    Left  : in Real;
---    Right : in Sqrt_Result) is
--- begin
---    null;
--- end Lemma_Negative_Safe_Division;
+   procedure Lemma_Negative_Safe_Division (
+      Left  : in Real;
+      Right : in Sqrt_Result) is
+      -- Thanks to Álvaro and Lucía for helping me debug this Lemma :)
+   begin
+      pragma Assert (Left < 0.0);
+      pragma Assert (Right > 0.0);
+      pragma Assert (NF < 0.0);
+      pragma Assert (Right * NF <= Left);
+   end Lemma_Negative_Safe_Division;
 
    function Normalise (
       Item : in Sample_Epoch)
@@ -117,10 +121,10 @@ package body Detector.Details.Normalise with SPARK_Mode => On is
             elsif Value > 0.0 and then Dev >= Value / NL then
                Lemma_Positive_Safe_Division (Value, Dev);
                Result (I) := Value / Dev;
-            elsif Value < 0.0 and then Dev >= (abs Value) / NL then
+            elsif Value < 0.0 and then Dev >= Value / NF then
                -- TODO: Properly prove this shit using the other lemma.
-               Lemma_Positive_Safe_Division (abs Value, Dev);
-               Result (I) := -((abs Value) / Dev);
+               Lemma_Negative_Safe_Division (Value, Dev);
+               Result (I) := Value / Dev;
             else
                -- TODO: Signalise it
                Result (I) := (if Value > 0.0 then Normalised_Sample'Last

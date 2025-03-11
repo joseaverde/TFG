@@ -26,15 +26,15 @@ package Detector.Details.Normalise with SPARK_Mode => On is
          and then Right >= Left / NL,
       Post     => Normalised_Sample'(Left / Right) <= NL;
 
--- procedure Lemma_Negative_Safe_Division (
---    Left  : in Real;
---    Right : in Sqrt_Result) with
---    Ghost    => True,
---    Global   => null,
---    Pre      => Left < 0.0 and then Right > 0.0
---       and then Left >= Real (Sample_Type'First) - Real (Sample_Type'Last)
---       and then Right <= Left / NF,
---    Post     => Normalised_Sample'(Left / Right) >= NF;
+   procedure Lemma_Negative_Safe_Division (
+      Left  : in Real;
+      Right : in Sqrt_Result) with
+      Ghost    => True,
+      Global   => null,
+      Pre      => Left < 0.0 and then Right > 0.0
+         and then Left >= Real (Sample_Type'First) - Real (Sample_Type'Last)
+         and then Right >= Left / NF,
+      Post     => Normalised_Sample'(Left / Right) >= NF;
 
    function Normalise (
       Item : in Sample_Epoch)
