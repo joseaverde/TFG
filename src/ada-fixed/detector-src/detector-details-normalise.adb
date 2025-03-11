@@ -69,6 +69,7 @@ package body Detector.Details.Normalise with SPARK_Mode => On is
       pragma Assert (Right > 0.0);
       pragma Assert (NF < 0.0);
       pragma Assert (Right * NF <= Left);
+      pragma Assert (NF <= Left / Right);
    end Lemma_Negative_Safe_Division;
 
    function Normalise (
@@ -122,7 +123,6 @@ package body Detector.Details.Normalise with SPARK_Mode => On is
                Lemma_Positive_Safe_Division (Value, Dev);
                Result (I) := Value / Dev;
             elsif Value < 0.0 and then Dev >= Value / NF then
-               -- TODO: Properly prove this shit using the other lemma.
                Lemma_Negative_Safe_Division (Value, Dev);
                Result (I) := Value / Dev;
             else

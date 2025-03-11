@@ -106,7 +106,7 @@ package body Detector with SPARK_Mode => On is
       Last   : Count_Type;
       Pxx    : Welch_Array;
    begin
-      Welch (Signal, Pxx, Welch_Overlap, Sampling_Frequency);
+      Welch (Signal, Pxx);
       -- PSD_1
       First := Count_Type (Feature_Type (2.0)  / Fq_Res);
       Last  := Count_Type (Feature_Type (12.0) / Fq_Res);

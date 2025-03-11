@@ -30,12 +30,8 @@ package body Detector.Details.Welch with SPARK_Mode => Off is
       Squared (Feature_Type (Item.Re)) + Squared (Feature_Type (Item.Im)));
 
    procedure Welch (
-      Signal    : in     Sample_Array;
-      Pxx       :    out Welch_Array;
-      Overlap   : in     Positive_Count_Type;
-      Frequency : in     Feature_Type) is
-      Steps  : constant Feature_Type := Feature_Type (
-         (Signal'Length - Welch_Size) / Overlap + 1);
+      Signal : in     Sample_Array;
+      Pxx    :    out Welch_Array) is
       Factor : constant Feature_Type := Feature_Type (2.0)
                      / Feature_Type (Normalisation_Factor * Frequency);
       Input  : Fourier_Transform_Real_Array;

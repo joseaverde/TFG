@@ -4,6 +4,9 @@ package body Detector.Details.Square_Root with SPARK_Mode => On is
 
    -->> Square Root <<--
 
+   -- https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
+   -- Binary numeral system
+
    function Sqrt (
       Item : in Variance.Real)
       return Sqrt_Result is

@@ -19,6 +19,9 @@ procedure Seizure_Detector_FTests with SPARK_Mode => Off is
    Index  : Count_Type;
    Epoch  : Sample_Epoch;
    Normal : Normalised_Epoch;
+   PSD_1  : Feature_Type;
+   PSD_2  : Feature_Type;
+   PSD_3  : Feature_Type;
 begin
 
    Get (Count);
@@ -54,25 +57,15 @@ begin
    while Index <= Count - Epoch_Size + 1 loop
       Epoch := Signal (Index .. Index + Epoch_Size - 1);
       Put (Is_Seizure (Epoch, Batch)'Image);
-   -- Put (" ");
-   -- Put (Power_Spectral_Density (
-   --    Signal             => Epoch,
-   --    Sampling_Frequency => PSD_Sampling_Frequency,
-   --    Low                => PSD_1_Bounds.Low,
-   --    High               => PSD_1_Bounds.High)'Image);
-   -- Put (" ");
-   -- Put (Power_Spectral_Density (
-   --    Signal             => Epoch,
-   --    Sampling_Frequency => PSD_Sampling_Frequency,
-   --    Low                => PSD_2_Bounds.Low,
-   --    High               => PSD_2_Bounds.High)'Image);
-   -- Put (" ");
-   -- Put (Power_Spectral_Density (
-   --    Signal             => Epoch,
-   --    Sampling_Frequency => PSD_Sampling_Frequency,
-   --    Low                => PSD_3_Bounds.Low,
-   --    High               => PSD_3_Bounds.High)'Image);
-   -- Put (" ");
+      Power_Spectral_Density (Epoch, Feature_Type (Stride_Size),
+                              PSD_1, PSD_2, PSD_3);
+      Put (" ");
+      Put (PSD_1'Image);
+      Put (" ");
+      Put (PSD_2'Image);
+      Put (" ");
+      Put (PSD_3'Image);
+      Put (" ");
       Put (Energy (Epoch)'Image);
       Put (" ");
       Put (Max_Distance (Epoch)'Image);

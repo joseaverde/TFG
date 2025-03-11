@@ -20,7 +20,6 @@ package Detector with SPARK_Mode => On is
    Strides_Per_Epoch : constant := 5;
    Epoch_Size        : constant := Stride_Size * Strides_Per_Epoch;
    Welch_Size        : constant := 512;
-   Welch_Overlap     : constant := Welch_Size / 2;
    Warping_Window    : constant := 16;
 
    type Count_Type is range 0 .. 2 ** (Bits - 1) - 1 with Size => Bits;
