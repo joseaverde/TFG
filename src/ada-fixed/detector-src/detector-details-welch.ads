@@ -62,7 +62,7 @@ package Detector.Details.Welch with SPARK_Mode => On is
    -- Let's suppose that we are using 65 bits for the output Norm_Squared.
    -- The loop is executed `Steps' times. Therefore the number in `Pxx (I)' is
    -- 65 bit number multiplied by `Steps'. This value needs:
-   -- 
+   --
    --    65 + Ceiling (Log_2 (Steps)) bits
    --
    -- To store it. At the end we will need to divide by `Frequency / 2', by

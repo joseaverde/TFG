@@ -4,6 +4,8 @@ package body Detector.Details.Fourier_Transform with SPARK_Mode => On is
 
    pragma Warnings (Off);
 
+   -- FIXME: https://en.wikipedia.org/wiki/Fast_Fourier_transform#Accuracy
+
    type Trigonometric_Output_Array is
       array (Count_Type range 0 .. Welch_Size - 1)
       of Trigonometric_Output_Type;

@@ -159,9 +159,25 @@ procedure Test_Fft is
       Output := Buffer (O);
    end FFT;
 
+   procedure DFT (
+      Input  : in     Real_Array;
+      Output :    out Complex_Array) is
+      Re, Im : Real;
+   begin
+      for I in 0 .. Input'Length - 1 loop
+         Re := 0.0;
+         Im := 0.0;
+         for J in 0 .. Input'Length - 1 loop
+            Re := Re + Input (Input'First + J) * Cos_Omega (I * J, Input'Length);
+            Im := Im + Input (Input'First + J) * Sin_Omega (I * J, Input'Length);
+         end loop;
+         Output (Output'First + I) := (Re, Im);
+      end loop;
+   end DFT;
+
    -->> <<--
 
-   Size   : constant := 100_000;
+   Size   : constant := 1_000;
    Period : constant := 4;
    Input  : Real_Array (1 .. Size) := [others => 0.0];
    Output : Complex_Array (1 .. Size) := [others => (0.0, 0.0)];
@@ -174,14 +190,25 @@ begin
       Input (I) := Sin (
          Ada.Numerics.Pi * 2.0 * Real (I - 1) / Real (Size) * Real (Period));
    end loop;
+
+   -- New
+   Output := [others => (0.0, 0.0)];
    Start := Clock;
    FFT (Input, Output);
    Stop := Clock;
    Put_Line (Duration'Image (Stop - Start));
 
-   Start := Clock;
+   -- Old
    Output := [others => (0.0, 0.0)];
+   Start := Clock;
    FFT_Old (Input, Output, Size, 1);
+   Stop := Clock;
+   Put_Line (Duration'Image (Stop - Start));
+
+   -- Discrete
+   Output := [others => (0.0, 0.0)];
+   Start := Clock;
+   DFT (Input, Output);
    Stop := Clock;
    Put_Line (Duration'Image (Stop - Start));
 

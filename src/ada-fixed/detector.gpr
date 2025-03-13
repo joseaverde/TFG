@@ -13,6 +13,7 @@ library project Detector is
       "Detector.Details",
       "Detector.Details.Dynamic_Time_Warping",
       "Detector.Details.Energy",
+      "Detector.Details.Fast_Fourier_Transform",
       "Detector.Details.Fourier_Transform",
       "Detector.Details.Lemmas",
       "Detector.Details.Max_Distance",

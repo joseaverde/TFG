@@ -15,8 +15,8 @@ package body Detector.Details.Simpson with SPARK_Mode => Off is
       if Signal'Length > 2 and then Signal'Length mod 2 = 0 then
          Result := Result + Feature_Type (dx * (
                   5.0 * Signal (Signal'Last)
-               + 8.0 * Signal (Signal'Last - 1)
-               -       Signal (Signal'Last - 2))) / 12.0;
+                + 8.0 * Signal (Signal'Last - 1)
+                -       Signal (Signal'Last - 2))) / 12.0;
       end if;
       return Result;
    end Simpson;

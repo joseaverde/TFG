@@ -6,7 +6,7 @@ package Detector.Details.Trigonometric with SPARK_Mode => On is
       delta 2.0 ** (-Bits / 2)
       range -2.0 ** (Bits / 2 - 1)
          .. 2.0 ** (Bits / 2 - 1) - 2.0 ** (-Bits / 2) with
-      Size =>Bits;
+      Size => Bits;
 
    type Trigonometric_Output_Type is
       delta 2.0 ** (-(Bits - 2))

@@ -69,6 +69,7 @@ package body Detector.Details.Normalise with SPARK_Mode => On is
       pragma Assert (Right > 0.0);
       pragma Assert (NF < 0.0);
       pragma Assert (Right * NF <= Left);
+      pragma Assert ((if Right * NF <= Left then NF <= Left / Right));
       pragma Assert (NF <= Left / Right);
    end Lemma_Negative_Safe_Division;
 

@@ -79,6 +79,7 @@ package Detector with SPARK_Mode => On is
       Size => Bits;
 
    subtype Sample_Type is Sample_Base_Type range -10_000.0 .. 10_000.0;
+   pragma Assert (abs Sample_Type'First = abs Sample_Type'Last);
 
    type Sample_Base_Array is array (Index_Type range <>) of Sample_Base_Type;
    subtype Sample_Base_Epoch is Sample_Base_Array (1 .. Epoch_Size);
