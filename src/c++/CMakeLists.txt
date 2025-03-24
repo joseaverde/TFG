@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} \
-   -Ofast -march=native -Wno-ignored-optimization-argument")
+   -Ofast -Wno-ignored-optimization-argument")
 add_compile_options(-Wall -Wextra -Werror -pedantic -pedantic-errors -fPIC -g)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -96,4 +96,4 @@ set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
 
 add_subdirectory(src)
 add_subdirectory(tests)
-add_subdirectory(modules)
+# add_subdirectory(modules)

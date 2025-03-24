@@ -13,4 +13,14 @@ pragma Restrictions (
    No_Implicit_Dynamic_Code
 );
 pragma Profile (Ravenscar);
-pragma Suppress (All_Checks);
+-- Building High Integrity Applications with SPARK, p237
+pragma Suppress (Discriminant_Check);
+pragma Suppress (Division_Check);
+pragma Suppress (Index_Check);
+pragma Suppress (Length_Check);
+pragma Suppress (Overflow_Check);
+pragma Suppress (Range_Check);
+pragma Suppress (Tag_Check);
+pragma Suppress (Elaboration_Check);
+-- Building High Integrity Applications with SPARK, p239
+pragma Assertion_Policy (Ignore);

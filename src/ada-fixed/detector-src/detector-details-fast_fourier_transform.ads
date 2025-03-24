@@ -107,7 +107,7 @@ package Detector.Details.Fast_Fourier_Transform with SPARK_Mode => On is
 
    type Normalised_Sample is new Trigonometric.Trigonometric_Output_Type;
    subtype Scaling_Factor is Sample_Type;
-   type Normalised_Sample_Epoch is
+   type Normalised_Sample_Window is
       array (Count_Type range 0 .. Welch_Size - 1)
       of Normalised_Sample;
 
@@ -119,10 +119,25 @@ package Detector.Details.Fast_Fourier_Transform with SPARK_Mode => On is
    subtype Output_Sample is Sample_Base_Type
       range Sample_Type'First * Max_Factor_By_Shifting
          .. Sample_Type'Last * Max_Factor_By_Shifting;
+   type Complex is record
+      Re : Output_Sample;
+      Im : Output_Sample;
+   end record;
    type Fast_Fourier_Transform_Output is
       array (Count_Type range 0 .. Welch_Size - 1)
-      of Output_Sample;
+      of Complex;
+   type Normalised_Complex is record
+      Re : Normalised_Sample;
+      Im : Normalised_Sample;
+   end record;
+   type Normalised_Complex_Window is
+      array (Normalised_Sample_Window'Range)
+      of Normalised_Complex;
    pragma Assert (abs Output_Sample'First = Output_Sample'Last);
+
+-- function "*" (Left, Right : in Normalised_Complex)
+--    return Normalised_Complex with
+--    Global => null;
 
    function Acc_Scaling_Factor (
       Item : in Fast_Fourier_Transform_Input)
@@ -156,9 +171,10 @@ package Detector.Details.Fast_Fourier_Transform with SPARK_Mode => On is
 
    procedure Scale (
       Item   : in     Fast_Fourier_Transform_Input;
-      Result :    out Normalised_Sample_Epoch;
+      Result :    out Normalised_Sample_Window;
       Factor :    out Scaling_Factor) with
-      Global => null;
+      Global => null,
+      Post   => Factor >= 1.0;
 
    function Rescale_Factor (
       Factor : in Scaling_Factor;
@@ -169,17 +185,25 @@ package Detector.Details.Fast_Fourier_Transform with SPARK_Mode => On is
       Pre    => Factor >= 1.0;
 
    procedure Rescale (
-      Item   : in     Normalised_Sample_Epoch;
+      Item   : in     Normalised_Complex_Window;
       Result :    out Fast_Fourier_Transform_Output;
       Factor : in     Scaling_Factor;
       Shifts : in     Shift_Count) with
       Global => null,
       Pre    => Factor >= 1.0;
 
+   procedure Conquer (
+      Input  : in     Normalised_Complex_Window;
+      Output :    out Normalised_Complex_Window;
+      Chunk  : in     Positive_Count_Type;
+      Shift  :    out Boolean) with
+      Global => null,
+      Pre    => Input'Length mod Chunk = 0;
+
 -- -->> Public <<--
 
--- procedure Fast_Fourier_Transform (
---    Input  : in     Fast_Fourier_Transform_Input;
---    Output :    out Fast_Fourier_Transform_Output);
+   procedure Fast_Fourier_Transform (
+      Input  : in     Fast_Fourier_Transform_Input;
+      Output :    out Fast_Fourier_Transform_Output);
 
 end Detector.Details.Fast_Fourier_Transform;

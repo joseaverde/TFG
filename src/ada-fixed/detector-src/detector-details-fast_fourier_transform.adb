@@ -46,7 +46,7 @@ package body Detector.Details.Fast_Fourier_Transform with SPARK_Mode => On is
 
    procedure Scale (
       Item   : in     Fast_Fourier_Transform_Input;
-      Result :    out Normalised_Sample_Epoch;
+      Result :    out Normalised_Sample_Window;
       Factor :    out Scaling_Factor) is
    begin
       Factor := Get_Scaling_Factor (Item);
@@ -58,13 +58,16 @@ package body Detector.Details.Fast_Fourier_Transform with SPARK_Mode => On is
                Item (I - Result'First + Item'First));
          end loop;
          Factor := 1.0;
+         pragma Assert (Factor >= 1.0);
       else
          for I in Result'Range loop
             pragma Loop_Invariant (Factor > 1.0);
             pragma Loop_Invariant ((for all X of Item => Factor >= abs X));
             Result (I) := Scale (Item (I - Result'First + Item'First), Factor);
          end loop;
+         pragma Assert (Factor >= 1.0);
       end if;
+      pragma Assert (Factor >= 1.0);
    end Scale;
 
    function Rescale_Factor (
@@ -80,15 +83,66 @@ package body Detector.Details.Fast_Fourier_Transform with SPARK_Mode => On is
    end Rescale_Factor;
 
    procedure Rescale (
-      Item   : in     Normalised_Sample_Epoch;
+      Item   : in     Normalised_Complex_Window;
       Result :    out Fast_Fourier_Transform_Output;
       Factor : in     Scaling_Factor;
       Shifts : in     Shift_Count) is
       Scale : constant Output_Sample := Rescale_Factor (Factor, Shifts);
    begin
       for I in Item'Range loop
-         Result (I) := Item (I) * Scale;
+         Result (I) := (Item (I).Re * Scale, Item (I).Im * Scale);
       end loop;
    end Rescale;
+
+-- function "*" (Left, Right : in Normalised_Complex)
+--    return Normalised_Complex is
+--    Result : Normalised_Complex;
+-- begin
+--    Result.Re := Left.Re * Right.Re - Left.Im * Right.Im;
+--    Result.Im := Left.Re * Right.Im + Left.Re * Right.Im;
+--    return Result;
+-- end "*";
+
+   procedure Conquer (
+      Input  : in     Normalised_Complex_Window;
+      Output :    out Normalised_Complex_Window;
+      Chunk  : in     Positive_Count_Type;
+      Shift  :    out Boolean) is
+   begin
+      Shift := False;
+      Output := Input;
+   end Conquer;
+
+   procedure Fast_Fourier_Transform (
+      Input  : in     Fast_Fourier_Transform_Input;
+      Output :    out Fast_Fourier_Transform_Output) is
+
+      Buffer : array (Boolean) of Normalised_Complex_Window;
+      Scaled : Normalised_Sample_Window;
+      Factor : Scaling_Factor;
+      Shifts : Shift_Count := 0;
+      Result : Boolean := True;
+      Chunk  : Positive_Count_Type := 1;
+      Shift  : Boolean;
+
+   begin
+      Scale (Input, Scaled, Factor);
+      Buffer := [True  => [for I in Scaled'Range => (Scaled (I), 0.0)],
+                 False => [for I in Scaled'Range => (0.0, 0.0)]];
+      for Layer in 1 .. Fourier_Transform_Recursion_Depth loop
+         Conquer (Buffer (Result), Buffer (not Result), Chunk, Shift);
+         pragma Annotate (
+            GNATprove,
+            False_Positive,
+            "formal parameters ""Input"" and ""Output"" might be aliased",
+            """Input"" and ""Output"" are not aliased Result /= not Result");
+         Chunk := Chunk * 2;
+         Result := not Result;
+         if Shift then
+            Shifts := Shifts + 1;
+         end if;
+      end loop;
+      Rescale (Buffer (Result), Output, Factor, Shifts);
+   end Fast_Fourier_Transform;
 
 end Detector.Details.Fast_Fourier_Transform;

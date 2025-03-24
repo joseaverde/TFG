@@ -9,7 +9,6 @@
 #include <algorithm>
 
 namespace Seizure {
-
   template <typename Stream>
   concept Writable_stream = requires (Stream & stream, const char * str, std::size_t size) {
     { stream.write(str, size) }; // -> std::convertible_to<bool>;
@@ -49,7 +48,10 @@ namespace Seizure {
         if (not write(out, byte)) { return false; }
       }
     } else {
-      static_assert(false, "Mixed endianness machine");
+      // static_assert(false, "Mixed endianness machine");
+      for (auto byte : std::ranges::reverse_view(bytes)) {
+        if (not write(out, byte)) { return false; }
+      }
     }
     return true;
   }
@@ -109,7 +111,10 @@ namespace Seizure {
         if (not read(in, byte)) { return false; }
       }
     } else {
-      static_assert(false, "Mixed endianness machine");
+      // static_assert(false, "Mixed endianness machine");
+      for (auto & byte : std::ranges::reverse_view(wview)) {
+        if (not read(in, byte)) { return false; }
+      }
     }
     value = static_cast<T>(*data.begin());
     return true;

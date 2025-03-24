@@ -175,9 +175,97 @@ procedure Test_Fft is
       end loop;
    end DFT;
 
+   procedure Scaling_FFT (
+      Input  : in     Real_Array;
+      Output :    out Complex_Array) is
+
+      Odd_Part  : Positive_Count_Type := Input'Length;
+      Even_Part : Count_Type;
+      Depth     : Count_Type := 0;
+      Chunk     : Positive_Count_Type;
+      Count     : Positive_Count_Type;
+      subtype Output_Array is Complex_Array (Output'Range);
+
+      Scale : Float := Float'Max (1.0, Input'Reduce (Real'Max, Real'First));
+
+      Buffer    : array (Boolean) of Output_Array;
+      O         : Boolean := True;
+      T         : Boolean := False;
+   begin
+
+      while Odd_Part mod 2 = 0 loop
+         Odd_Part := Odd_Part / 2;
+         Depth := Depth + 1;
+      end loop;
+      Even_Part := Input'Length / Odd_Part;
+
+      -- Even_Part = 2 ** Depth
+      -- Input'Length = Odd_Part * 2 ** Depth
+
+      -- Discrete Fourier transform:
+
+      Buffer (O) :=
+         [for I in Output'Range =>
+            (Input (I - Output'First + Input'First) / Scale, 0.0)];
+
+      if Odd_Part = 1 then
+         Buffer (O) := [for I in Output'Range =>
+                          (Input (I - Output'First + Input'First), 0.0)];
+      else
+         for Offset in 0 .. Even_Part - 1 loop
+            for Index in 0 .. Odd_Part - 1 loop
+               declare
+                  Result : Complex := (0.0, 0.0);
+               begin
+                  for J in 0 .. Odd_Part - 1 loop
+                     Result := (
+                        @.Re + Cos_Omega (Index * J, Odd_Part) *
+                           Input (Input'First + Offset + Even_Part * J),
+                        @.Im + Sin_Omega (Index * J, Odd_Part) *
+                           Input (Input'First + Offset + Even_Part * J));
+                  end loop;
+                  Buffer (O) (Output'First + Offset * Odd_Part + Index) :=
+                     Result;
+               end;
+            end loop;
+         end loop;
+      end if;
+
+      -- Recursive Step, for powers of 2:
+
+      Chunk := Odd_Part;
+      Count := Even_Part;
+      for Layer in 1 .. Depth loop           -- Depth = log2(Length)
+         for C in 0 .. Count / 2 - 1 loop    -- Count * Chunk = Length
+            for K in 0 .. Chunk - 1 loop
+               declare
+                  Fst : constant Count_Type := Output'First + C * Chunk + K;
+                  Snd : constant Count_Type :=
+                     Output'First + (C + (Count / 2)) * Chunk + K;
+                  P   : constant Complex := Buffer (O) (Fst);
+                  Q   : constant Complex := Exponent_Product (Buffer (O) (Snd),
+                                                              K, Chunk * 2);
+               begin
+                  Buffer (T) (Output'First + 2 * C * Chunk + K) := P + Q;
+                  Buffer (T) (Output'First + (2 * C + 1) * Chunk + K) := P - Q;
+               end;
+            end loop;
+         end loop;
+
+         T := not T;
+         O := not O;
+         Chunk := Chunk * 2;
+         Count := Count / 2;
+      end loop;
+
+      Output :=
+         [for I in Output'Range =>
+            (Buffer (O) (I).Re * Scale, Buffer (O) (I).Im)];
+   end Scaling_FFT;
+
    -->> <<--
 
-   Size   : constant := 1_000;
+   Size   : constant := 8;
    Period : constant := 4;
    Input  : Real_Array (1 .. Size) := [others => 0.0];
    Output : Complex_Array (1 .. Size) := [others => (0.0, 0.0)];
@@ -187,7 +275,7 @@ procedure Test_Fft is
 begin
 
    for I in 1 .. Size loop
-      Input (I) := Sin (
+      Input (I) := 10000.0 * Sin (
          Ada.Numerics.Pi * 2.0 * Real (I - 1) / Real (Size) * Real (Period));
    end loop;
 
@@ -204,6 +292,7 @@ begin
    FFT_Old (Input, Output, Size, 1);
    Stop := Clock;
    Put_Line (Duration'Image (Stop - Start));
+   Put_Line (Output'Image);
 
    -- Discrete
    Output := [others => (0.0, 0.0)];
@@ -211,5 +300,13 @@ begin
    DFT (Input, Output);
    Stop := Clock;
    Put_Line (Duration'Image (Stop - Start));
+
+   -- Scaling
+   Output := [others => (0.0, 0.0)];
+   Start := Clock;
+   Scaling_FFT (Input, Output);
+   Stop := Clock;
+   Put_Line (Duration'Image (Stop - Start));
+   Put_Line (Output'Image);
 
 end Test_Fft;
