@@ -130,4 +130,11 @@ package Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
       Global => null,
       Post   => Norm2 (Left) * Norm2 (Right) = Norm2 (Left * Right);
 
+   procedure Lemma_Move_Minus_Outside (
+      Left  : in Uniform_Real;
+      Right : in Uniform_Real) with
+      Ghost  => True,
+      Global => null,
+      Post   => Real (Left * (-Right)) = -Real (Left * Right);
+
 end Detector.Lemmas.Uniformly_Complex;
