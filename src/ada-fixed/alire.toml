@@ -42,3 +42,4 @@ Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
 gnatprove = "^14.1.1"
 gnat_native = "^14.2.1"
 gnat_riscv64_elf = "^14.1.1"
+gnat_arm_elf = "^14.1.1"

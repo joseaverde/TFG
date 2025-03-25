@@ -14,10 +14,10 @@ package Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
       range -2.0 ** Real_Whole_Bits .. 2.0 ** Real_Whole_Bits - Real_Delta with
       Size => Bits;
 
-   subtype Uniform_Real is Real range -1.0 .. 1.0;
--- subtype Uniform_Real is Real range -1.0 + Real'Delta .. 1.0 - Real'Delta;
+   subtype Uniform_Real is Real range -1.0 + Real'Delta .. 1.0 - Real'Delta;
    subtype Positive_Uniform_Real is Uniform_Real
       range 0.0 ..  Uniform_Real'Last;
+   subtype Double_Uniform_Real is Real range -2.0 .. 2.0;
 
    -- We declare a complex type.
 
@@ -37,8 +37,8 @@ package Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
    -- then it is just garbage.
 
    subtype Complex_Result is Complex with
-      Dynamic_Predicate => Complex_Result.Re in -2.0 .. 2.0
-                  and then Complex_Result.Im in -2.0 .. 2.0;
+      Dynamic_Predicate => Complex_Result.Re in Double_Uniform_Real
+                  and then Complex_Result.Im in Double_Uniform_Real;
 
    function Norm2 (Item : in Complex_Result) return Real is (
       Item.Re * Item.Re + Item.Im * Item.Im) with
@@ -46,7 +46,7 @@ package Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
       Post   => Norm2'Result in 0.0 .. 8.0;
 
    subtype Uniform_Complex is Complex_Result with
-      Dynamic_Predicate => Norm2 (Uniform_Complex) in 0.0 .. 1.0;
+      Dynamic_Predicate => Norm2 (Uniform_Complex) in Positive_Uniform_Real;
 
    -- We then need to prove a new property which is that if:
    --
@@ -60,6 +60,13 @@ package Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
       Ghost  => True,
       Global => null,
       Post   => Item.Re in Uniform_Real and then Item.Im in Uniform_Real;
+
+   procedure Lemma_Multiplication_Of_Uniforms_Is_Uniform (
+      Left  : in Uniform_Real;
+      Right : in Uniform_Real) with
+      Ghost  => True,
+      Global => null,
+      Post   => Left * Right in Uniform_Real;
 
    -- Let's define the product between two complex numbers as such:
    --
@@ -82,18 +89,15 @@ package Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
    -- of the norms.
 
    procedure Lemma_Distributive_Property (
-      A    : in Uniform_Real;
+      A    : in Double_Uniform_Real;
       B, C : in Uniform_Real) with
-      Ghost    => True,
-      Global   => null,
-      Pre      => B + C in -1.0 .. 1.0,
-      Post     => Real (A * (B + C)) = Real (A * B) + Real (A * C)
-         and then Real (A * (B + C)) in -1.0 .. 1.0
-         and then Real (A * B) + Real (A * C) in -1.0 .. 1.0;
+      Ghost  => True,
+      Global => null,
+      Post   => Real (A * (B + C)) = Real (A * B) + Real (A * C);
 
    procedure Lemma_Commutative_Property (
-      Left  : in Uniform_Real;
-      Right : in Uniform_Real) with
+      Left  : in Double_Uniform_Real;
+      Right : in Double_Uniform_Real) with
       Ghost  => True,
       Global => null,
       Post   => Real (Left * Right) = Real (Right * Left);
@@ -101,17 +105,29 @@ package Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
    procedure Lemma_Distributive_Property (
       A, B : in Uniform_Real;
       C, D : in Uniform_Real) with
-      Ghost    => True,
-      Global   => null,
-      Pre      => A + B in -1.0 .. 1.0 and then C + D in -1.0 .. 1.0,
-      Post     => Real (A + B) * Real (C + D)
-                  = Real (A * C) + (A * D) + (B * C) + (B * D);
+      Ghost  => True,
+      Global => null,
+      Post   => Real (A + B) * Real (C + D)
+                = Real (A * C) + (A * D) + (B * C) + (B * D);
 
--- procedure Lemma_Norm2_Of_Product_Equals_Product_Of_Norm2 (
---    Left  : in Uniform_Complex;
---    Right : in Uniform_Complex) with
---    Ghost  => True,
---    Global => null,
---    Post   => Norm2 (Left) * Norm2 (Right) = Norm2 (Left * Right);
+   procedure Lemma_Square_Of_Negation_Equals_Its_Square_Without_Negation (
+      Item : in Uniform_Real) with
+      Ghost  => True,
+      Global => null,
+      Post   => Uniform_Real ((-Item) * (-Item))
+                = Uniform_Real (Item * Item);
+
+   procedure Lemma_Adding_Itself_Doubles_It (
+      Item : in Uniform_Real) with
+      Ghost  => True,
+      Global => null,
+      Post   => Item + Item = 2 * Item;
+
+   procedure Lemma_Norm2_Of_Product_Equals_Product_Of_Norm2 (
+      Left  : in Uniform_Complex;
+      Right : in Uniform_Complex) with
+      Ghost  => True,
+      Global => null,
+      Post   => Norm2 (Left) * Norm2 (Right) = Norm2 (Left * Right);
 
 end Detector.Lemmas.Uniformly_Complex;
