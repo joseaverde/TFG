@@ -11,7 +11,7 @@ library project Detector is
    for Library_Interface use (
       "Detector",
       "Detector.Details",
-      "Detector.Details.Complex",
+      -- "Detector.Details.Complex",
       "Detector.Details.Dynamic_Time_Warping",
       "Detector.Details.Energy",
       "Detector.Details.Fast_Fourier_Transform",
@@ -25,6 +25,8 @@ library project Detector is
       "Detector.Details.Trigonometric",
       "Detector.Details.Variance",
       "Detector.Details.Welch",
+      "Detector.Lemmas",
+      "Detector.Lemmas.Uniformly_Complex",
       "Detector.Run");
    for Object_Dir use "obj/" & Detector_Common.Suffix;
    for Source_Dirs use ("config", "detector-src");
