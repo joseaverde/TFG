@@ -110,6 +110,18 @@ package Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
       Post   => Real (A + B) * Real (C + D)
                 = Real (A * C) + (A * D) + (B * C) + (B * D);
 
+   procedure Lemma_Associative_Property (
+      A, B, C : in Uniform_Real) with
+      Ghost  => True,
+      Global => null,
+      Post   => Real'(A * Real'(B * C)) = Real'(Real'(A * B) * C);
+
+-- procedure Lemma_Associative_Property (
+--    A, B, C, D : in Uniform_Real) with
+--    Ghost  => True,
+--    Global => null,
+--    Post   => Real'(A * Real'(B * C)) = Real'(Real'(A * B) * C);
+
    procedure Lemma_Square_Of_Negation_Equals_Its_Square_Without_Negation (
       Item : in Uniform_Real) with
       Ghost  => True,

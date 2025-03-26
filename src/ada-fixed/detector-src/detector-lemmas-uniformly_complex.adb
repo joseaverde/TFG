@@ -83,6 +83,17 @@ package body Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
          = Real (A * C) + Real (B * C) + Real (A * D) + Real (B * D));
    end Lemma_Distributive_Property;
 
+   procedure Lemma_Associative_Property (
+      A, B, C : in Uniform_Real) is
+   begin
+      -- TODO:  Properly prove it
+      -- Proof: Read a elementary school math book.
+      -- NOTE:  I know that it can't be true because of precission. However,
+      --        in order to prove the properties for real numbers, we need to
+      --        assume associativity.
+      pragma Assume (Real'(A * Real'(B * C)) = Real'(Real'(A * B) * C));
+   end Lemma_Associative_Property;
+
    procedure Lemma_Square_Of_Negation_Equals_Its_Square_Without_Negation (
       Item : in Uniform_Real) is
    begin
@@ -276,11 +287,6 @@ package body Detector.Lemmas.Uniformly_Complex with SPARK_Mode is
       -- two cancel each other. We need to use the associative property
       -- on one of them.
 
-      -- TODO:  Properly prove it
-      -- Proof: Read a elementary school math book.
-      -- NOTE:  I know that it can't be true because of precission. However,
-      --        in order to prove the properties for real numbers, we need to
-      --        assume associativity.
       pragma Assume (
          Real'(Real (B * X) * Real (A * Y))
          = Real (A * X) * Real (B * Y));

@@ -27,6 +27,8 @@ library project Detector is
       "Detector.Details.Welch",
       "Detector.Lemmas",
       "Detector.Lemmas.Uniformly_Complex",
+      "Detector.Numerics",
+      "Detector.Numerics.Elementary_Functions",
       "Detector.Run");
    for Object_Dir use "obj/" & Detector_Common.Suffix;
    for Source_Dirs use ("config", "detector-src");
