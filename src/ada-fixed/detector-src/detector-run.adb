@@ -1,4 +1,5 @@
 with Interfaces.C;
+with Detector.Temp; use Detector.Temp;
 
 procedure Detector.Run is
 

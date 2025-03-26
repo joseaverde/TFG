@@ -14,7 +14,7 @@ use Detector.Details.Mean;
 use Detector.Details.Simpson;
 use Detector.Details.Welch;
 
-package body Detector with SPARK_Mode => On is
+package body Detector.Temp with SPARK_Mode => On is
 
    pragma Warnings (Off, "postcondition does not check the outcome of calling");
    pragma Warnings (Off, "static fixed-point value is not a multiple of Small");
@@ -160,4 +160,4 @@ package body Detector with SPARK_Mode => On is
             < Batch.d_max_c));
    end Is_Seizure;
 
-end Detector;
+end Detector.Temp;

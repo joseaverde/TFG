@@ -1,6 +1,6 @@
 with Ada.Unchecked_Deallocation;
 with Ada.Text_IO; use Ada.Text_IO;
-with Detector; use Detector;
+with Detector.Temp; use Detector.Temp;
 with Emul;
 
 procedure Seizure_Detector_FTests with SPARK_Mode => Off is
@@ -36,7 +36,7 @@ begin
       for I in Epoch'Range loop
          Get (Epoch (I));
       end loop;
-      Batch.Patterns (P) := Detector.Normalise (Epoch);
+      Batch.Patterns (P) := Detector.Temp.Normalise (Epoch);
    end loop;
 
    Get (Count);

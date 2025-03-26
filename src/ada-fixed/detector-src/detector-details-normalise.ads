@@ -5,6 +5,8 @@ package Detector.Details.Normalise with SPARK_Mode => On is
 
    use Variance, Square_Root;
 
+   subtype Normalised_Sample is Detector.Temp.Normalised_Sample;
+
    pragma Assert (Normalised_Sample'Last > 0.0);
    pragma Assert (Normalised_Sample'First < 0.0);
 

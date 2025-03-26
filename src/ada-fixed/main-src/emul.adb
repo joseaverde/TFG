@@ -1,4 +1,4 @@
-with Ada.Text_IO, Ada.Real_Time, Detector, Interfaces.C;
+with Ada.Text_IO, Ada.Real_Time, Detector.Temp, Interfaces.C;
 package body Emul with SPARK_Mode => On is
 
    pragma Warnings (GNATProve, Off,
@@ -54,7 +54,7 @@ package body Emul with SPARK_Mode => On is
       Stop    : Time;
       Elapsed : Time_Span;
    begin
-      Denominator := 2 ** Detector.Sample_Mantissa;
+      Denominator := 2 ** Detector.Temp.Sample_Mantissa;
       Numerator := Old;
       if Old > 10_000 then
          Old := -10_000;
