@@ -20,7 +20,8 @@ package Detector.Batches with Pure, SPARK_Mode is
       return Boolean is (
       Item >= Span.Low and then Item <= Span.High);
 
-   type Epoch_Type is array (1 .. Epoch_Size) of Sample_Type;
+   type Sample_Array is array (Positive_Count_Type range <>) of Sample_Type;
+   subtype Epoch_Type is Sample_Array (1 .. Epoch_Size);
    subtype Pattern_Type is Epoch_Type;
    subtype Pattern_Count is Positive_Count_Type range 1 .. Max_Patterns;
    type Pattern_Array is array (Pattern_Count range <>) of Pattern_Type;
@@ -55,6 +56,8 @@ package Detector.Batches with Pure, SPARK_Mode is
       Normalisation => Normalisation);
 
 private
+
+   -- TODO: Store the patterns normalised
 
    type Batch_Type (Count : Pattern_Count := 1) is limited record
       PSD_1, PSD_2, PSD_3, Max_Dist, Energy : Span_Type;

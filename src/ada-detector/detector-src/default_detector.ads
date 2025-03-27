@@ -1,6 +1,6 @@
 with Detector.Batches;
 
-package Default_Detector with SPARK_Mode => Off is
+package Default_Detector with SPARK_Mode => On is
 
    use Detector;
 
@@ -28,12 +28,17 @@ package Default_Detector with SPARK_Mode => Off is
       range 0.0 .. 2.0 ** Feature_Whole_Bits - Feature_Delta with
       Size => Feature_Bits;
 
+   Samples_Per_Stride : constant := 256;
+   Stride_Size        : constant := Samples_Per_Stride;
+   Strides_Per_Epoch  : constant := 5;
+   Epoch_Size         : constant := Strides_Per_Epoch * Stride_Size;
+
    package Batches is
       new Detector.Batches (
       Sample_Type        => Sample_Type,
       Feature_Type       => Feature_Type,
-      Samples_Per_Stride => 256,
-      Strides_Per_Epoch  => 5,
+      Samples_Per_Stride => Samples_Per_Stride,
+      Strides_Per_Epoch  => Strides_Per_Epoch,
       Max_Patterns       => 5);
 
 end Default_Detector;

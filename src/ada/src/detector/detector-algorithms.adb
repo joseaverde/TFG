@@ -45,6 +45,10 @@ package body Detector.Algorithms with SPARK_Mode => On is
    function Sin_Omega (K, N : Count_Type'Base) return Real is (
       Sin_Omegas ((K * (Welch_Window_Size / N)) mod Welch_Window_Size));
    function Cos_Omega (K, N : Count_Type'Base) return Real is (
+   -- Sin_Omegas (
+   --    (K * (Welch_Window_Size / N) + Welch_Window_Size / 4) 
+   --    mod Welch_Window_Size));
+   -- Sin_Omega (K + N / 4, N));
       Cos_Omegas ((K * (Welch_Window_Size / N)) mod Welch_Window_Size));
 
    function Exponent_Product (

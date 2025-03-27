@@ -27,7 +27,9 @@ abstract project Detector_Common is
          Executables       := ("dummy.adb");
          Binder_Switches   := ("-Es", "-n", "-Lada");
       when others =>
-         null;
+         System_Path       := "standard";
+         Target            := "armv6";
+         Runtime           := 
    end case;
 
    -->> Confguration <<--

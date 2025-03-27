@@ -1,11 +1,11 @@
 [settings]
-arch=armv8
+arch=armv6
 build_type=Release
 compiler=gcc
 compiler.cppstd=gnu17
 compiler.libcxx=libstdc++11
-compiler.version=12
+compiler.version=10
 os=Linux
 [conf]
 tools.cmake.cmake_layout:build_folder_vars=['settings.compiler', 'settings.arch']
-tools.build:compiler_executables={"c": "/usr/bin/aarch64-linux-gnu-gcc", "cpp": "/usr/bin/aarch64-linux-gnu-g++"}
+tools.build:compiler_executables={"c": "/usr/bin/arm-linux-gnueabihf-gcc", "cpp": "/usr/bin/arm-linux-gnueabihf-g++"}

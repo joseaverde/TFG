@@ -16,7 +16,7 @@ Strides_Per_Epoch = {type = "Integer", first = 1, default = 5}
 Real_Type = {type = "Enum", values = ["Single", "Double", "Fixed_2", "Fixed_10"]}
 Fractional_Digits = {type = "Integer", first = 1, default = 16}
 Whole_Digits = {type = "Integer", first = 1, default = 32}
-Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
+Target = {type = "Enum", default = "native", values = ["native", "esp32c3", "rpi"]}
 
 [build-switches]
 "*".ada_version    = "Ada2022"

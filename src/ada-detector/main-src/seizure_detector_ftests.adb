@@ -1,4 +1,78 @@
+with Ada.Unchecked_Deallocation;
+with Ada.Text_IO; use Ada.Text_IO;
+with Detector, Detector.Signals, Default_Detector;
+
 procedure Seizure_Detector_FTests with SPARK_Mode => Off is
+
+   use Detector, Default_Detector, Default_Detector.Batches;
+   package Sample_IO is new Fixed_IO (Sample_Type);
+   package Count_IO is new Integer_IO (Count_Type);
+   package Feature_IO is new Fixed_IO (Feature_Type);
+   use Count_IO, Feature_IO, Sample_IO;
+
+   type Sample_Array_Access is access Sample_Array;
+   procedure Free is
+      new Ada.Unchecked_Deallocation (
+      Object => Sample_Array,
+      Name   => Sample_Array_Access);
+
+   Count    : Count_Type;
+   Patterns : Pattern_Array (Pattern_Count);
+   PSD_1, PSD_2, PSD_3, Energy, Max_Dist, DTW : Span_Type;
 begin
-   null;
+
+   Get (Count);
+   Get (PSD_1.Low);     Get (PSD_1.High);
+   Get (PSD_2.Low);     Get (PSD_2.High);
+   Get (PSD_3.Low);     Get (PSD_3.High);
+   Get (Energy.Low);    Get (Energy.High);
+   Get (Max_Dist.Low);  Get (Max_Dist.High);
+   DTW.Low := 0.0;      Get (DTW.High);
+   for P in 1 .. Count loop
+      for I in Epoch_Type'Range loop
+         Get (Patterns (P) (I));
+      end loop;
+   end loop;
+
+   declare
+      Signal : Sample_Array_Access;
+      Batch  : Batch_Type :=
+         Make_Batch (PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW, Patterns);
+      Index  : Count_Type;
+      Is_It  : Boolean;
+      Data   : Epoch_Type;
+      Epoch  : Signals.Signal_Type (1 .. Default_Detector.Epoch_Size);
+   begin
+
+      Get (Count);
+      Signal := new Sample_Array (1 .. Count);
+      for I in 1.. Count loop
+         Get (Signal (I));
+      end loop;
+
+      Put ("Ada ftests");
+      Put (" "); Put (Stride_Size, 1);
+      Put (" "); Put (Strides_Per_Epoch, 1);
+      Put_Line (" Binary Fixed Point");
+      Index := Signal.all'First;
+      while Index <= Count - Epoch'Length + 1 loop
+         Data := Signal (Index .. Index + Epoch'Length - 1);
+         Epoch := [for I in Epoch'Range =>
+                     Normalisation.Normalise (Data (I))];
+         Is_Seizure (Batch, Is_It);
+         Put (Is_It'Image);
+         Put (" NaN");
+         Put (" NaN");
+         Put (" NaN");
+         Put (" NaN");
+         Put (" "); Put (Max_Distance (Epoch), 1);
+         New_Line;
+
+         Index := Index + Stride_Size;
+      end loop;
+
+      Free (Signal);
+
+   end;
+
 end Seizure_Detector_FTests;
