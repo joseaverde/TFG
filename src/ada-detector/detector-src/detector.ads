@@ -14,6 +14,13 @@
 
 package Detector with Pure, SPARK_Mode is
 
+   -- This package is the parent package for the Seizure Detector. This
+   -- implementation uses 32-bit fixed point numbers for computation so that it
+   -- performs well on bare metal hardware without losing precision.
+   --
+   -- The detector is formed out of:
+   --  * A Batch (which is
+
    Bits : constant := 32;
 
    type Count_Type is range 0 .. 2 ** (Bits - 1) - 1 with Size => Bits;

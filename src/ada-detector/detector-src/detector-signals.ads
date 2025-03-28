@@ -8,7 +8,7 @@ package Detector.Signals with Pure, SPARK_Mode => On is
    -- The nested package `Generic_Normalisation' allows to normalise the input
    -- so that it doesn't lose preceission.
 
-   Max_Signal_Length : constant := 65_536;
+   Max_Signal_Length : constant := 32_000;
    subtype Index_Type is Positive_Count_Type range 1 .. Max_Signal_Length;
 
    Sample_Bits          : constant := Bits;
