@@ -53,6 +53,9 @@ package Detector with Pure, SPARK_Mode is
          when  536870912 .. 1073741823 => 29,
          when 1073741824 .. 2147483647 => 30)) with
          Static => True;
+   -- The function computes the floor of logarithm in base 2 of an integer.
+   -- It expands the function to 0, so that `Log_2 (0) = 0'. The function
+   -- `Log_2 (X) + 1' is equivalent to the number of bits needed to encode X.
 
    type Fixed_Integer is
       delta 1.0

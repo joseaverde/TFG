@@ -11,10 +11,10 @@ package Detector.Signals with Pure, SPARK_Mode => On is
    Max_Signal_Length : constant := 65_536;
    subtype Index_Type is Positive_Count_Type range 1 .. Max_Signal_Length;
 
-   Sample_Bits            : constant := Bits;
-   Sample_Whole_Bits      : constant := 0;
-   Sample_Fractional_Bits : constant := Bits - Sample_Whole_Bits - 1;
-   Sample_Delta           : constant := 2.0 ** (-Sample_Fractional_Bits);
+   Sample_Bits          : constant := Bits;
+   Sample_Whole_Bits    : constant := 0;
+   Sample_Fraction_Bits : constant := Bits - Sample_Whole_Bits - 1;
+   Sample_Delta         : constant := 2.0 ** (-Sample_Fraction_Bits);
    type Sample_Type is
       delta Sample_Delta
       range -2.0 ** Sample_Whole_Bits + Sample_Delta
