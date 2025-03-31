@@ -1,11 +1,13 @@
 package body Detector.Batches with SPARK_Mode is
 
+   pragma Warnings (Off, "aspect Unreferenced specified for ""Batch""");
    procedure Is_Seizure (
       Batch  : in out Batch_Type;
       Result :    out Boolean) is
    begin
       Result := False;
    end Is_Seizure;
+   pragma Warnings (On, "aspect Unreferenced specified for ""Batch""");
 
 -- function Is_Seizure (
 --    Item  : in Sample_Epoch;

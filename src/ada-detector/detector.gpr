@@ -16,6 +16,7 @@ library project Detector is
       "Detector.Numerics",
       "Detector.Numerics.Elementary_Functions",
       "Detector.Signals",
+      "Detector.Signals.Generic_Energy",
       "Detector.Signals.Max_Distance",
       "Detector.Signals.Mean"
       );

@@ -1,5 +1,6 @@
 with Detector.Signals;
 with Detector.Signals.Max_Distance;
+with Detector.Signals.Generic_Energy;
 
 generic
    type Sample_Type is delta <>;
@@ -11,6 +12,8 @@ package Detector.Batches with Pure, SPARK_Mode is
 
    Epoch_Size : constant Positive_Count_Type :=
       Strides_Per_Epoch * Samples_Per_Stride;
+
+   -- Feature types with valid ranges
 
    type Span_Type is record
       Low, High : Feature_Type;
@@ -37,7 +40,7 @@ package Detector.Batches with Pure, SPARK_Mode is
       Pre    => Patterns'Length > 0;
 
    procedure Is_Seizure (
-      Batch  : in out Batch_Type;
+      Batch  : in out Batch_Type with Unreferenced;
       Result :    out Boolean) with
       Global => null,
       Always_Terminates;
@@ -54,6 +57,11 @@ package Detector.Batches with Pure, SPARK_Mode is
       new Detector.Signals.Max_Distance.Generic_Max_Distance (
       Result_Type   => Feature_Type,
       Normalisation => Normalisation);
+
+   function Energy is
+      new Detector.Signals.Generic_Energy (
+      Normalisation => Normalisation,
+      Result_Type   => Feature_Type);
 
 private
 
