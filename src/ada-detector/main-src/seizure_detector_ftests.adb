@@ -64,8 +64,8 @@ begin
          Put (" NaN");
          Put (" NaN");
          Put (" NaN");
-         Put (" NaN");
-         Put (" "); Put (Max_Distance (Epoch), 1);
+         Put (" "); Put (Batches.Energy (Epoch), 1);
+         Put (" "); Put (Batches.Max_Distance (Epoch), 1);
          New_Line;
 
          Index := Index + Stride_Size;
