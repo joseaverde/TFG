@@ -1,9 +1,24 @@
+Welch:
+   Make that the square of the values using a 32 bit fixed point type with a
+   result type of 64 bits:
+
+   64_bit_type'(32_bit_type * 32_bit_type)
+
+   Instead of
+
+   64_bit_type'(64_bit_type * 64_bit_type)
+
+   And see how it improves speed
+
 Power Spectral Density:
+ * DTW
  * Welch
  * Simpson
  * Fast Fourier Transform
 
 Functions:
- * Sine
- * Cosine
  * Square Root
+
+Other things to note:
+   Do simple benchmarking functions for each and every function that can be
+   executed independently

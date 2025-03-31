@@ -1,0 +1,18 @@
+name = "seizure_detector_fixed_main"
+description = ""
+version = "0.1.0-dev"
+
+authors = ["JosÃÂ© Antonio Verde JimÃÂ©nez"]
+maintainers = ["JosÃÂ© Antonio Verde JimÃÂ©nez <joseaverde@protonmail.com>"]
+maintainers-logins = ["joseaverde"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = []
+
+executables = ["seizure_detector_fixed_main"]
+
+[[depends-on]]
+seizure_detector_fixed = "*"
+
+[[pins]]
+seizure_detector_fixed = { path='..' }

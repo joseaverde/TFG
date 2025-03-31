@@ -8,8 +8,7 @@ maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""
 tags = []
-
-executables = ["detector.gpr", "seizure_detector_fixed.gpr"]
+# project-files = ["build.gpr"]
 
 [configuration.variables]
 Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
@@ -40,6 +39,3 @@ Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
 
 [[depends-on]]
 gnatprove = "^14.1.1"
-gnat_native = "^14.2.1"
-gnat_riscv64_elf = "^14.1.1"
-gnat_arm_elf = "^14.1.1"
