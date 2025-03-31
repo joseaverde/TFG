@@ -11,11 +11,12 @@ abstract project SPARKlib_External is
    -- Excluded_Source_Files (so that you only compile and analyse files from
    -- the library that you need).
 
+   Source_Dirs := ();
    case SPARKlib_common.SPARKlib_Installed is
       when "True" =>
-         for Source_Dirs use (SPARKlib_Common'Project_Dir & "/../../include/spark");
+         Source_Dirs := (SPARKlib_Common'Project_Dir & "/../../include/spark");
       when others =>
-         for Source_Dirs use (SPARKlib_Common'Project_Dir & "/src");
+         Source_Dirs := (SPARKlib_Common'Project_Dir & "/src");
    end case;
 
    SPARK_Body_Mode : SPARKlib_common.SPARK_Body_Mode_T := SPARKlib_common.SPARK_Body_Mode;
