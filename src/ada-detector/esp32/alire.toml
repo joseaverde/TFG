@@ -1,0 +1,52 @@
+name = "seizure_detector_fixed_esp32"
+description = ""
+version = "0.1.0-dev"
+
+authors = ["José Antonio Verde Jiménez"]
+maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
+maintainers-logins = ["joseaverde"]
+licenses = "EUPL-1.2"
+website = ""
+tags = []
+
+[[actions]]
+type = "post-build"
+command = ["bash", "flash.sh"]
+
+[build-switches]
+"*".ada_version    = "Ada2022"
+"*".style_checks = [ "-gnaty3"          # Indentation to 3
+                   , "-gnatya"          # Check attribute casing
+                   , "-gnatyA"          # Check array attribute indexes
+                   , "-gnatyb"          # No blanks at end of lines
+                   , "-gnatyC"          # Comment format: 1 space (-- comment)
+                   , "-gnatyd"          # No DOS line terminators
+                   , "-gnatye"          # end/exit labels present
+                   , "-gnatyf"          # No form feeds or vertical tabs
+                   , "-gnatyh"          # No horizontal tabs
+                   , "-gnaty-I"         # `in' is required in parameters
+                   , "-gnatyk"          # Check casing rules for keywords
+                   , "-gnatyL5"         # Maximum nesting level
+                   # , "-gnatyM79"        # Maximum 79 characters.
+                   , "-gnatyn"          # Check casing of package Standard identifiers
+                   , "-gnatyO"          # Check overriding indicators
+                   , "-gnatyp"          # Check pragma casing
+                   , "-gnatyr"          # Check casing for identifier references
+                   # , "-gnatyt"          # Check token separation rules
+                   , "-gnatyu"          # Check no unnecessary blank lines
+                   , "-gnatyx"          # Check extra parenthesis around conditionals
+                   ]
+
+
+[configuration.values]
+seizure_detector_fixed.Target = "esp32c3"
+
+[[depends-on]]
+gnatprove = "^14.1.1"
+seizure_detector_fixed = "*"
+
+[[pins]]
+seizure_detector_fixed = { path='..' }
+
+[gpr-set-externals]
+BUILD_MODE = "release"

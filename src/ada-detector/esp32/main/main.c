@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <sys/time.h>
 
 #define DENOMINATOR (1 << 16)
@@ -7,16 +8,26 @@
 #define STRIDE 256
 #define TIMED_STRIDES 10
 
+// Constructor
 extern void SeizureDetectorFixedinit(void);
-extern void _Noreturn seizure_detector(void);
+extern void detector_bindinginit(void);
+
+// Benchmarking functions
+extern void eeg_max_distance(int32_t *result);
+extern void eeg_energy(int32_t *result);
+// extern void _Noreturn seizure_detector(void);
+
+// Reader
+#define SCALE 32
+void eeg_read_sample(int *value) {
+  static int curr_num = -SAMPLE_LAST;
+  *value = curr_num;
+  if (++curr_num > SAMPLE_LAST) { curr_num = -SAMPLE_LAST; }
+}
 
 void __gnat_stop (void) {
   puts("Something went wrong!");
   abort();
-}
-
-void eeg_putchar (char item) {
-  putchar(item);
 }
 
 static double get_time () {
@@ -25,32 +36,31 @@ static double get_time () {
   return ((double)data.tv_sec) + ((double)data.tv_usec) / 1000000.0;
 }
 
-static double start = 0.0;
+#define MAX_BENCHMARK_TIME 1.0
+static void benchmark (void) {
+  int32_t x;
+  int count;
+  double start, stop;
+  printf("Benchmarking\n");
 
-void eeg_read_sample (int * num, int * den) {
-  static int prev = 0;
-  static unsigned int sample_count = 0;
-  static unsigned int stride_count = 0;
+#define BENCHMARK(func)                                                       \
+  start = get_time();                                                         \
+  count = 0;                                                                  \
+  do {                                                                        \
+    func(&x);                                                                 \
+    count++;                                                                  \
+    stop = get_time();                                                        \
+  } while (stop - start < MAX_BENCHMARK_TIME)
 
-  *num = prev * NUMERATOR;
-  *den = DENOMINATOR;
-  prev = (prev + 1) % (SAMPLE_LAST * (DENOMINATOR / NUMERATOR));
-  sample_count++;
+  BENCHMARK(eeg_max_distance);
+  printf("Max_distance: %.0lf epochs/second\n", count / (stop - start));
 
-  if (sample_count % STRIDE == 0) {
-    stride_count++;
-    if (stride_count % TIMED_STRIDES == 0) {
-      double stop = get_time();
-      printf("%lf epochs/second\n",  ((double)TIMED_STRIDES) / (stop - start));
-      start = stop;
-      stride_count = 0;
-    }
-  }
-
+  BENCHMARK(eeg_energy);
+  printf("Energy:       %.0lf epochs/second\n", count / (stop - start));
 }
 
 void app_main (void) {
-  start = get_time();
   SeizureDetectorFixedinit();
-  seizure_detector();
+  detector_bindinginit();
+  benchmark();
 }

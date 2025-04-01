@@ -1,4 +1,7 @@
 build
 sdkconfig.*
 libgnat.a
-
+/alire
+/config
+/lib
+/obj

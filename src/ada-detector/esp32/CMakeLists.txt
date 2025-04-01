@@ -12,7 +12,12 @@ execute_process(COMMAND alr build --release -- -XSEIZURE_DETECTOR_TARGET=esp32c3
 add_library(SeizureDetectorFixed STATIC IMPORTED GLOBAL)
 set_property(TARGET SeizureDetectorFixed PROPERTY IMPORTED_LOCATION
    "${CMAKE_SOURCE_DIR}/../lib/release-esp32c3/libSeizureDetectorFixed.a")
-target_link_libraries(seizure_detector.elf PUBLIC SeizureDetectorFixed)
+
+# Add the other souce code library
+add_library(Binding STATIC IMPORTED GLOBAL)
+set_property(TARGET Binding PROPERTY IMPORTED_LOCATION
+   "${CMAKE_SOURCE_DIR}/lib/release-esp32c3/libdetector_binding.a")
+target_link_libraries(seizure_detector.elf PUBLIC Binding SeizureDetectorFixed)
 
 # Get path of Ada run-time library (libgnat.a)
 execute_process(COMMAND bash -c "alr exec -- riscv64-elf-gnatls --RTS=light-rv32imac -v 2>&1 | grep adalib"
