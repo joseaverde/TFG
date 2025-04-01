@@ -49,3 +49,5 @@ LIBRARY_TYPE = "relocatable"
                    ]
 
 
+[configuration.variables]
+Python3_Minor_Version = {type = "Integer", default = 12}
