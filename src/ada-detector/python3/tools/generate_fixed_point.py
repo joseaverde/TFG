@@ -1,6 +1,11 @@
 #!/usr/bin/env  python3
 # *-* encoding=utf8 *-*
 
+# https://docs.python.org/3/extending/extending.html
+# https://docs.python.org/3/extending/newtypes_tutorial.html
+# https://docs.python.org/3/extending/newtypes.html
+# https://docs.python.org/3/c-api/typeobj.html
+
 from typing import Final
 import os
 
@@ -34,7 +39,7 @@ def declare_ada_fixed (fixed, gen):
     def mangle (name):
         return f"{C_PREFIX}fixed_{fixed.suffix()}__{name}"
 
-    layout = f"""with Interfaces.C, Interfaces.C.Strings;
+    layout = f"""with Interfaces.C.Strings;
 
 package Detector.Module.{fixed} with Preelaborate, SPARK_Mode is
 
@@ -53,11 +58,23 @@ package Detector.Module.{fixed} with Preelaborate, SPARK_Mode is
       Convention    => C,
       External_Name => "{mangle("zero")}";
 
-   function From_Float (Item : in Float)
+   function From_Float (Item : in Interfaces.C.double)
       return Fixed is (Fixed (Item)) with
       Export        => True,
       Convention    => C,
-      External_Name => "{mangle("from_float")}";
+      External_Name => "{mangle("from_double")}";
+
+   function From_Long (Item : in Interfaces.C.long)
+      return Fixed is (Fixed (Item)) with
+      Export        => True,
+      Convention    => C,
+      External_Name => "{mangle("from_long")}";
+
+   function From_Frac (Num, Den : in Interfaces.C.long)
+      return Fixed is (Fixed_Long (Num) / Fixed_Long (Den)) with
+      Export        => True,
+      Convention    => C,
+      External_Name => "{mangle("from_frac")}";
 
    -- Binary operations
 
@@ -133,21 +150,89 @@ def declare_c_fixed (fixed, gen):
 #include <Python.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <iso646.h>
 
-typedef struct {{ PyObject_HEAD int{fixed.width}_t value; }} Fixed;
+typedef int{fixed.width}_t fixed_t;
+#define MANGLE(name) {C_PREFIX}fixed_{fixed.suffix()}__ ## name
+extern fixed_t MANGLE(zero)         (void);
+extern fixed_t MANGLE(from_long)    (long);
+extern fixed_t MANGLE(from_double)  (double);
+extern fixed_t MANGLE(from_frac)    (long, long);
+extern char *  MANGLE(to_str)       (fixed_t);
 
-static PyTypeObject FixedObject = {{
+typedef struct {{ PyObject_HEAD fixed_t value; }} FixedObject;
+
+static PyObject *
+Fixed_new (PyTypeObject *type, PyObject *args, PyObject *kwds) {{
+  FixedObject *self;
+  self = (FixedObject *)type->tp_alloc(type, 0);
+  if (self) {{
+    self->value = MANGLE(zero)();
+  }}
+  return (PyObject*)self;
+}}
+
+ 
+static PyObject *
+Fixed_str(FixedObject *obj) {{
+  char * temp = MANGLE(to_str) (obj->value);
+  PyObject * result = PyUnicode_FromString(temp);
+  free(temp);
+  return result;
+}}
+
+static PyObject *
+Fixed_repr(FixedObject *obj) {{
+  char * temp = MANGLE(to_str) (obj->value);
+  PyObject * result = PyUnicode_FromFormat("{fixed}(%s)", temp);
+  free(temp);
+  return result;
+}}
+
+static int
+Fixed_init (FixedObject *self, PyObject *args, PyObject *kwds) {{
+  Py_ssize_t size = PyTuple_Size(args);
+  self->value = MANGLE(zero) ();
+  if (size < 0) {{ return -1; }}
+  else if (size == 0) {{ }}
+  else if (size == 2) {{
+    // A fraction of two integers
+    long num, den;
+    if (not PyArg_ParseTuple(args, "ll", &num, &den)) {{
+      return -1;
+    }}
+    self->value = MANGLE(from_frac) (num, den);
+  }} else if (size == 1) {{
+    long as_long;
+    double as_double;
+    if (PyArg_ParseTuple(args, "l", &as_long)) {{
+      self->value = MANGLE(from_long) (as_long);
+    }} else if (PyArg_ParseTuple(args, "d", &as_double)) {{
+      self->value = MANGLE(from_double) (as_double);
+    }} else {{
+      return -1;
+    }}
+  }} else {{
+    return -1;
+  }}
+  return 0;
+}}
+
+static PyTypeObject FixedType = {{
   .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
   .tp_name = "{MODULE}.{fixed}",
   .tp_doc = PyDoc_STR("Fixed point"),
-  .tp_basicsize = sizeof(Fixed),
+  .tp_basicsize = sizeof(FixedObject),
   .tp_itemsize = 0,
   .tp_flags = Py_TPFLAGS_DEFAULT,
-  .tp_new = PyType_GenericNew,
+  .tp_str = (reprfunc)Fixed_str,
+  .tp_repr = (reprfunc)Fixed_repr,
+  .tp_init = (initproc) Fixed_init,
+  .tp_new = Fixed_new,
 }};
 
 extern bool {C_PREFIX}_fixed_{fixed.suffix()}_register (PyObject * m) {{
-  if (PyModule_AddObjectRef(m, "{fixed}", (PyObject*)&FixedObject) < 0) {{
+  if (PyModule_AddObjectRef(m, "{fixed}", (PyObject*)&FixedType) < 0) {{
     Py_DECREF(m);
     return false;
   }}
@@ -155,7 +240,7 @@ extern bool {C_PREFIX}_fixed_{fixed.suffix()}_register (PyObject * m) {{
 }}
 
 extern bool {C_PREFIX}_fixed_{fixed.suffix()}_prepare (void) {{
-  return (PyType_Ready(&FixedObject) >= 0);
+  return (PyType_Ready(&FixedType) >= 0);
 }}
 """
     name = os.path.join(gen, f"module_fixed_{fixed.suffix()}.c")
@@ -209,8 +294,12 @@ PyInit_detector(void) {{
 
 if __name__ == "__main__":
     fixed_list = [Fixed(width, shift)
-                  for width in [64, 32]
-                  for shift in range(-29, width - 3 -1)]
+                  for width in [32]
+                  for shift in range(-2, 7)]
+    gen = "gen"
+    # fixed_list = [Fixed(width, shift)
+    #               for width in [64, 32]
+    #               for shift in range(-29, width - 3 -1)]
     gen = "gen"
     if not os.path.exists(gen):
         os.mkdir(gen)
