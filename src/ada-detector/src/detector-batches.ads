@@ -53,6 +53,13 @@ package Detector.Batches with Pure, SPARK_Mode is
       Minimum_Value      => Sample_Type'First,
       Maximum_Value      => Sample_Type'Last);
 
+   function Normalise (Item : in Epoch_Type)
+      return Detector.Signals.Signal_Type with
+      Global   => null,
+      Inline   => True,
+      Post     => Normalise'Result'First = Item'First
+         and then Normalise'Result'Length = Item'Length;
+
    function Max_Distance is
       new Detector.Signals.Max_Distance.Generic_Max_Distance (
       Result_Type   => Feature_Type,

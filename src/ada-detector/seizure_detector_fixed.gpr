@@ -27,7 +27,9 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       "Detector.Signals",
       "Detector.Signals.Generic_Energy",
       "Detector.Signals.Max_Distance",
-      "Detector.Signals.Mean"
+      "Detector.Signals.Mean",
+      "Spark",
+      "Spark.Lemmas"
       );
    for Object_Dir use "obj/" & Detector_Common.Suffix;
    for Source_Dirs use ("config", "src") & SPARKlib_External.Source_Dirs;

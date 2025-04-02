@@ -1,0 +1,29 @@
+==== Benchmarking [master 061dfaa] ============================================
+Baseline for benchmarking. I'm going to be adding functions one by one.
+Sometimes even applying optimisations to see how it increases (or decreases)
+the overall performance.
+
+Max_distance: 2970 epochs/second
+Energy:       152 epochs/second
+
+
+==== Benchmarking [master        ] ============================================
+In the Detector.Signals.Generic_Energy function we change:
+   Squared ((Uniform_Inter (Item (I)) - Uniform_Inter (μ)) / 2)
+To be:
+   Squared (Item (I) / 2 - μ / 2)
+In both cases `Item (I)' and `μ' are 32 bit fixed point types of type
+`Sample_Type = (-1.0, 1.0)'. In the first case they are casted into a 64 bit
+value, divided by 2 and squared. In the second one, they are first divided by
+to, then substracted then squared.
+   The thing is that squaring 64 bit fixed point type requires 128 bits. And
+the division (shift) afterwards is costly. However, if we lose one bit of
+precision and square a 32 bit fixed point type, we can do it pretty fast
+(RISC-V has two instruction `mulh' and `mul' which avoid having a 64 bit
+intermediate type).
+   That way we increment the number of epochs per second from 152 to 1689:
+A x11.11 speed-up of that part of the program.
+
+Benchmarking
+Max_distance: 2970 epochs/second
+Energy:       1689 epochs/second

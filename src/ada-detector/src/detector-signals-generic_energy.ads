@@ -14,7 +14,7 @@ function Detector.Signals.Generic_Energy (
 -- The energy is computed as:
 --
 --      (S (I) - μ)²
---    Σ ------------
+--    Σ ------------ = 4 Q² Var (S)
 --         Length
 --
 -- The result must fit in the set:

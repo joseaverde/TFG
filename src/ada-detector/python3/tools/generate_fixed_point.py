@@ -297,9 +297,9 @@ if __name__ == "__main__":
                   for width in [32]
                   for shift in range(-2, 7)]
     gen = "gen"
-    # fixed_list = [Fixed(width, shift)
-    #               for width in [64, 32]
-    #               for shift in range(-29, width - 3 -1)]
+    fixed_list = [Fixed(width, shift)
+                  for width in [64, 32]
+                  for shift in range(-29, width - 3 -1)]
     gen = "gen"
     if not os.path.exists(gen):
         os.mkdir(gen)

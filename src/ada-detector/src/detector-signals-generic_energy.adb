@@ -42,6 +42,7 @@
 -- For storing the result with maximum accuracy.
 
 with Detector.Signals.Mean;
+with SPARK.Lemmas.Fixed_Point_Arithmetic;
 
 function Detector.Signals.Generic_Energy (
    Item : in Signal_Type)
@@ -62,9 +63,44 @@ function Detector.Signals.Generic_Energy (
       range Inter_Type (Sample_Type'First) .. Inter_Type (Sample_Type'Last);
    subtype Positive_Uniform is Uniform_Inter range 0.0 .. Uniform_Inter'Last;
 
-   function Squared (Item : in Uniform_Inter)
-      return Uniform_Inter is (Item * Item) with
-      Post => Squared'Result >= 0.0;
+   package Lemmas is new SPARK.Lemmas.Fixed_Point_Arithmetic (Sample_Type);
+
+   function Difference_Squared (
+      Left  : in Sample_Type;
+      Right : in Sample_Type)
+      return Positive_Uniform with
+      Global => null;
+
+   function Half (Item : in Sample_Type)
+      return Sample_Type with
+      Post => Half'Result in Sample_Type'First / 2 .. Sample_Type'Last / 2;
+
+   function Half (Item : in Sample_Type)
+      return Sample_Type is
+      First  : constant Sample_Type := Sample_Type'First;
+      Last   : constant Sample_Type := Sample_Type'Last;
+      Factor : constant Positive    := 2;
+      Result : Sample_Type := Item / Factor;
+   begin
+      pragma Assert (Item in First .. Last);
+      Lemmas.GNAT_Lemma_Div_Is_Monotonic (First, Item, Factor);
+      Lemmas.GNAT_Lemma_Div_Is_Monotonic (Item, Last, Factor);
+      pragma Assume ((if First <= Item then First / Factor <= Item / Factor));
+      pragma Assume ((if Item <= Last then Item / Factor <= Last / Factor));
+      pragma Assert (First / Factor <= Item / Factor);
+      pragma Assert (Item / Factor <= Last / Factor);
+      return Result;
+   end Half;
+
+   function Difference_Squared (
+      Left  : in Sample_Type;
+      Right : in Sample_Type)
+      return Positive_Uniform is
+      Item : Sample_Type;
+   begin
+      Item := Half (Left) - Half (Right);
+      return Item * Item;
+   end Difference_Squared;
 
    type Positive_Uniform_Array is
       array (Index_Type range <>)
@@ -115,7 +151,7 @@ function Detector.Signals.Generic_Energy (
 
    function Scale (
       Item : in Signal_Type;
-      μ    : in Uniform_Inter)
+      μ    : in Sample_Type)
       return Positive_Uniform_Array with
       Ghost    => True,
       Global   => null,
@@ -123,36 +159,36 @@ function Detector.Signals.Generic_Energy (
          and then Scale'Result'Length = Item'Length
          and then (for all Index in Item'Range =>
                      Scale'Result (Index)
-                        = Squared ((Uniform_Inter (Item (Index)) - μ) / 2));
+                        = Difference_Squared (Item (Index),  μ));
 
    function Scale (
       Item : in Signal_Type;
-      μ    : in Uniform_Inter)
+      μ    : in Sample_Type)
       return Positive_Uniform_Array is
       Result : Positive_Uniform_Array (Item'Range) := [others => 0.0];
    begin
       for Index in Item'Range loop
-         Result (Index) := Squared ((Uniform_Inter (Item (Index)) - μ) / 2);
+         Result (Index) := Difference_Squared (Item (Index), μ);
          pragma Loop_Invariant (
             (for all I in Item'First .. Index =>
-               Result (I) = Squared ((Uniform_Inter (Item (I)) - μ) / 2)));
+               Result (I) = Difference_Squared (Item (I), μ)));
       end loop;
       return Result;
    end Scale;
 
    -- The program
 
-   μ      : constant Uniform_Inter := Uniform_Inter (Mean (Item));
+   μ      : constant Sample_Type := Mean (Item);
    Mapped : constant Positive_Uniform_Array := Scale (Item, μ) with Ghost;
    Result : Inter_Type;
 begin
 
-   Result := Squared ((Uniform_Inter (Item (Item'First)) - μ) / 2);
+   Result := Difference_Squared (Item (Item'First), μ);
    for Index in Item'First + 1 .. Item'Last loop
       pragma Loop_Invariant (Result = Acc_Sum (Mapped) (Index - 1));
       pragma Loop_Invariant (
-         Mapped (Index) = Squared ((Uniform_Inter (Item (Index)) - μ) / 2));
-      Result := Result + Squared ((Uniform_Inter (Item (Index)) - μ) / 2);
+         Mapped (Index) = Difference_Squared (Item (Index), μ));
+      Result := Result + Difference_Squared (Item (Index), μ);
    end loop;
    Result := Result / Item'Length;
    pragma Assert (Result in 0.0 .. Uniform_Inter'Last);

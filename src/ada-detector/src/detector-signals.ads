@@ -23,6 +23,22 @@ package Detector.Signals with Pure, SPARK_Mode => On is
 
    type Signal_Type is array (Index_Type range <>) of Sample_Type;
 
+   -- A Big sample is the same as a sample but with double the bits of
+   -- precision. It is returned by some functions such as the variance for
+   -- more precision.
+
+   Big_Sample_Bits          : constant := Sample_Bits * 2;
+   Big_Sample_Whole_Bits    : constant := 0;
+   Big_Sample_Fraction_Bits : constant := Bits - Big_Sample_Whole_Bits - 1;
+   Big_Sample_Delta         : constant := 2.0 ** (-Big_Sample_Fraction_Bits);
+   type Big_Sample_Type is
+      delta Big_Sample_Delta
+      range -2.0 ** Big_Sample_Whole_Bits + Big_Sample_Delta
+         .. 2.0 ** Big_Sample_Whole_Bits - Big_Sample_Delta with
+      Size => Big_Sample_Bits;
+
+   -- Normalisation
+
    generic
       type Scaled_Sample_Type is delta <>;
       Minimum_Value : in Scaled_Sample_Type := Scaled_Sample_Type'First;

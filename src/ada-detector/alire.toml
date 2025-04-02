@@ -8,7 +8,6 @@ maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""
 tags = []
-# project-files = ["build.gpr"]
 
 [configuration.variables]
 Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
@@ -39,3 +38,4 @@ Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
 
 [[depends-on]]
 gnatprove = "^14.1.1"
+
