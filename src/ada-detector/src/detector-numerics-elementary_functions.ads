@@ -52,7 +52,11 @@ package Detector.Numerics.Elementary_Functions with Pure, SPARK_Mode is
 
    -->> Square Root <<--
 
-   -- generic
-   -- function Sqrt (Item : in );
+   generic
+      type Fixed_Type is delta <>;
+   function Sqrt (Item : in Fixed_Type) return Fixed_Type'Base with
+      Global => null,
+      Pre    => Item >= 0.0,
+      Post   => Sqrt'Result >= 0.0 and then Sqrt'Result <= Item;
 
 end Detector.Numerics.Elementary_Functions;

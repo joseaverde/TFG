@@ -74,4 +74,34 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
 
    -->> Square Root <<--
 
+   -- https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
+   --    #Binary_numeral_system
+   function Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
+      pragma SPARK_Mode (Off);
+      subtype Fixed is Fixed_Type'Base range 0.0 .. Fixed_Type'Base'Last;
+      -- Last : constant := 2.0 ** Fixed'Size;
+      D : Fixed_Type := Fixed'Last;
+      C : Fixed_Type := 0.0;
+      X : Fixed_Type := Item;
+   begin
+
+      while D > Item loop
+         D := D / 4.0;
+      end loop;
+      pragma Assert (D <= Item);
+
+      while D /= 0.0 loop
+         if X >= C + D then
+            X := X - (C + D);
+            C := C / 2.0 + D;
+         else
+            C := C / 2.0;
+         end if;
+         D := D / 4.0;
+      end loop;
+
+      return C;
+
+   end Sqrt;
+
 end Detector.Numerics.Elementary_Functions;

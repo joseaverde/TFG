@@ -7,7 +7,7 @@ Max_distance: 2970 epochs/second
 Energy:       152 epochs/second
 
 
-==== Benchmarking [master        ] ============================================
+==== Benchmarking [master 4ca2ebb] ============================================
 In the Detector.Signals.Generic_Energy function we change:
    Squared ((Uniform_Inter (Item (I)) - Uniform_Inter (μ)) / 2)
 To be:
