@@ -74,34 +74,52 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
 
    -->> Square Root <<--
 
-   -- https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
-   --    #Binary_numeral_system
-   function Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
+   function Integer_Sqrt (Item : in Integer_Type) return Integer_Type'Base is
       pragma SPARK_Mode (Off);
-      subtype Fixed is Fixed_Type'Base range 0.0 .. Fixed_Type'Base'Last;
-      -- Last : constant := 2.0 ** Fixed'Size;
-      D : Fixed_Type := Fixed'Last;
-      C : Fixed_Type := 0.0;
-      X : Fixed_Type := Item;
+      -- https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
+      --    #Binary_numeral_system
+      subtype Int is Integer_Type'Base range 0 .. Integer_Type'Base'Last;
+      Exponent : constant Natural := ((Int'Size - 1) / 2) * 2;
+      X : Int := Item;
+      C : Int := 0;
+      D : Int := 1;
    begin
 
-      while D > Item loop
-         D := D / 4.0;
+      -- D is the highest power of 4, with D <= Item
+      while D * 4 <= Item loop
+         D := D * 4;
       end loop;
-      pragma Assert (D <= Item);
 
-      while D /= 0.0 loop
+      while D /= 0 loop
+         pragma Loop_Invariant (D >= 0);
+         pragma Loop_Invariant (C >= 0);
+         pragma Loop_Invariant (X >= 0);
          if X >= C + D then
-            X := X - (C + D);
-            C := C / 2.0 + D;
+            X := X - C - D;
+            C := C / 2 + D;
          else
-            C := C / 2.0;
+            C := C / 2;
          end if;
-         D := D / 4.0;
+         D := D / 4;
       end loop;
 
       return C;
 
-   end Sqrt;
+   end Integer_Sqrt;
+
+   type Int is range -2 ** (Max_Bits - 1) .. 2 ** (Max_Bits - 1) - 1 with
+      Size => Max_Bits;
+   type Fix is delta 1.0
+      range -2.0 ** (Max_Bits - 1) .. 2.0 ** (Max_Bits - 1) - 1.0 with
+      Size => Max_Bits;
+   function Sqrt_Int is new Integer_Sqrt (Int);
+
+   function Fixed_Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
+      subtype Fixed is Fixed_Type'Base range 0.0 .. Fixed_Type'Base'Last;
+      Num : constant Int := Int (Fix'(Item / Fixed'Delta));
+      Den : constant Int := Int (Fix'(Fixed (1) / Fixed'Delta));
+   begin
+      return Fix (Sqrt_Int (Num)) / Fix (Sqrt_Int (Den));
+   end Fixed_Sqrt;
 
 end Detector.Numerics.Elementary_Functions;

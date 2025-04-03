@@ -53,10 +53,21 @@ package Detector.Numerics.Elementary_Functions with Pure, SPARK_Mode is
    -->> Square Root <<--
 
    generic
+      type Integer_Type is range <>;
+   function Integer_Sqrt (Item : in Integer_Type) return Integer_Type'Base with
+      Global   => null,
+      Pre      => Item >= 0,
+      Post     => Integer_Sqrt'Result >= 0
+         and then Integer_Sqrt'Result * Integer_Sqrt'Result <= Item;
+
+   Max_Bits : constant := 64;
+   generic
       type Fixed_Type is delta <>;
-   function Sqrt (Item : in Fixed_Type) return Fixed_Type'Base with
-      Global => null,
-      Pre    => Item >= 0.0,
-      Post   => Sqrt'Result >= 0.0 and then Sqrt'Result <= Item;
+   function Fixed_Sqrt (Item : in Fixed_Type) return Fixed_Type'Base with
+      Global   => null,
+      Pre      => Fixed_Type'Size <= Max_Bits and then Item >= 0.0,
+      Post     => Fixed_Sqrt'Result >= 0.0
+         and then (if Item <= 1.0 then Fixed_Sqrt'Result <= 1.0
+                     else Fixed_Sqrt'Result >= 1.0);
 
 end Detector.Numerics.Elementary_Functions;
