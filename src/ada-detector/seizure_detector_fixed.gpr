@@ -26,10 +26,10 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       "Detector.Numerics.Elementary_Functions",
       "Detector.Signals",
       "Detector.Signals.Generic_Energy",
+      "Detector.Signals.Quarter_Variance",
       "Detector.Signals.Lemmas",
       "Detector.Signals.Max_Distance",
       "Detector.Signals.Mean",
-      "Detector.Signals.Variance",
       "Spark",
       "Spark.Lemmas"
       );

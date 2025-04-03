@@ -29,7 +29,7 @@ package Detector.Signals with Pure, SPARK_Mode => On is
 
    Big_Sample_Bits          : constant := Sample_Bits * 2;
    Big_Sample_Whole_Bits    : constant := 0;
-   Big_Sample_Fraction_Bits : constant := Bits - Big_Sample_Whole_Bits - 1;
+   Big_Sample_Fraction_Bits : constant := 2 * Bits - Big_Sample_Whole_Bits - 1;
    Big_Sample_Delta         : constant := 2.0 ** (-Big_Sample_Fraction_Bits);
    type Big_Sample_Type is
       delta Big_Sample_Delta

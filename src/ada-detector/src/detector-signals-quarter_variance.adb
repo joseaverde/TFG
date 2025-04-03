@@ -1,7 +1,7 @@
 with Detector.Signals.Lemmas, Detector.Signals.Mean;
 with SPARK.Lemmas.Fixed_Point_Arithmetic;
 
-function Detector.Signals.Variance (
+function Detector.Signals.Quarter_Variance (
    Item : in Signal_Type)
    return Big_Sample_Type with SPARK_Mode is
 
@@ -36,7 +36,7 @@ function Detector.Signals.Variance (
       return Uniform_Result with
       Global => null,
       Post   => Difference_Squared'Result
-                  = (Left / 2 + Right / 2) * (Left / 2 + Right / 2);
+                  = (Left / 2 - Right / 2) * (Left / 2 - Right / 2);
 
    function Difference_Squared (
       Left  : in Sample_Type;
@@ -46,7 +46,7 @@ function Detector.Signals.Variance (
    begin
       Lemmas.Lemma_Half_Halves (Left);
       Lemmas.Lemma_Half_Halves (Right);
-      Item := Left / 2 + Right / 2;
+      Item := Left / 2 - Right / 2;
       return Item * Item;
    end Difference_Squared;
 
@@ -146,4 +146,4 @@ begin
 
    return Big_Sample_Type (Result);
 
-end Detector.Signals.Variance;
+end Detector.Signals.Quarter_Variance;

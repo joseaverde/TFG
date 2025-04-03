@@ -1,6 +1,8 @@
 with Ada.Unchecked_Deallocation;
 with Ada.Text_IO; use Ada.Text_IO;
 with Detector, Detector.Signals, Default_Detector;
+with Detector.Signals.Mean;
+with Detector.Signals.Quarter_Variance;
 
 procedure Seizure_Detector_FTests with SPARK_Mode => Off is
 
