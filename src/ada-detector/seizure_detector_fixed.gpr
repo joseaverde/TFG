@@ -27,6 +27,7 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       "Detector.Signals",
       "Detector.Signals.Batch_Normalisation",
       "Detector.Signals.Generic_Energy",
+      "Detector.Signals.Generic_Dynamic_Time_Warping",
       "Detector.Signals.Quarter_Variance",
       "Detector.Signals.Lemmas",
       "Detector.Signals.Max_Distance",

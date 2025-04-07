@@ -37,6 +37,15 @@ package body Detector.Batches with SPARK_Mode is
 --          < Batch.d_max_c));
 -- end Is_Seizure;
 
+   function Normalise_Epochs (Item : in Epoch_Array) return Pattern_Array is
+      Result : Pattern_Array (Item'Range);
+   begin
+      for I in Result'Range loop
+         Result (I) := Normalise (Normalise (Item (I)));
+      end loop;
+      return Result;
+   end Normalise_Epochs;
+
    function Normalise (Item : in Epoch_Type)
       return Detector.Signals.Signal_Type is
       Result : Signals.Signal_Type (Item'Range);

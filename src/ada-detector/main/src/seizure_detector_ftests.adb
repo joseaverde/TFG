@@ -18,32 +18,37 @@ procedure Seizure_Detector_FTests with SPARK_Mode => Off is
       Object => Sample_Array,
       Name   => Sample_Array_Access);
 
-   Count    : Count_Type;
-   Patterns : Pattern_Array (Pattern_Count);
+   Pat_Count : Count_Type;
+   Epochs    : Epoch_Array (Pattern_Count);
+   Patterns  : Pattern_Array (Pattern_Count);
    PSD_1, PSD_2, PSD_3, Energy, Max_Dist, DTW : Span_Type;
 begin
 
-   Get (Count);
+   Get (Pat_Count);
    Get (PSD_1.Low);     Get (PSD_1.High);
    Get (PSD_2.Low);     Get (PSD_2.High);
    Get (PSD_3.Low);     Get (PSD_3.High);
    Get (Energy.Low);    Get (Energy.High);
    Get (Max_Dist.Low);  Get (Max_Dist.High);
    DTW.Low := 0.0;      Get (DTW.High);
-   for P in 1 .. Count loop
+   for P in 1 .. Pat_Count loop
       for I in Epoch_Type'Range loop
-         Get (Patterns (P) (I));
+         Get (Epochs (P) (I));
       end loop;
    end loop;
 
+   Patterns := Normalise_Epochs (Epochs);
+
    declare
+      Count  : Count_Type;
       Signal : Sample_Array_Access;
       Batch  : Batch_Type :=
-         Make_Batch (PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW, Patterns);
+         Make_Batch (PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW, Epochs);
       Index  : Count_Type;
       Is_It  : Boolean;
       Data   : Epoch_Type;
       Epoch  : Signals.Signal_Type (1 .. Default_Detector.Epoch_Size);
+      Normal : Pattern_Type;
    begin
 
       Get (Count);
@@ -68,6 +73,13 @@ begin
          Put (" NaN");
          Put (" "); Put (Batches.Energy (Epoch), 1);
          Put (" "); Put (Batches.Max_Distance (Epoch), 1);
+
+         Normal := Normalise (Epoch);
+         for I in 1 .. Pat_Count loop
+            Put (" ");
+            Put (Batches.Dynamic_Time_Warping (Normal, Patterns (I), 16), 1);
+         end loop;
+
          New_Line;
 
          Index := Index + Stride_Size;

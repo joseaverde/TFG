@@ -18,10 +18,13 @@ package Detector.Signals.Batch_Normalisation with Pure, SPARK_Mode is
       Size => Bits;
    subtype Normalised_Sample is Base_Normalised_Sample range -16.0 .. 16.0;
 
+   pragma Assert (2 ** Log_2 (Count_Type (Normalised_Sample'Last))
+                  = Count_Type (Normalised_Sample'Last));
+   pragma Assert (Normalised_Sample'First = -Normalised_Sample'Last);
+
    type Normalised_Signal is array (Index_Type range <>) of Normalised_Sample;
 
--- function Normalise (Item : in Signal_Type)
---    return Normalised_Signal with
---    Global => null;
+   function Normalise (Item : in Signal_Type)
+      return Normalised_Signal;
 
 end Detector.Signals.Batch_Normalisation;

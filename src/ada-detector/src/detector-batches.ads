@@ -1,6 +1,8 @@
 with Detector.Signals;
-with Detector.Signals.Max_Distance;
+with Detector.Signals.Batch_Normalisation;
+with Detector.Signals.Generic_Dynamic_Time_Warping;
 with Detector.Signals.Generic_Energy;
+with Detector.Signals.Max_Distance;
 
 generic
    type Sample_Type is delta <>;
@@ -23,17 +25,20 @@ package Detector.Batches with Pure, SPARK_Mode is
       return Boolean is (
       Item >= Span.Low and then Item <= Span.High);
 
+   subtype Pattern_Count is Positive_Count_Type range 1 .. Max_Patterns;
+   subtype Pattern_Type is
+      Signals.Batch_Normalisation.Normalised_Signal (1 ..  Epoch_Size);
+   type Pattern_Array is array (Pattern_Count range <>) of Pattern_Type;
+
    type Sample_Array is array (Positive_Count_Type range <>) of Sample_Type;
    subtype Epoch_Type is Sample_Array (1 .. Epoch_Size);
-   subtype Pattern_Type is Epoch_Type;
-   subtype Pattern_Count is Positive_Count_Type range 1 .. Max_Patterns;
-   type Pattern_Array is array (Pattern_Count range <>) of Pattern_Type;
+   type Epoch_Array is array (Pattern_Count range <>) of Epoch_Type;
 
    type Batch_Type is limited private;
 
    function Make_Batch (
       PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW : in Span_Type;
-      Patterns                                   : in Pattern_Array)
+      Patterns                                   : in Epoch_Array)
       return Batch_Type with
       Global => null,
       Inline => True,
@@ -60,10 +65,23 @@ package Detector.Batches with Pure, SPARK_Mode is
       Post     => Normalise'Result'First = Item'First
          and then Normalise'Result'Length = Item'Length;
 
+   function Normalise (Item : in Detector.Signals.Signal_Type)
+      return Pattern_Type is (
+      Detector.Signals.Batch_Normalisation.Normalise (Item));
+
+   function Normalise_Epochs (Item : in Epoch_Array) return Pattern_Array with
+      Post     => Normalise_Epochs'Result'First = Item'First
+         and then Normalise_Epochs'Result'Length = Item'Length,
+      Global   => null;
+
    function Max_Distance is
       new Detector.Signals.Max_Distance.Generic_Max_Distance (
       Result_Type   => Feature_Type,
       Normalisation => Normalisation);
+
+   function Dynamic_Time_Warping is
+      new Detector.Signals.Generic_Dynamic_Time_Warping (
+      Result_Type => Feature_Type);
 
    function Energy is
       new Detector.Signals.Generic_Energy (
@@ -82,7 +100,7 @@ private
 
    function Make_Batch (
       PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW : in Span_Type;
-      Patterns                                   : in Pattern_Array)
+      Patterns                                   : in Epoch_Array)
       return Batch_Type is (
       Count    => Patterns'Length,
       PSD_1    => PSD_1,
@@ -91,6 +109,8 @@ private
       Max_Dist => Max_Dist,
       Energy   => Energy,
       d_max_c  => DTW,
-      Patterns => Patterns);
+      Patterns => Normalise_Epochs (Patterns));
+
+   -- with Detector.Signals.Dynamic_Time_Warping;
 
 end Detector.Batches;
