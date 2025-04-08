@@ -114,14 +114,87 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
       Size => Max_Bits;
    function Sqrt_Int is new Integer_Sqrt (Int);
 
+-- function Fixed_Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
+--    -- TODO: PROVE IT!
+--    pragma SPARK_Mode (Off);
+--    subtype Fixed is Fixed_Type'Base range 0.0 .. Fixed_Type'Base'Last;
+--    Num : constant Int := Int (Fix'(Item / Fixed'(Fixed'Delta)));
+--    Den : constant Int := Int (Fix'(Fixed (1) / Fixed'(Fixed'Delta)));
+-- begin
+--    return Fix (Sqrt_Int (Num)) / Fix (Sqrt_Int (Den));
+-- end Fixed_Sqrt;
+
    function Fixed_Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
-      -- TODO: PROVE IT!
-      pragma SPARK_Mode (Off);
-      subtype Fixed is Fixed_Type'Base range 0.0 .. Fixed_Type'Base'Last;
-      Num : constant Int := Int (Fix'(Item / Fixed'(Fixed'Delta)));
-      Den : constant Int := Int (Fix'(Fixed (1) / Fixed'(Fixed'Delta)));
+      Max_Iters : constant := 32;
+      subtype Fixed is Fixed_Type'Base;
+      Internal_Bits     : constant := Bits * 2;
+      Internal_Whole    : constant := 16;
+      Internal_Fraction : constant := Internal_Bits - Internal_Whole - 1;
+      Internal_Delta    : constant := 2.0 ** (-Internal_Fraction);
+      type Internal_Real is delta Internal_Delta
+         range -2.0 ** Internal_Whole .. 2.0 ** Internal_Whole - Internal_Delta
+      with Size => Internal_Bits;
+      type Natural_64 is range 0 .. 2 ** 63 - 1 with Size => 64;
+      X : Natural_64 := 1;
+      Y : Natural_64 := 1;
+      A : Internal_Real;
+      C : Internal_Real;
    begin
-      return Fix (Sqrt_Int (Num)) / Fix (Sqrt_Int (Den));
+      -- TODO: Check whether the divisions and multiplications translate as
+      --       shifts.
+      if Item <= 0.0 then
+         return 0.0;
+      end if;
+
+      -- Scaling
+      if Item < 0.5 then
+         while Fix (X) * Item < Fixed'(0.5) loop
+            X := X * 4;
+            Y := Y * 2;
+         end loop;
+         A := Fix (X) * Item;
+      elsif Item >= 2.0 then
+         while Item / Fix (X) >= Fixed'(2.0) loop
+            X := X * 4;
+            Y := Y * 2;
+         end loop;
+         A := Item / Fix (X);
+      else
+         A := Internal_Real (Item);
+      end if;
+
+      -- Algorithm
+      pragma Assert (A >= 0.5 and then A < 2.0);
+      C := A - 1.0;
+      pragma Assert (C >= -0.5 and then C < 1.0);
+
+
+      -- A ∈ [0.5, 2)
+      -- C ∈ [-0.5, 1)
+      --
+      -- First iteration
+      --    A' := A - AC/2
+      --    AC     ∈ [-1.0, 2]
+      --    AC/2   ∈ [-0.5, 1]
+      --    A-AC/2 ∈ [-0.5, 2
+      -- TODO: Think it in parts
+
+      for I in 1 .. Max_Iters loop
+         pragma Loop_Invariant (A >= 0.5 and then A < 2.0);
+         pragma Loop_Invariant (C >= -0.5 and then C < 1.0);
+         exit when C = 0.0;
+         A := A - (A * C) / 2;
+         C := Internal_Real'(C * C) * (C - 3.0) / 4;
+      end loop;
+
+      -- Rescaling
+      if Item < Fixed'(0.5) then
+         return A / Fix (Y);
+      elsif Item >= Fixed'(2.0) then
+         return A * Fix (Y);
+      else
+         return Fixed_Type'Base (A);
+      end if;
    end Fixed_Sqrt;
 
 end Detector.Numerics.Elementary_Functions;

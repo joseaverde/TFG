@@ -1,6 +1,6 @@
 with SPARK.Lemmas.Fixed_Point_Arithmetic;
 
-private package Detector.Signals.Lemmas with Pure, SPARK_Mode is
+private package Detector.Signals.Lemmas with Ghost, Pure, SPARK_Mode is
 
    package Sample_Lemmas is
       new SPARK.Lemmas.Fixed_Point_Arithmetic (Sample_Type);
