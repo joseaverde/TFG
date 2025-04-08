@@ -62,7 +62,7 @@ package Detector.Batches with Pure, SPARK_Mode is
       Input  : in     Epoch_Type;
       Output :    out Detector.Signals.Signal_Type) with
       Global => null,
-      Post   => Input'Length = Output'Length;
+      Pre    => Input'Length = Output'Length;
 
    procedure Normalise (
       Input  : in     Detector.Signals.Signal_Type;

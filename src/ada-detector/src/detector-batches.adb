@@ -42,6 +42,7 @@ package body Detector.Batches with SPARK_Mode is
       Output :    out Pattern_Array) is
       Temp : Detector.Signals.Signal_Type (Pattern_Type'Range);
    begin
+      Output := [others => [others => 0.0]];
       for I in Count_Type range 0 .. Input'Length - 1 loop
          Normalise (Input (Input'First + I), Temp);
          Normalise (Temp, Output (Output'First + I));
@@ -52,6 +53,7 @@ package body Detector.Batches with SPARK_Mode is
       Input  : in     Epoch_Type;
       Output :    out Detector.Signals.Signal_Type) is
    begin
+      Output := [others => 0.0];
       for I in Count_Type range 0 .. Input'Length - 1 loop
          Output (Output'First + I) :=
             Normalisation.Normalise (Input (Input'First + I));

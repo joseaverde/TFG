@@ -23,7 +23,7 @@ function Detector.Signals.Generic_Dynamic_Time_Warping (
       Default_Component_Value => Infinity;
 
    Dist    : Real;
-   Index   : Count_Type;
+   Index   : Count_Type := 1;
    Bands   : Band_Pair;
    Cost    : Boolean := False;
    Prev    : Boolean := True;
@@ -38,6 +38,7 @@ function Detector.Signals.Generic_Dynamic_Time_Warping (
 
 begin
 
+   pragma Assert (Size >= 1);
    for Row in Count_Type range 1 .. Size loop
       Index := Count_Type'Max (1, Warping_Window - Row + 2);
       F := Count_Type'Max (1, Row - Warping_Window);
