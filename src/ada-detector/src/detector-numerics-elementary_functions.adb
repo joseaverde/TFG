@@ -79,7 +79,6 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
       -- https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
       --    #Binary_numeral_system
       subtype Int is Integer_Type'Base range 0 .. Integer_Type'Base'Last;
-      Exponent : constant Natural := ((Int'Size - 1) / 2) * 2;
       X : Int := Item;
       C : Int := 0;
       D : Int := 1;
@@ -116,8 +115,8 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
 
    function Fixed_Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
       subtype Fixed is Fixed_Type'Base range 0.0 .. Fixed_Type'Base'Last;
-      Num : constant Int := Int (Fix'(Item / Fixed'Delta));
-      Den : constant Int := Int (Fix'(Fixed (1) / Fixed'Delta));
+      Num : constant Int := Int (Fix'(Item / Fixed'(Fixed'Delta)));
+      Den : constant Int := Int (Fix'(Fixed (1) / Fixed'(Fixed'Delta)));
    begin
       return Fix (Sqrt_Int (Num)) / Fix (Sqrt_Int (Den));
    end Fixed_Sqrt;

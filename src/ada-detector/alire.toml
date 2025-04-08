@@ -1,6 +1,6 @@
 name = "seizure_detector_fixed"
 description = "SPARK-proved fixed point implementation of seizure detection algorithm"
-version = "0.3.0"
+version = "0.4.0"
 
 authors = ["José Antonio Verde Jiménez"]
 maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]

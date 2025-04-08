@@ -22,12 +22,12 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
    -- We are going to use this type for the denominator of the batch
    -- normalisation.
 
-   -- function Sqrt is
-   --    new Detector.Numerics.Elementary_Functions.Fixed_Sqrt (
-   --    Fixed_Type => Even_Fraction_Sample);
-   function Sqrt (Item : in Even_Fraction_Sample) return Even_Fraction_Sample
-      is (Even_Fraction_Sample (
-            Ada.Numerics.Elementary_Functions."**" (Float (Item), 0.5)));
+   function Sqrt is
+      new Detector.Numerics.Elementary_Functions.Fixed_Sqrt (
+      Fixed_Type => Even_Fraction_Sample);
+   -- function Sqrt (Item : in Even_Fraction_Sample) return Even_Fraction_Sample
+   --    is (Even_Fraction_Sample (
+   --          Ada.Numerics.Elementary_Functions."**" (Float (Item), 0.5)));
 
    procedure Normalise (
       Input  : in     Signal_Type;
@@ -61,6 +61,7 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
 
    begin
       pragma Assert (σ > 0.0);
+      pragma Assert (σ < 0.0);
       for I in Count_Type range 0 .. Output'Length - 1 loop
          pragma Loop_Invariant (σ > 0.0);
          -- Input (I) ∈ (-1, 1)

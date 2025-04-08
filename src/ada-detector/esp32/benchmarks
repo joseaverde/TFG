@@ -42,3 +42,22 @@ Energy:       1711 epochs/second
 Batch Normal: 4358 epochs/second
 Single DTW:   40 epochs/second
 
+==== Benchmarking [master 7900fca] ============================================
+Finished adding the DTW (proven) and Batch normalisation (not yet proven). And
+most of the algorithm runs on the ESP32. It remains to implement the PSD
+function which is composed of:
+ * Simpson
+ * Welch
+ * Fast Fourier Transform (FFT)
+There is a paper about implementing the FFT. The Welch is trivial if the FFT
+returns a normalised result. And Simpson may prove to be a little bit hard
+because of the reduction (but nothing that cannot be implemented).
+
+Max_distance: 2901 epochs/second
+Energy:       1688 epochs/second
+Batch Normal: 4211 epochs/second
+Single DTW:   40 epochs/second
+.........................
+Elapsed: 1.02000E+00 s
+Ratio:   25 epochs/second
+.........................
