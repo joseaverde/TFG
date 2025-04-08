@@ -27,7 +27,7 @@ A x11.11 speed-up of that part of the program.
 Max_distance: 2970 epochs/second
 Energy:       1688 epochs/second
 
-==== Benchmarking [master        ] ============================================
+==== Benchmarking [master eb982a9] ============================================
 Added the Batch Normalisation and the Dynamic Time Warping. But they are yet
 to be proven. The Energy could be further optimised by optimising the Variance:
 

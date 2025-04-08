@@ -58,7 +58,7 @@ begin
       end loop;
 
       Put ("Ada ftests");
-      Put (" "); Put (Stride_Size, 1);
+      Put (" "); Put (Default_Detector.Stride_Size, 1);
       Put (" "); Put (Strides_Per_Epoch, 1);
       Put_Line (" Binary Fixed Point");
       Index := Signal.all'First;
@@ -66,7 +66,7 @@ begin
          Data := Signal (Index .. Index + Epoch'Length - 1);
          Epoch := [for I in Epoch'Range =>
                      Normalisation.Normalise (Data (I))];
-         Is_Seizure (Batch, Is_It);
+         Is_Seizure (Batch, Data (Index .. Index + Epoch'Length - 1), Is_It);
          Put (Is_It'Image);
          Put (" NaN");
          Put (" NaN");
@@ -82,7 +82,7 @@ begin
 
          New_Line;
 
-         Index := Index + Stride_Size;
+         Index := Index + Default_Detector.Stride_Size;
       end loop;
 
       Free (Signal);

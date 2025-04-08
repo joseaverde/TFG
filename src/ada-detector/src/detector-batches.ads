@@ -12,7 +12,11 @@ generic
    Max_Patterns       : in Positive_Count_Type := 5;
 package Detector.Batches with Pure, SPARK_Mode is
 
-   Epoch_Size : constant Positive_Count_Type :=
+   Warping_Window : constant := 16;
+   -- TODO: Make it a parameter of the generic
+
+   Stride_Size : constant Positive_Count_Type := Samples_Per_Stride;
+   Epoch_Size  : constant Positive_Count_Type :=
       Strides_Per_Epoch * Samples_Per_Stride;
 
    -- Feature types with valid ranges
@@ -32,6 +36,7 @@ package Detector.Batches with Pure, SPARK_Mode is
 
    type Sample_Array is array (Positive_Count_Type range <>) of Sample_Type;
    subtype Epoch_Type is Sample_Array (1 .. Epoch_Size);
+   subtype Stride_Type is Sample_Array (1 .. Stride_Size);
    type Epoch_Array is array (Pattern_Count range <>) of Epoch_Type;
 
    type Batch_Type is limited private;
@@ -45,7 +50,8 @@ package Detector.Batches with Pure, SPARK_Mode is
       Pre    => Patterns'Length > 0;
 
    procedure Is_Seizure (
-      Batch  : in out Batch_Type with Unreferenced;
+      Batch  : in out Batch_Type;
+      Epoch  : in     Epoch_Type;
       Result :    out Boolean) with
       Global => null,
       Always_Terminates;
@@ -98,6 +104,10 @@ private
       PSD_1, PSD_2, PSD_3, Max_Dist, Energy : Span_Type;
       d_max_c                               : Span_Type;
       Patterns                              : Pattern_Array (1 .. Count);
+
+      Lookback                              : Count_Type := 0;
+      Was_Seizure                           : Boolean    := False;
+      Streak                                : Count_Type := 0;
    end record;
 
 end Detector.Batches;

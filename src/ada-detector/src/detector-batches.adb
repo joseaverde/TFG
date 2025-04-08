@@ -1,13 +1,41 @@
 package body Detector.Batches with SPARK_Mode is
 
-   pragma Warnings (Off, "aspect Unreferenced specified for ""Batch""");
    procedure Is_Seizure (
       Batch  : in out Batch_Type;
+      Epoch  : in     Epoch_Type;
       Result :    out Boolean) is
+      Signal : Signals.Signal_Type (Epoch'Range);
+      Normal : Pattern_Type;
    begin
       Result := False;
+      Normalise (Epoch, Signal);
+      -- Max_Distance and Energy
+      if Is_In (Max_Distance (Signal), Batch.Max_Dist)
+         and then Is_In (Energy (Signal), Batch.Energy)
+      then
+         -- TODO: Compute PSD
+
+         -- DTW
+         Normalise (Signal, Normal);
+         Result :=
+            (for some I in 1 .. Batch.Count =>
+               Is_In (Dynamic_Time_Warping (Normal, Batch.Patterns (I),
+                                            Warping_Window),
+                      Batch.d_max_c));
+      end if;
+
+      -- Update lookback information
+      if Result /= Batch.Was_Seizure then
+         Batch.Streak := 0;
+         Batch.Was_Seizure := Result;
+      else
+         if Batch.Streak < Batch.Lookback then
+            Batch.Streak := Batch.Streak + 1;
+            Result := False;
+         end if;
+      end if;
+
    end Is_Seizure;
-   pragma Warnings (On, "aspect Unreferenced specified for ""Batch""");
 
 -- function Is_Seizure (
 --    Item  : in Sample_Epoch;
