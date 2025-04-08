@@ -23,12 +23,13 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
    -- We are going to use this type for the denominator of the batch
    -- normalisation.
 
-   function Sqrt is
-      new Detector.Numerics.Elementary_Functions.Fixed_Sqrt (
-      Fixed_Type => Even_Fraction_Sample);
-   -- function Sqrt (Item : in Even_Fraction_Sample) return Even_Fraction_Sample
-   --    is (Even_Fraction_Sample (
-   --          Ada.Numerics.Elementary_Functions."**" (Float (Item), 0.5)));
+   -- function Sqrt is
+   --    new Detector.Numerics.Elementary_Functions.Fixed_Sqrt (
+   --    Fixed_Type => Even_Fraction_Sample);
+   -- FIXME: Replace me with the real one :)
+   function Sqrt (Item : in Even_Fraction_Sample) return Even_Fraction_Sample
+      is (Even_Fraction_Sample (
+            Ada.Numerics.Elementary_Functions."**" (Float (Item), 0.5)));
 
    Bound : constant Normalised_Sample := Normalised_Sample'Last / 2;
 
@@ -76,6 +77,7 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
       σ : in Even_Fraction_Sample)
       return Normalised_Sample is
       Result : Normalised_Sample;
+      Low : constant Even_Fraction_Sample := X / Bound;
    begin
 
       -- Next we have to divide by `σ'. `σ' is known to be a value lower than
@@ -103,19 +105,10 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
       --
       -- That way the quotient can be represented in the target type.
 
-      if X = 0.0 then
-
-         -- If x = 0.0 then
-         --    x / σ = 0 ∈ [-B, B]  [Assert -B < 0.0 < B]
-         --                         [Conditions are met :)]
-         Result := X / σ;
-         pragma Assert (Result = 0.0);
-         pragma Assert (Result in -Bound .. Bound);
-
-      elsif X > 0.0 and then σ >= X / Bound then
+      if X >= 0.0 then
 
          -- If x > 0.0 then
-         --    x / σ > 0.0          [σ > 0.0 /\ X > 0.0]
+         --    x / σ >= 0.0         [σ > 0.0 /\ X >= 0.0]
          --    x / σ <= B           [As per postcondition]
          -- -> x <= B σ             [Multiplying by σ both sides, σ > 0.0]
          -- -> x / B <= σ           [Dividing by B both sides, B > 0.0]
@@ -126,10 +119,11 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
          -- NOTE: We don't need the lemma with --level=2, the prover is able to
          --       prove it without help.
          -- Lemma_Positive_Safe_Division (X, σ);
-         Result := X / σ;
+         Result := (if σ >= Low then X / σ else Bound);
          pragma Assert (Result in 0.0 .. Bound);
 
-      elsif X < 0.0 and then σ >= X / (-Bound) then
+      else
+         pragma Assert (X < 0.0);
 
          -- If x < 0.0 then
          --    x / σ < 0.0          [σ > 0.0 /\ x < 0.0]
@@ -140,14 +134,11 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
          -- Then if:
          --    x < 0.0 /\ x / -B <= σ -> x / σ >= -B
 
-         Lemma_Negative_Safe_Division (X, σ);
-         Result := X / σ;
+         if σ >= -Low then
+            Lemma_Negative_Safe_Division (X, σ);
+         end if;
+         Result := (if σ >= -Low then X / σ else -Bound);
          pragma Assert (Result in -Bound .. 0.0);
-
-      else
-
-         Result := (if X < 0.0 then -Bound else Bound);
-         pragma Assert (Result in -Bound .. Bound);
 
       end if;
 

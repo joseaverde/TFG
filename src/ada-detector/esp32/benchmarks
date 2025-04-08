@@ -42,6 +42,7 @@ Energy:       1711 epochs/second
 Batch Normal: 4358 epochs/second
 Single DTW:   40 epochs/second
 
+
 ==== Benchmarking [master 7900fca] ============================================
 Finished adding the DTW (proven) and Batch normalisation (not yet proven). And
 most of the algorithm runs on the ESP32. It remains to implement the PSD
@@ -61,3 +62,40 @@ Single DTW:   40 epochs/second
 Elapsed: 1.02000E+00 s
 Ratio:   25 epochs/second
 .........................
+
+
+==== Benchmarking [master 92fcb9a] ============================================
+Proved normalisation, it needed a new branch for each division, which
+surprisingly didn't impact performance on the Batch Normalisation function but
+it did for the Single DTW... That got me thinking, and I saw I had an assigment
+to 1 and never called the normalisation function :)
+   Just for the record, I reverted the changes to when there was no branch in
+the function and the Batch Normal was at 144 epochs/second.
+
+Benchmarking
+Max_distance: 2837 epochs/second
+Energy:       1688 epochs/second
+Batch Normal: 78 epochs/second
+Single DTW:   27 epochs/second
+.........................
+Elapsed: 1.00000E+00 s
+Ratio:   25 epochs/second
+.........................
+
+Now, the thing that bothers me is the seizure_function itself. Why it doesn't
+get worse?! That's what I'll try to fix in the next commits. First lest
+optimise the batch normalisation a little bit.
+
+==== Benchmarking [master 92fcb9a] ============================================
+After meddling a little bit with the function, I refactored it a little bit.
+Precomputed some values and simplified the expression. It is now faster. And
+the detector is (finally slower).
+
+Benchmarking
+Max_distance: 2837 epochs/second
+Energy:       1688 epochs/second
+Batch Normal: 78 epochs/second
+Single DTW:   27 epochs/second
+......................
+Elapsed: 1.00000E+00 s
+Ratio:   22 epochs/second

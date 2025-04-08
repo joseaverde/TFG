@@ -55,9 +55,7 @@ is
             Detector.Signals.Batch_Normalisation.Normalised_Signal;
          Temp : Normalised_Signal (Epoch'Range);
       begin
-         for I in Temp'Range loop
-            Temp (I) := 1.0;
-         end loop;
+         Normalise (Epoch, Temp);
          Result := Feature_Type (Temp (Temp'First))
                  * Feature_Type (Temp (Temp'Last));
       end;
