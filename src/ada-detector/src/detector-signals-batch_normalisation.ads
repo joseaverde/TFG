@@ -27,7 +27,8 @@ package Detector.Signals.Batch_Normalisation with Pure, SPARK_Mode is
    procedure Normalise (
       Input  : in     Signal_Type;
       Output :    out Normalised_Signal) with
-      Global => null,
-      Pre    => Input'Length = Output'Length;
+      Global   => null,
+      Pre      => Input'Length = Output'Length
+         and then Input'Length > 0;
 
 end Detector.Signals.Batch_Normalisation;
