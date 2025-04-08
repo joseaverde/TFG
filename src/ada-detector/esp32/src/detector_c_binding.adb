@@ -1,4 +1,8 @@
+with Ada.Text_IO;
 with Detector.Signals.Batch_Normalisation;
+with Detector.Batches.Runner;
+with Safe_Time;
+
 package body Detector_C_Binding with
    SPARK_Mode,
    Refined_State => (State => V)
@@ -72,5 +76,72 @@ is
       Default_Detector.Batches.Normalise (Right, N_R);
       Result := Dynamic_Time_Warping (N_L, N_R, 16);
    end Single_DTW;
+
+   procedure Seizure_Detector is
+      use Ada.Text_IO, Safe_Time;
+
+      Start : Time;
+      Count : Natural := 0;
+
+      procedure Notify_Nothing is
+         Stop    : constant Time     := Clock;
+         Elapsed : constant Duration := Stop - Start;
+      begin
+         Put ('.');
+         Count := Count + 1;
+         if Stop - Start >= 1.0 then
+            New_Line;
+
+            Put ("Elapsed:");
+            Put (Float (Elapsed)'Image);
+            Put (" s");
+            New_Line;
+
+            Put ("Ratio:  ");
+            Put (Natural (Float (Count) / Float (Elapsed))'Image);
+            Put (" epochs/second");
+            New_Line;
+
+            Start := Clock;
+            Count := 0;
+         end if;
+      end Notify_Nothing;
+
+      procedure Notify_Seizure is
+      begin
+         New_Line;
+         Put_Line ("Seizure!");
+         Notify_Nothing;
+      end Notify_Seizure;
+
+      procedure Read (Stride : out Default_Detector.Batches.Stride_Type) is
+      begin
+         Stride := [others => 0.0];
+      end Read;
+
+      Patterns : constant := 3;
+      Batch    : Default_Detector.Batches.Batch_Type :=
+         Default_Detector.Batches.Make_Batch (
+            PSD_1    => (Feature_Type'First, Feature_Type'Last),
+            PSD_2    => (Feature_Type'First, Feature_Type'Last),
+            PSD_3    => (Feature_Type'First, Feature_Type'Last),
+            Energy   => (Feature_Type'First, Feature_Type'Last),
+            Max_Dist => (Feature_Type'First, Feature_Type'Last),
+            DTW      => (0.0, 0.0),
+            Patterns =>
+               [for I in 1 .. Patterns =>
+                  [for J in Default_Detector.Batches.Epoch_Type'Range =>
+                     (Default_Detector.Sample_Type (I)
+                        * Default_Detector.Sample_Type (J))]]);
+
+      procedure Run is new Default_Detector.Batches.Runner (
+         Read           => Read,
+         Notify_Nothing => Notify_Nothing,
+         Notify_Seizure => Notify_Seizure);
+
+   begin
+      Start := Clock;
+      Run (Batch);
+   end Seizure_Detector;
 
 end Detector_C_Binding;

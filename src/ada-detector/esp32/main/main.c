@@ -17,7 +17,7 @@ extern void eeg_max_distance(int32_t *result);
 extern void eeg_energy(int32_t *result);
 extern void eeg_batch_normalise(int32_t *result);
 extern void eeg_dtw(int32_t *result);
-// extern void _Noreturn seizure_detector(void);
+extern void _Noreturn seizure_detector(void);
 
 // Reader
 #define SCALE 32
@@ -68,4 +68,5 @@ void app_main (void) {
   SeizureDetectorFixedinit();
   detector_bindinginit();
   benchmark();
+  seizure_detector();
 }

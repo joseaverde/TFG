@@ -48,6 +48,13 @@ is
       External_Name     => "eeg_dtw",
       Always_Terminates => True;
 
+   procedure Seizure_Detector with
+      Global            => (In_Out => State),
+      Export            => True,
+      Convention        => C,
+      External_Name     => "seizure_detector",
+      No_Return         => True;
+
 private
 
    procedure Read_Signal (Item : out Detector.Signals.Signal_Type) with
