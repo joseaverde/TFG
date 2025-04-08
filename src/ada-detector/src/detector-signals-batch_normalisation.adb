@@ -27,12 +27,13 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
    --    Fixed_Type => Even_Fraction_Sample);
    function Sqrt (Item : in Even_Fraction_Sample) return Even_Fraction_Sample
       is (Even_Fraction_Sample (
-            Ada.Numerics.Elementary_Functions.Sqrt (Float (Item))));
+            Ada.Numerics.Elementary_Functions."**" (Float (Item), 0.5)));
 
-   function Normalise (Item : in Signal_Type)
-      return Normalised_Signal is
+   procedure Normalise (
+      Input  : in     Signal_Type;
+      Output :    out Normalised_Signal) is
 
-      μ : constant Sample_Type := Mean (Item);
+      μ : constant Sample_Type := Mean (Input);
 
       -- The variable `σ2' contains a quarter of the variance. And it is a
       -- positive number between 0.0 and 1.0. We want to compute its square
@@ -49,7 +50,7 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
       -- in range [0, 2), which is the same as the `Even_Fraction_Sample' type.
 
       σ2 : constant Even_Fraction_Sample :=
-         Even_Fraction_Sample (Quarter_Variance (Item));
+         Even_Fraction_Sample (Quarter_Variance (Input));
       σ  : constant Even_Fraction_Sample := (
          declare
             σ : constant Even_Fraction_Sample := Sqrt (σ2);
@@ -58,21 +59,19 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
              elsif σ >= 1.0 then Even_Fraction_Sample'Last
              else                2 * σ));
 
-      Result : Normalised_Signal (Item'Range) := [others => 0.0];
-
    begin
       pragma Assert (σ > 0.0);
-      for I in Result'Range loop
+      for I in Count_Type range 0 .. Output'Length - 1 loop
          pragma Loop_Invariant (σ > 0.0);
-         -- Item (I) ∈ (-1, 1)
+         -- Input (I) ∈ (-1, 1)
          -- μ        ∈ (-1, 1)
          -- Dev      ∈ (0, 2)
          -- ---
-         -- Item (I) - μ ∈ (-2, 2)
-         Result (I) := (Item (I) / 2 - μ / 2) / σ;
-         Result (I) := Result (I) * 2;
+         -- Input (I) - μ ∈ (-2, 2)
+         Output (Output'First + I) :=
+            (Input (Input'First + I) / 2 - μ / 2) / σ;
+         Output (Output'First + I) := @ * 2;
       end loop;
-      return Result;
    end Normalise;
 
 end Detector.Signals.Batch_Normalisation;

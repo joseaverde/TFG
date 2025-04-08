@@ -37,23 +37,48 @@ package body Detector.Batches with SPARK_Mode is
 --          < Batch.d_max_c));
 -- end Is_Seizure;
 
-   function Normalise_Epochs (Item : in Epoch_Array) return Pattern_Array is
-      Result : Pattern_Array (Item'Range);
+   procedure Normalise_Epochs (
+      Input  : in     Epoch_Array;
+      Output :    out Pattern_Array) is
+      Temp : Detector.Signals.Signal_Type (Pattern_Type'Range);
    begin
-      for I in Result'Range loop
-         Result (I) := Normalise (Normalise (Item (I)));
+      for I in Count_Type range 0 .. Input'Length - 1 loop
+         Normalise (Input (Input'First + I), Temp);
+         Normalise (Temp, Output (Output'First + I));
       end loop;
-      return Result;
    end Normalise_Epochs;
 
-   function Normalise (Item : in Epoch_Type)
-      return Detector.Signals.Signal_Type is
-      Result : Signals.Signal_Type (Item'Range);
+   procedure Normalise (
+      Input  : in     Epoch_Type;
+      Output :    out Detector.Signals.Signal_Type) is
    begin
-      for I in Result'Range loop
-         Result (I) := Normalisation.Normalise (Item (I));
+      for I in Count_Type range 0 .. Input'Length - 1 loop
+         Output (Output'First + I) :=
+            Normalisation.Normalise (Input (Input'First + I));
       end loop;
-      return Result;
    end Normalise;
+
+   procedure Normalise (
+      Input  : in     Detector.Signals.Signal_Type;
+      Output :    out Pattern_Type) is
+   begin
+      Signals.Batch_Normalisation.Normalise (Input, Output);
+   end Normalise;
+
+   function Make_Batch (
+      PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW : in Span_Type;
+      Patterns                                   : in Epoch_Array)
+      return Batch_Type is
+   begin
+      return Batch : Batch_Type (Patterns'Length) do
+         Batch.PSD_1    := PSD_1;
+         Batch.PSD_2    := PSD_2;
+         Batch.PSD_3    := PSD_3;
+         Batch.Max_Dist := Max_Dist;
+         Batch.Energy   := Energy;
+         Batch.d_max_c  := DTW;
+         Normalise_Epochs (Patterns, Batch.Patterns);
+      end return;
+   end Make_Batch;
 
 end Detector.Batches;

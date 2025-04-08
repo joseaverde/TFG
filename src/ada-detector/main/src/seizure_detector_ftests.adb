@@ -37,7 +37,7 @@ begin
       end loop;
    end loop;
 
-   Patterns := Normalise_Epochs (Epochs);
+   Normalise_Epochs (Epochs, Patterns);
 
    declare
       Count  : Count_Type;
@@ -74,7 +74,7 @@ begin
          Put (" "); Put (Batches.Energy (Epoch), 1);
          Put (" "); Put (Batches.Max_Distance (Epoch), 1);
 
-         Normal := Normalise (Epoch);
+         Normalise (Epoch, Normal);
          for I in 1 .. Pat_Count loop
             Put (" ");
             Put (Batches.Dynamic_Time_Warping (Normal, Patterns (I), 16), 1);

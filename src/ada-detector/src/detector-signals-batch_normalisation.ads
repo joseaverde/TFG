@@ -24,7 +24,10 @@ package Detector.Signals.Batch_Normalisation with Pure, SPARK_Mode is
 
    type Normalised_Signal is array (Index_Type range <>) of Normalised_Sample;
 
-   function Normalise (Item : in Signal_Type)
-      return Normalised_Signal;
+   procedure Normalise (
+      Input  : in     Signal_Type;
+      Output :    out Normalised_Signal) with
+      Global => null,
+      Pre    => Input'Length = Output'Length;
 
 end Detector.Signals.Batch_Normalisation;

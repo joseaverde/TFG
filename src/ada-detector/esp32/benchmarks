@@ -24,6 +24,21 @@ intermediate type).
    That way we increment the number of epochs per second from 152 to 1689:
 A x11.11 speed-up of that part of the program.
 
-Benchmarking
 Max_distance: 2970 epochs/second
 Energy:       1688 epochs/second
+
+==== Benchmarking [master        ] ============================================
+Added the Batch Normalisation and the Dynamic Time Warping. But they are yet
+to be proven. The Energy could be further optimised by optimising the Variance:
+
+   σ²(x) = Σ (xi² - μ)² / n
+         = Σ (xi² - 2xiμ + μ²) / n              [(a² - b²) = (a² - 2ab + b²)]
+         = Σ xi² / n + Σ (-2xiμ) / n + Σ μ² / n [Separate Σ into three parts]
+         = Σ xi² / n -2μ Σ xi / n + μ² Σ 1 / n  [Factor constants (μ and -2)]
+         = Σ xi² / n -2μ Σ xi / n + μ²          [Σ 1 = n ->² Σ 1 / n = 1]
+
+Max_distance: 2903 epochs/second
+Energy:       1711 epochs/second
+Batch Normal: 4358 epochs/second
+Single DTW:   40 epochs/second
+

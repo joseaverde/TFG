@@ -1,3 +1,4 @@
+with Detector.Signals.Batch_Normalisation;
 package body Detector_C_Binding with
    SPARK_Mode,
    Refined_State => (State => V)
@@ -39,5 +40,37 @@ is
       Read_Signal (Epoch);
       Result := Default_Detector.Batches.Energy (Epoch);
    end Energy;
+
+   procedure Batch_Normalise (Result : out Feature_Type) is
+      Epoch : Epoch_Signal;
+   begin
+      Read_Signal (Epoch);
+      declare
+         use Default_Detector.Batches;
+         subtype Normalised_Signal is
+            Detector.Signals.Batch_Normalisation.Normalised_Signal;
+         Temp : Normalised_Signal (Epoch'Range);
+      begin
+         for I in Temp'Range loop
+            Temp (I) := 1.0;
+         end loop;
+         Result := Feature_Type (Temp (Temp'First))
+                 * Feature_Type (Temp (Temp'Last));
+      end;
+   end Batch_Normalise;
+
+   procedure Single_DTW (Result : out Feature_Type) is
+      use Default_Detector.Batches, Detector.Signals.Batch_Normalisation;
+      Left  : Epoch_Signal;
+      Right : Epoch_Signal;
+      N_L   : Normalised_Signal (Left'Range);
+      N_R   : Normalised_Signal (Right'Range);
+   begin
+      Read_Signal (Left);
+      Read_Signal (Right);
+      Default_Detector.Batches.Normalise (Left, N_L);
+      Default_Detector.Batches.Normalise (Right, N_R);
+      Result := Dynamic_Time_Warping (N_L, N_R, 16);
+   end Single_DTW;
 
 end Detector_C_Binding;

@@ -1,5 +1,5 @@
 pragma Discard_Names;
--- pragma Restrictions (
+pragma Restrictions (
 --    No_Exception_Propagation,
 --    No_Exception_Registration,
 --    No_Finalization,
@@ -9,7 +9,7 @@ pragma Discard_Names;
 --    No_Recursion,
 -- -- No_Allocators,
 --    No_Dispatch,
--- -- No_Secondary_Stack,
+   No_Secondary_Stack);
 --    No_Implicit_Dynamic_Code
 -- );
 -- pragma Profile (Ravenscar);

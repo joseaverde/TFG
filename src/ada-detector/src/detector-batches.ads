@@ -58,21 +58,23 @@ package Detector.Batches with Pure, SPARK_Mode is
       Minimum_Value      => Sample_Type'First,
       Maximum_Value      => Sample_Type'Last);
 
-   function Normalise (Item : in Epoch_Type)
-      return Detector.Signals.Signal_Type with
-      Global   => null,
-      Inline   => True,
-      Post     => Normalise'Result'First = Item'First
-         and then Normalise'Result'Length = Item'Length;
+   procedure Normalise (
+      Input  : in     Epoch_Type;
+      Output :    out Detector.Signals.Signal_Type) with
+      Global => null,
+      Post   => Input'Length = Output'Length;
 
-   function Normalise (Item : in Detector.Signals.Signal_Type)
-      return Pattern_Type is (
-      Detector.Signals.Batch_Normalisation.Normalise (Item));
+   procedure Normalise (
+      Input  : in     Detector.Signals.Signal_Type;
+      Output :    out Pattern_Type) with
+      Global => null,
+      Pre    => Input'Length = Output'Length;
 
-   function Normalise_Epochs (Item : in Epoch_Array) return Pattern_Array with
-      Post     => Normalise_Epochs'Result'First = Item'First
-         and then Normalise_Epochs'Result'Length = Item'Length,
-      Global   => null;
+   procedure Normalise_Epochs (
+      Input  : in     Epoch_Array;
+      Output :    out Pattern_Array) with
+      Pre    => Input'Length = Output'Length,
+      Global => null;
 
    function Max_Distance is
       new Detector.Signals.Max_Distance.Generic_Max_Distance (
@@ -97,20 +99,5 @@ private
       d_max_c                               : Span_Type;
       Patterns                              : Pattern_Array (1 .. Count);
    end record;
-
-   function Make_Batch (
-      PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW : in Span_Type;
-      Patterns                                   : in Epoch_Array)
-      return Batch_Type is (
-      Count    => Patterns'Length,
-      PSD_1    => PSD_1,
-      PSD_2    => PSD_2,
-      PSD_3    => PSD_3,
-      Max_Dist => Max_Dist,
-      Energy   => Energy,
-      d_max_c  => DTW,
-      Patterns => Normalise_Epochs (Patterns));
-
-   -- with Detector.Signals.Dynamic_Time_Warping;
 
 end Detector.Batches;

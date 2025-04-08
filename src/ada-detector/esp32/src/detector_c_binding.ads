@@ -34,6 +34,20 @@ is
       External_Name     => "eeg_energy",
       Always_Terminates => True;
 
+   procedure Batch_Normalise (Result : out Feature_Type) with
+      Global            => (In_Out => State),
+      Export            => True,
+      Convention        => C,
+      External_Name     => "eeg_batch_normalise",
+      Always_Terminates => True;
+
+   procedure Single_DTW (Result : out Feature_Type) with
+      Global            => (In_Out => State),
+      Export            => True,
+      Convention        => C,
+      External_Name     => "eeg_dtw",
+      Always_Terminates => True;
+
 private
 
    procedure Read_Signal (Item : out Detector.Signals.Signal_Type) with

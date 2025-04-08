@@ -15,6 +15,8 @@ extern void detector_bindinginit(void);
 // Benchmarking functions
 extern void eeg_max_distance(int32_t *result);
 extern void eeg_energy(int32_t *result);
+extern void eeg_batch_normalise(int32_t *result);
+extern void eeg_dtw(int32_t *result);
 // extern void _Noreturn seizure_detector(void);
 
 // Reader
@@ -54,9 +56,12 @@ static void benchmark (void) {
 
   BENCHMARK(eeg_max_distance);
   printf("Max_distance: %.0lf epochs/second\n", count / (stop - start));
-
   BENCHMARK(eeg_energy);
   printf("Energy:       %.0lf epochs/second\n", count / (stop - start));
+  BENCHMARK(eeg_batch_normalise);
+  printf("Batch Normal: %.0lf epochs/second\n", count / (stop - start));
+  BENCHMARK(eeg_dtw);
+  printf("Single DTW:   %.0lf epochs/second\n", count / (stop - start));
 }
 
 void app_main (void) {
