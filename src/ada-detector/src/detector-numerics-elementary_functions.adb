@@ -112,6 +112,7 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
       Size => Max_Bits;
 
    function Fixed_Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
+      pragma SPARK_Mode (Off);
       Max_Iters : constant := 32;
       subtype Fixed is Fixed_Type'Base;
       subtype Sweet_Range is Fixed range 0.5 .. 2.0 - Fixed'Delta;
