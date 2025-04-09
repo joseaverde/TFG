@@ -21,6 +21,7 @@ begin
               False => [for I in Input'Range => (0.0, 0.0)]];
    Scale := 0;
 
+   pragma Assert (Input'Length = Sizes (Power));
    for I in 0 .. Bits - 2 loop
       pragma Loop_Invariant (Layer = Sizes (I));
       pragma Loop_Invariant (Scale in 0 .. I);
