@@ -53,6 +53,7 @@ begin
 
       Get (Count);
       Signal := new Sample_Array (1 .. Count);
+      Put_Line (Count'Image);
       for I in 1.. Count loop
          Get (Signal (I));
       end loop;
@@ -66,7 +67,7 @@ begin
          Data := Signal (Index .. Index + Epoch'Length - 1);
          Epoch := [for I in Epoch'Range =>
                      Normalisation.Normalise (Data (I))];
-         Is_Seizure (Batch, Data (Index .. Index + Epoch'Length - 1), Is_It);
+         Is_Seizure (Batch, Data, Is_It);
          Put (Is_It'Image);
          Put (" NaN");
          Put (" NaN");

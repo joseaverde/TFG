@@ -107,26 +107,14 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
 
    end Integer_Sqrt;
 
-   type Int is range -2 ** (Max_Bits - 1) .. 2 ** (Max_Bits - 1) - 1 with
-      Size => Max_Bits;
    type Fix is delta 1.0
       range -2.0 ** (Max_Bits - 1) .. 2.0 ** (Max_Bits - 1) - 1.0 with
       Size => Max_Bits;
-   function Sqrt_Int is new Integer_Sqrt (Int);
-
--- function Fixed_Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
---    -- TODO: PROVE IT!
---    pragma SPARK_Mode (Off);
---    subtype Fixed is Fixed_Type'Base range 0.0 .. Fixed_Type'Base'Last;
---    Num : constant Int := Int (Fix'(Item / Fixed'(Fixed'Delta)));
---    Den : constant Int := Int (Fix'(Fixed (1) / Fixed'(Fixed'Delta)));
--- begin
---    return Fix (Sqrt_Int (Num)) / Fix (Sqrt_Int (Den));
--- end Fixed_Sqrt;
 
    function Fixed_Sqrt (Item : in Fixed_Type) return Fixed_Type'Base is
       Max_Iters : constant := 32;
       subtype Fixed is Fixed_Type'Base;
+      subtype Sweet_Range is Fixed range 0.5 .. 2.0 - Fixed'Delta;
       Internal_Bits     : constant := Bits * 2;
       Internal_Whole    : constant := 16;
       Internal_Fraction : constant := Internal_Bits - Internal_Whole - 1;
@@ -147,19 +135,20 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
       end if;
 
       -- Scaling
-      if Item < 0.5 then
-         while Fix (X) * Item < Fixed'(0.5) loop
+      if Item < Sweet_Range'First then
+         while Fix (X) * Item < Sweet_Range'First loop
             X := X * 4;
             Y := Y * 2;
          end loop;
          A := Fix (X) * Item;
-      elsif Item >= 2.0 then
-         while Item / Fix (X) >= Fixed'(2.0) loop
+      elsif Item > Sweet_Range'Last then
+         while Item / Fix (X) >= Sweet_Range'Last loop
             X := X * 4;
             Y := Y * 2;
          end loop;
          A := Item / Fix (X);
       else
+         pragma Assert (Item in Sweet_Range);
          A := Internal_Real (Item);
       end if;
 
@@ -188,9 +177,9 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
       end loop;
 
       -- Rescaling
-      if Item < Fixed'(0.5) then
+      if Item < Sweet_Range'First then
          return A / Fix (Y);
-      elsif Item >= Fixed'(2.0) then
+      elsif Item > Sweet_Range'Last then
          return A * Fix (Y);
       else
          return Fixed_Type'Base (A);

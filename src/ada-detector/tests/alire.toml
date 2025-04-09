@@ -42,7 +42,7 @@ seizure_detector_fixed = "*"
 seizure_detector_fixed = { path='..' }
 
 [[depends-on]]
-aunit = "^25.0.0"
+aunit = "^23.0.0"
 
 [gpr-set-externals]
 BUILD_MODE = "validation"

@@ -16,3 +16,6 @@ seizure_detector_fixed = "*"
 
 [[pins]]
 seizure_detector_fixed = { path='..' }
+
+[gpr-set-externals]
+BUILD_MODE = "validation"
