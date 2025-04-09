@@ -1,3 +1,5 @@
+with Detector.Numerics.Generic_Complex_Types;
+
 package Detector.Signals with Pure, SPARK_Mode => On is
 
    -- A Signal is a sequence of samples. After some experimentation it is
@@ -20,6 +22,12 @@ package Detector.Signals with Pure, SPARK_Mode => On is
       range -2.0 ** Sample_Whole_Bits + Sample_Delta
          .. 2.0 ** Sample_Whole_Bits - Sample_Delta with
       Size => Sample_Bits;
+
+   package Complex_Types is
+      new Detector.Numerics.Generic_Complex_Types (
+      Fixed_Type => Sample_Type);
+   subtype Complex is Complex_Types.Complex;
+   type Complex_Signal is array (Index_Type range <>) of Complex;
 
    type Signal_Type is array (Index_Type range <>) of Sample_Type;
 

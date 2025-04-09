@@ -86,7 +86,7 @@ Now, the thing that bothers me is the seizure_function itself. Why it doesn't
 get worse?! That's what I'll try to fix in the next commits. First lest
 optimise the batch normalisation a little bit.
 
-==== Benchmarking [master 92fcb9a] ============================================
+==== Benchmarking [master 6e4d2f0] ============================================
 After meddling a little bit with the function, I refactored it a little bit.
 Precomputed some values and simplified the expression. It is now faster. And
 the detector is (finally slower).
@@ -99,3 +99,4 @@ Single DTW:   27 epochs/second
 ......................
 Elapsed: 1.00000E+00 s
 Ratio:   22 epochs/second
+......................

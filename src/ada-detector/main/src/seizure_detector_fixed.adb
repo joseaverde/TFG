@@ -23,7 +23,8 @@ procedure Seizure_Detector_Fixed with SPARK_Mode => On, No_Return is
 
    procedure Notify_Nothing is
    begin
-      Ada.Text_IO.Put ('.');
+      null;
+      -- Ada.Text_IO.Put ('.');
    end Notify_Nothing;
 
    procedure Read (Item : out Stride_Type) is
