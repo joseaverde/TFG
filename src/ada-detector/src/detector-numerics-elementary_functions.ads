@@ -1,4 +1,25 @@
+--/-------------------------------------------------------------------------\--
+--| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--|-------------------------------------------------------------------------|--
+--| File:    detector-numerics-elementary_functions.ads                     |--
+--| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
+--| License: European Union Public License 1.2                              |--
+--\-------------------------------------------------------------------------/--
+
 package Detector.Numerics.Elementary_Functions with Pure, SPARK_Mode is
+
+   -- This package is similar to `Ada.Numerics.Elementary_Functions'. It
+   -- differs in that it isn't generic, it isn't complete (it only contains the
+   -- functions that are needed for this project), each function has its own
+   -- input and output types and there may be generic functions.
+   --
+   -- This functions are only approximations to the real functions. And they
+   -- may have an error. So certain properties may not hold such as:
+   --
+   --    sin² x + cos² x = 1
+   --
+   -- would not be true, as there are fluctuations. All this functions are
+   -- SPARK-proven and can be used as they are.
 
    -->> Trigonometric Functions <<--
 
@@ -27,7 +48,11 @@ package Detector.Numerics.Elementary_Functions with Pure, SPARK_Mode is
    type Trigonometric_Input_Type is
       delta Trigonometric_Input_Delta
       range 0.0 .. 2.0 - Trigonometric_Input_Delta with
-      Size => Trigonometric_Input_Bits;
+   Size => Trigonometric_Input_Bits;
+   -- The input for the trigonometric functions `Sinpi' and `Cospi' is a number
+   -- in the set [0, 2). As both functions implictly multiply the given value
+   -- by π. If the user wants to compute the sine or cosine of a bigger value.
+   -- They must first module the input value.
 
    Trigonometric_Output_Bits          : constant := Bits;
    Trigonometric_Output_Whole_Bits    : constant := 2;
@@ -39,16 +64,30 @@ package Detector.Numerics.Elementary_Functions with Pure, SPARK_Mode is
       delta Trigonometric_Output_Delta
       range -1.0 .. 1.0 with
       Size => Trigonometric_Output_Bits;
+   -- The output of the sine and cosine functions are always in range [-1, 1].
+   -- This type allows to return that ratio with as much precision as possible.
 
    function Sinpi (Item : in Trigonometric_Input_Type)
       return Trigonometric_Output_Type with
       Inline => True,
       Global => null;
+   -- This function computes the sine of the value multiplied by pi (π):
+   --
+   --    Sinpi (Item) ~= Sin (Item * π)
+   --
+   -- This allows an easier implementation and ensures that:
+   --
+   --    Sin (0) = 0 = Sin (π)
+   --    Sin (π/2) = 1
+   --    Sin (3π/2) = -1
 
    function Cospi (Item : in Trigonometric_Input_Type)
       return Trigonometric_Output_Type with
       Inline => True,
       Global => null;
+   -- This function computes the cosine of the value multiplied by pi (π):
+   --
+   --    Cospi (Item) ~= Cos (Item * π)
 
    -->> Square Root <<--
 

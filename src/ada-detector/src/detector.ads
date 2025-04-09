@@ -1,16 +1,10 @@
--------------------------------------------------------------------------------
---                                                                           --
---                          D E T E C T O R . A D S                          --
---                                                                           --
---                      S E I Z U R E   D E T E C T O R                      --
---                                                                           --
---                              A D A   S P E C                              --
---                                                                           --
--------------------------------------------------------------------------------
---  Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved  --
--------------------------------------------------------------------------------
---                                                                           --
--------------------------------------------------------------------------------
+--/-------------------------------------------------------------------------\--
+--| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--|-------------------------------------------------------------------------|--
+--| File:    detector.ads                                                   |--
+--| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
+--| License: European Union Public License 1.2                              |--
+--\-------------------------------------------------------------------------/--
 
 package Detector with Pure, SPARK_Mode is
 
@@ -66,7 +60,20 @@ package Detector with Pure, SPARK_Mode is
 
    type Fixed_Integer is
       delta 1.0
-      range -2.0 ** 31 .. 2.0 ** 31 - 1.0 with
-      Size => 32;
+      range -2.0 ** (Bits - 1) .. 2.0 ** (Bits - 1) - 1.0 with
+   Size => Bits;
+   -- This type is just an Integer in disguise. The idea behind this type is
+   -- that when performing integer division or multiplication to a fixed point
+   -- type, the result's type is the fixed point's type not the target type.
+   -- For instance:
+   --
+   --    Fixed_A'(Fixed_B'(1.0) / 3);
+   --
+   -- Wouldn't work because the result of the division is of type `Fixed_B'.
+   -- If we did
+   --
+   --    Fixed_A'(Fixed_B'(1.0) / Fixed_Integer (3));
+   --
+   -- It will compile and work as expected.
 
 end Detector;
