@@ -15,8 +15,7 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Buffer : in out Double_Buffer;
       Scaled :    out Boolean;
       Chunk  : in     Positive_Count_Type;
-      Input  : in     Boolean;
-      Power  : in     Natural) is
+      Input  : in     Boolean) is
       pragma SPARK_Mode (Off);
    begin
       null;
@@ -51,5 +50,28 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
          (for all I in 1 .. Bits - 2 => Result (I) = 2 ** I));
       return Result;
    end Chunk_Sizes;
+
+   procedure Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
+      Left  : in Natural;
+      Right : in Natural) is
+      Sizes : constant Chunk_Size_Array := Chunk_Sizes;
+   begin
+      pragma Assert (2 ** Left = Sizes (Left));
+      pragma Assert (2 ** Right = Sizes (Right));
+      pragma Assert (2 ** Left >= 2 ** Right);
+      pragma Assert (Left >= Right);
+      if Left = Right then
+         pragma Assert (2 ** Left mod 2 ** Right = 0);
+      else
+         pragma Assert (Left > Right);
+         pragma Assert (
+            (for all I in Left + 1 .. Right =>
+               Sizes (I) = Sizes (I - 1) * 2
+               and then Sizes (I) mod Sizes (I - 1) = 0
+               and then Sizes (I) mod 2 ** Left = 0));
+         pragma Assert (Sizes (Right) mod 2 ** Left = 0);
+         pragma Assert (2 ** Left mod 2 ** Right = 0);
+      end if;
+   end Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero;
 
 end Detector.Signals.Fast_Fourier_Transform_Details;

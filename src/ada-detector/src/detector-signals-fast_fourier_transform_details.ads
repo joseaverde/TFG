@@ -5,6 +5,14 @@ is
    type Double_Buffer is
       array (Boolean range <>, Count_Type range <>) of Complex;
 
+-- procedure Conquer_Part (
+--    Buffer : in out Double_Buffer;
+--    Scale  : in out Natural;
+--    Chunk  : in     Positive_Count_Type;
+--    Input  : in     Boolean;
+--    Bound  : in     Sample_Type;
+--    First
+
 -- procedure Conquer (
 --    Buffer : in out Double_Buffer;
 --    Scale  : in out Natural;
@@ -30,14 +38,14 @@ is
       Buffer : in out Double_Buffer;
       Scaled :    out Boolean;
       Chunk  : in     Positive_Count_Type;
-      Input  : in     Boolean;
-      Power  : in     Natural) with
+      Input  : in     Boolean) with
       Global   => null,
       Inline   => True,
       Pre      => Buffer'Length (2) > 0
-         and then Power in 0 .. Bits - 2
-         and then (for all I in 0 .. Bits - 2 => 2 ** I in Natural)
-         and then Buffer'Length (2) = 2 ** Power,
+         and then Buffer'Length (2) <= 2 ** (Bits - 2)
+         and then (for some Power in 0 .. Bits - 2 =>
+                     Buffer'Length (2) = 2 ** Power)
+         and then Buffer'Length (2) mod Chunk = 0,
       Always_Terminates;
 
    type Chunk_Size_Array is array (0 .. Bits - 2)
@@ -53,5 +61,15 @@ is
          and then (for all I in 1 .. Bits - 2 =>
                      Chunk_Sizes'Result (I) = 2 ** I);
    -- Note: This function requires level=3 to be proven. It is not that trivial
+
+   procedure Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
+      Left  : in Natural;
+      Right : in Natural) with
+      Ghost    => True,
+      Global   => null,
+      Pre      => Left in 0 .. Bits - 2
+         and then Right in 0 .. Bits - 2
+         and then Left >= Right,
+      Post     => 2 ** Left mod 2 ** Right = 0;
 
 end Detector.Signals.Fast_Fourier_Transform_Details;
