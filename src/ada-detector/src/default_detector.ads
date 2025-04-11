@@ -30,6 +30,7 @@ package Default_Detector with SPARK_Mode => On is
    Stride_Size        : constant := Samples_Per_Stride;
    Strides_Per_Epoch  : constant := 5;
    Epoch_Size         : constant := Strides_Per_Epoch * Stride_Size;
+   Welch_Size         : constant := 512;
 
    package Batches is
       new Detector.Batches (

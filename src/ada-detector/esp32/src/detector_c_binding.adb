@@ -1,6 +1,7 @@
 with Ada.Text_IO;
 with Detector.Signals.Batch_Normalisation;
 with Detector.Batches.Runner;
+with Detector.Signals.Fast_Fourier_Transform;
 with Safe_Time;
 
 package body Detector_C_Binding with
@@ -74,6 +75,18 @@ is
       Default_Detector.Batches.Normalise (Right, N_R);
       Result := Dynamic_Time_Warping (N_L, N_R, 16);
    end Single_DTW;
+
+   procedure Single_FFT (Result : out Feature_Type) is
+      Size   : constant := Detector.Log_2 (Default_Detector.Welch_Size);
+      use Detector.Signals;
+      Input  : Signal_Type (1 .. Default_Detector.Welch_Size);
+      Output : Complex_Signal (Input'Range);
+      Scale  : Natural;
+   begin
+      Read_Signal (Input);
+      Fast_Fourier_Transform (Input, Output, Size, Scale);
+      Result := Feature_Type (2 ** Scale) * Output (Output'First).Re;
+   end Single_FFT;
 
    procedure Seizure_Detector is
       use Ada.Text_IO, Safe_Time;

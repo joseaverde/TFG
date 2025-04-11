@@ -48,6 +48,13 @@ is
       External_Name     => "eeg_dtw",
       Always_Terminates => True;
 
+   procedure Single_FFT (Result : out Feature_Type) with
+      Global            => (In_Out => State),
+      Export            => True,
+      Convention        => C,
+      External_Name     => "eeg_fft",
+      Always_Terminates => True;
+
    procedure Seizure_Detector with
       Global            => (In_Out => State),
       Export            => True,

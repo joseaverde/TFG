@@ -100,3 +100,17 @@ Single DTW:   27 epochs/second
 Elapsed: 1.00000E+00 s
 Ratio:   22 epochs/second
 ......................
+
+==== Benchmarking [master        ] ============================================
+Added the unproved Fast Fourier Transform (FFT). There was no change over
+Max_distance whatsoever, but there seems to be an increase in performance.
+
+Max_distance: 2901 epochs/second
+Energy:       1688 epochs/second
+Batch Normal: 78 epochs/second
+Single DTW:   27 epochs/second
+FFT:          98 epochs/second
+......................
+Elapsed: 1.02000E+00 s
+Ratio:   22 epochs/second
+......................
