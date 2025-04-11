@@ -12,11 +12,8 @@ procedure Detector.Signals.Fast_Fourier_Transform (
    Buffer : Double_Buffer (Boolean, 0 .. Output'Length - 1);
    Result : Boolean             := True;
    Layer  : Positive_Count_Type := 1;
-   -- Scaled : Normalised_Sample_Window;
-   -- Factor : Scaling_Factor;
-   -- Shifts : Shift_Count := 0;
-   -- Chunk  : Positive_Count_Type := 1;
-   -- Shift  : Boolean;
+   Scaled : Boolean;
+   Sizes  : constant Chunk_Size_Array := Chunk_Sizes with Ghost;
 
 begin
 
@@ -24,10 +21,23 @@ begin
               False => [for I in Input'Range => (0.0, 0.0)]];
    Scale := 0;
 
-   while Layer < Input'Length loop
+   pragma Assert (Input'Length = Sizes (Power));
+   for I in 0 .. Power loop
+      pragma Loop_Invariant (Layer = Sizes (I));
+      pragma Loop_Invariant (Scale in 0 .. I);
+      pragma Loop_Variant (Increases => Layer);
+      exit when Layer > Input'Length;
+      pragma Assert (Layer = 2 ** I);
+      pragma Assert (Input'Length = 2 ** Power);
+      pragma Assert (Input'Length >= Layer);
+      pragma Assert (Power >= I);
+      Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (Power, I);
+      Conquer (Buffer, Scaled, Layer, Result);
+      if Scaled then
+         Scale := Scale + 1;
+      end if;
       Result := not Result;
       Layer := Layer * 2;
-      pragma Loop_Variant (Increases => Layer);
    end loop;
 
    pragma Assert (Buffer'Length (2) = Output'Length);
