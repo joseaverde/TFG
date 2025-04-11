@@ -22,7 +22,7 @@ begin
    Scale := 0;
 
    pragma Assert (Input'Length = Sizes (Power));
-   for I in 0 .. Power loop
+   for I in 1 .. Power loop
       pragma Loop_Invariant (Layer = Sizes (I));
       pragma Loop_Invariant (Scale in 0 .. I);
       pragma Loop_Variant (Increases => Layer);

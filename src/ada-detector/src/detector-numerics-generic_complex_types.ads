@@ -15,6 +15,12 @@ package Detector.Numerics.Generic_Complex_Types with Pure, SPARK_Mode is
       Im : Fixed_Type;
    end record;
 
+   function "*" (Left : in Complex; Right : in Integer) return Complex with
+      Global   => null,
+      Inline   => True,
+      Post     => "*"'Result.Re = Left.Re * Right
+         and then "*"'Result.Im = Left.Im * Right;
+
    function "/" (Left : in Complex; Right : in Integer) return Complex with
       Global   => null,
       Inline   => True,

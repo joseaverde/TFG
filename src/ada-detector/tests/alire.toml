@@ -17,7 +17,6 @@ executables = ["seizure_detector_fixed_tests"]
                    , "-gnatya"          # Check attribute casing
                    , "-gnatyA"          # Check array attribute indexes
                    , "-gnatyb"          # No blanks at end of lines
-                   , "-gnatyC"          # Comment format: 1 space (-- comment)
                    , "-gnatyd"          # No DOS line terminators
                    , "-gnatye"          # end/exit labels present
                    , "-gnatyf"          # No form feeds or vertical tabs

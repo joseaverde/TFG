@@ -8,6 +8,10 @@
 
 package body Detector.Numerics.Generic_Complex_Types with SPARK_Mode is
 
+   function "*" (Left : in Complex; Right : in Integer) return Complex is (
+      Re => Left.Re * Right,
+      Im => Left.Im * Right);
+
    function "/" (Left : in Complex; Right : in Integer) return Complex is (
       Re => Left.Re / Right,
       Im => Left.Im / Right);
