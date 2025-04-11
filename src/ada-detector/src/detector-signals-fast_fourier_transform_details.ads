@@ -1,3 +1,11 @@
+--/-------------------------------------------------------------------------\--
+--| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--|-------------------------------------------------------------------------|--
+--| File:    detector-signals-fast_fourier_transform_details.ads            |--
+--| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
+--| License: European Union Public License 1.2                              |--
+--\-------------------------------------------------------------------------/--
+
 private package Detector.Signals.Fast_Fourier_Transform_Details with
    Preelaborate, SPARK_Mode => On
 is
@@ -43,6 +51,7 @@ is
       Inline   => True,
       Pre      => Buffer'Length (2) > 0
          and then Buffer'Length (2) <= 2 ** (Bits - 2)
+         and then Buffer'Length (1) = 2
          and then (for some Power in 0 .. Bits - 2 =>
                      Buffer'Length (2) = 2 ** Power)
          and then Buffer'Length (2) mod Chunk = 0,
