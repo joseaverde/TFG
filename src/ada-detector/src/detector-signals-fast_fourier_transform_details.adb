@@ -6,22 +6,32 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
+with Ada.Numerics.Elementary_Functions;
 with Detector.Numerics.Elementary_Functions;
+with Detector.Numerics.Complex_Types_Operations;
 
 package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
 
    use Detector.Numerics.Elementary_Functions;
 
+   package Trigonometric_Output_Complex is
+      new Detector.Numerics.Generic_Complex_Types (
+      Fixed_Type => Trigonometric_Output_Type);
+
+   function "*" is
+      new Detector.Numerics.Complex_Types_Operations.Multiply (
+      Left_Complex   => Complex_Types,
+      Right_Complex  => Trigonometric_Output_Complex,
+      Result_Complex => Complex_Types);
+
    function ω (
       K : in Count_Type'Base;
       N : in Count_Type'Base)
-      return Complex is ((
+      return Trigonometric_Output_Complex.Complex is ((
       declare
          θ : constant Trigonometric_Input_Type :=
-            Fixed_Integer (K) / Fixed_Integer (N);
-      begin Complex'(
-         Re => Sample_Type (Cospi (θ)),
-         Im => Sample_Type (Sinpi (θ)))));
+            (Fixed_Integer (K)) / Fixed_Integer (N);
+      begin (Cospi (θ), Sinpi (θ))));
 
    procedure Operation (
       Left_Input   : in     Complex;
@@ -42,25 +52,26 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Scaled :    out Boolean;
       Chunk  : in     Positive_Count_Type;
       Input  : in     Boolean) is
-      Count     : constant Count_Type := Buffer'Length (2) / Chunk;
-      First     : constant Count_Type := Buffer'First (2);
-      In_Left   : Count_Type;
-      In_Right  : Count_Type;
-      Out_Left  : Count_Type;
-      Out_Right : Count_Type;
+      Chunk_Size : constant Positive_Count_Type := Chunk;
+      Count      : constant Count_Type := Buffer'Length (2) / Chunk_Size;
+      First      : constant Count_Type := Buffer'First (2);
+      In_Left    : Count_Type;
+      In_Right   : Count_Type;
+      Out_Left   : Count_Type;
+      Out_Right  : Count_Type;
    begin
       Scaled := True;
-      for Chunk_Index in 0 .. Count / 2 - 1 loop
-         In_Left := First + Chunk_Index * Chunk;
-         In_Right := First + (Chunk_Index + Count / 2) * Chunk;
-         Out_Left := First + 2 * Chunk_Index;
-         Out_Right := First + (2 * Chunk_Index + 1);
-         for Index in 0 .. Chunk - 1 loop
+      for Chunk in 0 .. Count / 2 - 1 loop      -- Count * Size = Length
+         In_Left := First + Chunk * Chunk_Size;
+         In_Right := First + (Chunk + Count / 2) * Chunk_Size;
+         Out_Left := First + (2 * Chunk) * Chunk_Size;
+         Out_Right := First + (2 * Chunk + 1) * Chunk_Size;
+         for Index in 0 .. Chunk_Size - 1 loop
             Operation (
                Left_Input   => Buffer (Input, In_Left + Index),
                Right_Input  => Buffer (Input, In_Right + Index),
                K            => Index,
-               N            => Chunk * 2,
+               N            => Chunk_Size,
                Left_Output  => Buffer (not Input, Out_Left + Index),
                Right_Output => Buffer (not Input, Out_Right + Index));
          end loop;

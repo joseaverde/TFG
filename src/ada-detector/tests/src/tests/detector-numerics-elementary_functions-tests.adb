@@ -8,6 +8,7 @@
 
 with Ada.Numerics.Elementary_Functions;
 with AUnit.Assertions;
+with Generic_Compare;
 
 package body Detector.Numerics.Elementary_Functions.Tests is
 
@@ -58,10 +59,7 @@ package body Detector.Numerics.Elementary_Functions.Tests is
       Assert (Sqrt (0.25) = 0.5, "Expected 1/2, got" & Sqrt (0.25)'Image);
    end Test_Square_Root_Of_A_Quarter;
 
-   function Compare (Left : in Fixed; Right : in Float) return Boolean is
-   begin
-      return abs (Left - Fixed (Right)) < ε;
-   end Compare;
+   function Compare is new Generic_Compare (Fixed, ε);
 
    procedure Test_Square_Root_Error (T : in out TC) is
       use Ada.Numerics.Elementary_Functions;
@@ -69,11 +67,11 @@ package body Detector.Numerics.Elementary_Functions.Tests is
       Values : constant Fixed_Array := [1.0, 2.0, 3.0, 4.0, 7.0, 42.0, 69.0];
    begin
       for Val of Values loop
-         Assert (Compare (Sqrt (Val), Sqrt (Float (Val))),
+         Assert (Compare (Sqrt (Val), Fixed (Sqrt (Float (Val)))),
                  "Sqrt (" & Val'Image & "): " &
                  "Expected " & Sqrt (Float (Val))'Image &
                  "; got " & Sqrt (Val)'Image);
-         Assert (Compare (Sqrt (1.0 / Val), Sqrt (Float (1.0 / Val))),
+         Assert (Compare (Sqrt (1.0 / Val), Fixed (Sqrt (Float (1.0 / Val)))),
                  "Sqrt (" & Fixed'Image (1.0 / Val) & "): " &
                  "Expected " & Sqrt (Float (1.0 / Val))'Image &
                  "; got " & Sqrt (1.0 / Val)'Image);

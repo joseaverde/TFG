@@ -9,17 +9,16 @@ with Util.Streams.Texts;
 
 package body Python3 is
 
-   Buffer_Size : constant := 65_536;
+   Buffer_Size : constant := 65_536 * 266;
 
    function Call (
       Script : in String;
-      Params : in Unbounded_String)
+      Params : in String)
       return Unbounded_String is
       Command : constant String := "python3 """ & Script & """";
       Pipe    : aliased Util.Streams.Pipes.Pipe_Stream;
       Input   : Util.Streams.Buffered.Input_Buffer_Stream;
       Output  : Util.Streams.Texts.Print_Stream;
-      Buffer  : Unbounded_String;
    begin
       -- Open the pipe
       Pipe.Open (Command => Command, Mode => Util.Processes.READ_WRITE);
@@ -27,19 +26,17 @@ package body Python3 is
       Output.Initialize (Pipe'Unchecked_Access);
 
       -- Write the parameters
-      Output.Write (To_String (Params));
+      Output.Write (Params);
+      Output.Close;
       return Result : Unbounded_String do
-         loop
-            Input.Read (Into => Buffer);
-            Result := Result & Buffer;
-            exit when Input.Is_Eof;
-         end loop;
+         -- FIXME: Can't read too much
+         Input.Read (Into => Result);
       end return;
    end Call;
 
    function Call_Return_Type (
       Script : in String;
-      Params : in Unbounded_String)
+      Params : in String)
       return Element_Type is
       Result : constant String := To_String (Call (Script, Params));
       Last   : Positive;
@@ -51,8 +48,8 @@ package body Python3 is
 
    function Call_Return_Array (
       Script : in String;
-      Params : in Unbounded_String)
-      return Element_Array is
+      Params : in String)
+      return Array_Type is
       use Ada.Strings.Fixed;
       package Element_Vectors is
          new Ada.Containers.Vectors (
@@ -102,7 +99,7 @@ package body Python3 is
          Iter := Next;
       end loop;
 
-      return Result : Element_Array (Index_Type'First .. Values.Last_Index) do
+      return Result : Array_Type (Index_Type'First .. Values.Last_Index) do
          for I in Result'Range loop
             Result (I) := Values (I);
          end loop;
@@ -114,10 +111,12 @@ package body Python3 is
       Name : in String)
       return String is
       use Ada.Directories, Ada.Command_Line;
+      function Parent (Item : in String) return String
+         renames Containing_Directory;
       function "/" (Left, Right : in String) return String is (
          Compose (Left, Right));
    begin
-      return Containing_Directory (Command_Name) / "scripts" / Name;
+      return Parent (Parent (Command_Name)) / "scripts" / Name;
    end Script;
 
 end Python3;

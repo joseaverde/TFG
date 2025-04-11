@@ -16,9 +16,12 @@ package Detector.Signals.Fast_Fourier_Transform_Tests is
    overriding function Name (T : in Test) return AUnit.Message_String is (
       AUnit.Format ("Detector.Numerics.Fast_Fourier_Transform"));
 
-   procedure Test_1_Value  (T : in out TC);
-   procedure Test_2_Values (T : in out TC);
-   procedure Test_N_Values (T : in out TC);
+   procedure Test_1_Value          (T : in out TC);
+   procedure Test_2_Values         (T : in out TC);
+   procedure Test_N_Values         (T : in out TC);
+-- procedure Test_N_Values_Rescale (T : in out TC);
+
+   ε : constant Sample_Type := 1.0 / 1024.0;
 
 private
 
