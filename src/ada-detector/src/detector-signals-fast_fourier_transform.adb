@@ -4,7 +4,7 @@ procedure Detector.Signals.Fast_Fourier_Transform (
    Input  : in     Signal_Type;
    Output :    out Complex_Signal;
    Power  : in     Natural;
-   Scale  :    out Positive) is
+   Scale  :    out Natural) is
    pragma SPARK_Mode (On);
 
    use Detector.Signals.Fast_Fourier_Transform_Details;
@@ -22,7 +22,7 @@ begin
 
    Buffer := [True  => [for I in Input'Range => (Input (I), 0.0)],
               False => [for I in Input'Range => (0.0, 0.0)]];
-   Scale := 1;
+   Scale := 0;
 
    while Layer < Input'Length loop
       Result := not Result;

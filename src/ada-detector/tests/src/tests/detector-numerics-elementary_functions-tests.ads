@@ -22,7 +22,7 @@ package Detector.Numerics.Elementary_Functions.Tests is
       range -2.0 ** Fixed_Whole_Bits .. 2.0 ** Fixed_Whole_Bits - Fixed_Delta
       with Size => Fixed_Bits;
 
-   ε : constant := 0.01;
+   ε : constant Fixed := 1.0 / 1024.0;
 
    procedure Test_Square_Root_Of_Zero      (T : in out TC);
    procedure Test_Square_Root_Of_One       (T : in out TC);

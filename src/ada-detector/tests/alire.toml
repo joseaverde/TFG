@@ -2,8 +2,8 @@ name = "seizure_detector_fixed_tests"
 description = "Tests for the Seizure Detector application with Fixed Point types"
 version = "0.1.0-dev"
 
-authors = ["José Antonio Verde Jiménez"]
-maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
+authors = ["JosÃ© Antonio Verde JimÃ©nez"]
+maintainers = ["JosÃ© Antonio Verde JimÃ©nez <joseaverde@protonmail.com>"]
 maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""
@@ -24,7 +24,6 @@ executables = ["seizure_detector_fixed_tests"]
                    , "-gnatyh"          # No horizontal tabs
                    , "-gnaty-I"         # `in' is required in parameters
                    , "-gnatyk"          # Check casing rules for keywords
-                   , "-gnatyL5"         # Maximum nesting level
                    # , "-gnatyM79"        # Maximum 79 characters.
                    , "-gnatyn"          # Check casing of package Standard identifiers
                    , "-gnatyO"          # Check overriding indicators
@@ -46,3 +45,6 @@ aunit = "^23.0.0"
 
 [gpr-set-externals]
 BUILD_MODE = "validation"
+
+[[depends-on]]
+utilada = "^2.8.0"

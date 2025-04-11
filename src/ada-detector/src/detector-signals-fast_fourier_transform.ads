@@ -2,7 +2,7 @@ procedure Detector.Signals.Fast_Fourier_Transform (
    Input  : in     Signal_Type;
    Output :    out Complex_Signal;
    Power  : in     Natural;
-   Scale  :    out Positive) with
+   Scale  :    out Natural) with
    Global         => null,
    Preelaborate   => True,
    SPARK_Mode     => On,
@@ -12,5 +12,5 @@ procedure Detector.Signals.Fast_Fourier_Transform (
             and then (for all I in 0 .. Bits - 2 => 2 ** I in Natural)
             and then Input'Length = 2 ** Power
             and then Output'Length = Input'Length,
-   Post           => Scale in 1 .. Bits - 2,
+   Post           => Scale in 0 .. Power,
    Always_Terminates;
