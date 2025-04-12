@@ -12,6 +12,4 @@ generic
    with procedure Notify_Nothing;
 procedure Detector.Batches.Runner (
    Batch : in out Batch_Type) with
-   No_Return  => True,
-   Pure       => True,
-   SPARK_Mode => On;
+   No_Return, Preelaborate, SPARK_Mode;

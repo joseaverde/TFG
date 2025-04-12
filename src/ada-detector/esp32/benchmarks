@@ -101,7 +101,7 @@ Elapsed: 1.00000E+00 s
 Ratio:   22 epochs/second
 ......................
 
-==== Benchmarking [master        ] ============================================
+==== Benchmarking [master d0b2cfc] ============================================
 Added the unproved Fast Fourier Transform (FFT). There was no change over
 Max_distance whatsoever, but there seems to be an increase in performance.
 
@@ -114,3 +114,41 @@ FFT:          98 epochs/second
 Elapsed: 1.02000E+00 s
 Ratio:   22 epochs/second
 ......................
+
+==== Benchmarking [master        ] ============================================
+Added PSDs to the detector. Obviously it decreases the amount of epochs per
+second. About the variations in the other features. I think it happens because
+of the Duration precision. In some of them it is 1.00000E+00 s, in the last one
+it is 1.02000E+00, and in this one it is 1.08000E+00. Nothin to important.
+   I runned the program with VTune on my laptop and I got the following
+results:
+ - 71.9% : Dynamic Time Warping
+ - 23.6% : Power Spectral Density
+   - 21.4% : Fast Fourier Transform
+     - 19.7% : Fast Fourier Operation (Conquer)
+       - 6.3% : cosπ
+   -  0.9% : cosπ
+ -  4.5% : Batch Normalisation
+   -  4.2% : system__arith_64__scaled_divide64
+   -  0.2% : Mean
+Just the `cosπ' function had 7.2% of the whole running time!! One possible
+optimisations is to caché it. In which case, packages will stop being Pure or
+Preelaborate. Another thing that could be done is make the `cospi' function
+Static so that it can be computed at compile time!
+   Dynamic time warping keeps being the worst of them. And it will prove to be
+difficult to optimise. Also the prove of the algorithms may worsen the current
+performance.
+   However, for the time being we are processing a 5 second signal, with 3
+patterns in 1/11th of a second 91 ms approximately. That gives use a total of
+909 ms for either sleeping (less energy). Cleaining up the signal, etc...
+
+Benchmarking
+Max_distance: 2838 epochs/second
+Energy:       1666 epochs/second
+Batch Normal: 78 epochs/second
+Single DTW:   27 epochs/second
+FFT:          97 epochs/second
+............
+Elapsed: 1.08000E+00 s
+Ratio:   11 epochs/second
+............

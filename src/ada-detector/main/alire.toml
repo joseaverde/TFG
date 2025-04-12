@@ -18,4 +18,4 @@ seizure_detector_fixed = "*"
 seizure_detector_fixed = { path='..' }
 
 [gpr-set-externals]
-BUILD_MODE = "validation"
+BUILD_MODE = "release"

@@ -9,7 +9,8 @@
 generic
    type Result_Type is delta <>;
 function Detector.Signals.Generic_Simpson (
-   Signal : in Signal_Type)
+   Signal : in Signal_Type;
+   dx     : in Sample_Type)
    return Result_Type with
    Global => null,
    Pure, SPARK_Mode;

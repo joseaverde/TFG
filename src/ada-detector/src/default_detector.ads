@@ -46,6 +46,7 @@ package Default_Detector with SPARK_Mode => On is
       Feature_Type       => Feature_Type,
       Samples_Per_Stride => Samples_Per_Stride,
       Strides_Per_Epoch  => Strides_Per_Epoch,
+      Welch_Window_Size  => Welch_Size,
       Max_Patterns       => 5);
 
 end Default_Detector;

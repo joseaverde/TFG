@@ -49,6 +49,7 @@ begin
       Data   : Epoch_Type;
       Epoch  : Signals.Signal_Type (1 .. Default_Detector.Epoch_Size);
       Normal : Pattern_Type;
+      PSD    : Batches.Feature_Array (1 .. 3);
    begin
 
       Get (Count);
@@ -69,9 +70,10 @@ begin
                      Normalisation.Normalise (Data (I))];
          Is_Seizure (Batch, Data, Is_It);
          Put (Is_It'Image);
-         Put (" NaN");
-         Put (" NaN");
-         Put (" NaN");
+         Batches.Power_Spectral_Densities (Epoch, PSD (1), PSD (2), PSD (3));
+         Put (" "); Put (PSD (1), 1);
+         Put (" "); Put (PSD (2), 1);
+         Put (" "); Put (PSD (3), 1);
          Put (" "); Put (Batches.Energy (Epoch), 1);
          Put (" "); Put (Batches.Max_Distance (Epoch), 1);
 

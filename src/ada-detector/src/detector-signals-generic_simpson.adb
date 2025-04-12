@@ -7,7 +7,8 @@
 --\-------------------------------------------------------------------------/--
 
 function Detector.Signals.Generic_Simpson (
-   Signal : in Signal_Type)
+   Signal : in Signal_Type;
+   dx     : in Sample_Type)
    return Result_Type is
 begin
    return 0.0;

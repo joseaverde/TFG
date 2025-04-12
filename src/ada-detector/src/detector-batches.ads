@@ -17,8 +17,9 @@ generic
    type Feature_Type is delta <>;
    Samples_Per_Stride : in Positive_Count_Type;
    Strides_Per_Epoch  : in Positive_Count_Type;
+   Welch_Window_Size  : in Positive_Count_Type;
    Max_Patterns       : in Positive_Count_Type := 5;
-package Detector.Batches with Pure, SPARK_Mode is
+package Detector.Batches with Preelaborate, SPARK_Mode is
 
    Warping_Window : constant := 16;
    -- TODO: Make it a parameter of the generic
@@ -37,6 +38,7 @@ package Detector.Batches with Pure, SPARK_Mode is
       return Boolean is (
       Item >= Span.Low and then Item <= Span.High);
 
+   type Feature_Array is array (Positive_Count_Type range <>) of Feature_Type;
    subtype Pattern_Count is Positive_Count_Type range 1 .. Max_Patterns;
    subtype Pattern_Type is
       Signals.Batch_Normalisation.Normalised_Signal (1 ..  Epoch_Size);
@@ -103,6 +105,15 @@ package Detector.Batches with Pure, SPARK_Mode is
       new Detector.Signals.Generic_Energy (
       Normalisation => Normalisation,
       Result_Type   => Feature_Type);
+
+   -- TODO: Make it generic with as many ranges as possible
+   procedure Power_Spectral_Densities (
+      Signal : in     Signals.Signal_Type;
+      PSD_1  :    out Feature_Type;
+      PSD_2  :    out Feature_Type;
+      PSD_3  :    out Feature_Type) with
+      Global => null,
+      Always_Terminates;
 
 private
 
