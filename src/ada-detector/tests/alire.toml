@@ -2,8 +2,8 @@ name = "seizure_detector_fixed_tests"
 description = "Tests for the Seizure Detector application with Fixed Point types"
 version = "0.1.0-dev"
 
-authors = ["JosÃ© Antonio Verde JimÃ©nez"]
-maintainers = ["JosÃ© Antonio Verde JimÃ©nez <joseaverde@protonmail.com>"]
+authors = ["José Antonio Verde Jiménez"]
+maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
 maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""
@@ -44,6 +44,7 @@ aunit = "^23.0.0"
 
 [gpr-set-externals]
 BUILD_MODE = "validation"
+SPAWN_BUILD_MODE = "prod"
 
 [[depends-on]]
-utilada = "^2.8.0"
+spawn = "^25.0.0"

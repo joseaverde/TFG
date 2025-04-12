@@ -1,3 +1,11 @@
+--/-------------------------------------------------------------------------\--
+--| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--|-------------------------------------------------------------------------|--
+--| File:    detector-batches.ads                                           |--
+--| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
+--| License: European Union Public License 1.2                              |--
+--\-------------------------------------------------------------------------/--
+
 with Detector.Signals;
 with Detector.Signals.Batch_Normalisation;
 with Detector.Signals.Generic_Dynamic_Time_Warping;

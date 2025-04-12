@@ -33,10 +33,13 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       "Detector.Signals.Fast_Fourier_Transform_Details",
       "Detector.Signals.Generic_Energy",
       "Detector.Signals.Generic_Dynamic_Time_Warping",
-      "Detector.Signals.Quarter_Variance",
+      "Detector.Signals.Generic_Simpson",
+      "Detector.Signals.Generic_Welch",
       "Detector.Signals.Lemmas",
       "Detector.Signals.Max_Distance",
       "Detector.Signals.Mean",
+      "Detector.Signals.Quarter_Variance",
+      "Detector.Signals.Windows",
       "Spark",
       "Spark.Lemmas"
       );

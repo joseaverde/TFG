@@ -1,3 +1,8 @@
+import sys
+
+def perror(*args, **kwargs):
+    print(*args, **kwargs, file=sys.stderr, flush=True)
+
 def read_raw ():
     data = ""
     while True:
@@ -12,6 +17,13 @@ def read_raw ():
 def read_signal ():
     return eval(read_raw().replace("\n", " "))
 
+def complex_img(c):
+    return f"{c.real}, {c.imag}"
+
 def write_complex_signal (signal):
-    result = "[" + ", ".join((f"{c.real}, {c.imag}" for c in signal)) + "]"
-    print(result)
+    print("[", end="", flush=True)
+    if len(signal) > 0:
+        print(f"{complex_img(signal[0])}", flush=True, end="")
+        for i in range(1, len(signal)):
+            print(f", {complex_img(signal[i])}", flush=True, end="")
+    print("]", flush=True)

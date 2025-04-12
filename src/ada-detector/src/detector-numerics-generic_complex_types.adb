@@ -28,4 +28,7 @@ package body Detector.Numerics.Generic_Complex_Types with SPARK_Mode is
       Re => Left.Re - Right.Re,
       Im => Left.Im - Right.Im);
 
+   function Norm_Squared (Item : in Complex) return Fixed_Type is (
+      Item.Re * Item.Re + Item.Im * Item.Im);
+
 end Detector.Numerics.Generic_Complex_Types;

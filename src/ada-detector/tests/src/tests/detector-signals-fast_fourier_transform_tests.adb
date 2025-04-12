@@ -89,9 +89,10 @@ package body Detector.Signals.Fast_Fourier_Transform_Tests is
    end Numpy_FFT;
 
    procedure Test_N_Values (T : in out TC) is
+      -- There are double the reals in a complex array than in a real array.
+      Max_Power : constant := Log_2 (Max_Signal_Length) - 1;
    begin
-      -- FIXME: Remove the upper limit, fix python interface
-      for I in 2 .. 10 loop
+      for I in 0 .. Max_Power loop
          exit when 2 ** I not in Index_Type;
          FFT_I : declare
             Count  : constant Count_Type := 2 ** I;

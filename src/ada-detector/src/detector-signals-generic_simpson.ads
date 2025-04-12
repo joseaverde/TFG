@@ -1,17 +1,15 @@
 --/-------------------------------------------------------------------------\--
 --| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
 --|-------------------------------------------------------------------------|--
---| File:    detector-batches-runner.adb                                    |--
+--| File:    detector-signals-generic_simpson.ads                           |--
 --| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
 generic
-   with procedure Read (Item : out Stride_Type);
-   with procedure Notify_Seizure;
-   with procedure Notify_Nothing;
-procedure Detector.Batches.Runner (
-   Batch : in out Batch_Type) with
-   No_Return  => True,
-   Pure       => True,
-   SPARK_Mode => On;
+   type Result_Type is delta <>;
+function Detector.Signals.Generic_Simpson (
+   Signal : in Signal_Type)
+   return Result_Type with
+   Global => null,
+   Pure, SPARK_Mode;
