@@ -113,6 +113,7 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       PSD_2  :    out Feature_Type;
       PSD_3  :    out Feature_Type) with
       Global => null,
+      Pre    => Signal'Length = Epoch_Size,
       Always_Terminates;
 
 private

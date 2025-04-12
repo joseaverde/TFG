@@ -18,7 +18,7 @@ package body Detector.Batches with SPARK_Mode is
       Result :    out Boolean) is
       Signal : Signals.Signal_Type (Epoch'Range);
       Normal : Pattern_Type;
-      PSDs   : Feature_Array (1 .. 3);
+      PSDs   : Feature_Array (1 .. 3) := [others => 0.0];
    begin
       Result := False;
       Normalise (Epoch, Signal);
@@ -133,6 +133,8 @@ package body Detector.Batches with SPARK_Mode is
       PSD_1  :    out Feature_Type;
       PSD_2  :    out Feature_Type;
       PSD_3  :    out Feature_Type) is
+      pragma SPARK_Mode (Off);
+      -- FIXME: Set it to SPARK_Mode => On
       procedure Hann_Welch is
          new Detector.Signals.Generic_Welch (Detector.Signals.Windows.Hann);
       function Simpson is

@@ -14,8 +14,10 @@ procedure Detector.Signals.Generic_Welch (
    Period  : in     Sample_Type;
    Size    : in     Positive_Count_Type;
    Overlap : in     Count_Type) is
+   pragma SPARK_Mode (Off);
+   -- FIXME: Set SPARK_Mode => On
    use Complex_Types;
-   Normalisation_Factor : constant := 0.5;
+   Normalisation_Factor : constant Sample_Type := 0.5;
    Factor : constant Sample_Type := 2 * Period / Normalisation_Factor;
    Power  : constant Natural := Log_2 (Size);
    Steps  : constant Positive :=

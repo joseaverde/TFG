@@ -12,5 +12,5 @@ procedure Detector.Signals.Fast_Fourier_Transform (
             and then (for all I in 0 .. Bits - 2 => 2 ** I in Natural)
             and then Input'Length = 2 ** Power
             and then Output'Length = Input'Length,
-   Post           => Scale in 0 .. Power - 1,
+   Post           => Scale in 0 .. Power,
    Always_Terminates;

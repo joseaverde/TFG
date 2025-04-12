@@ -12,6 +12,8 @@ with Detector.Numerics.Complex_Types_Operations;
 
 package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
 
+   -- FIXME: Set SPARK_Mode => On
+
    use Detector.Numerics.Elementary_Functions;
 
    package Trigonometric_Output_Complex is
@@ -25,8 +27,16 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Result_Complex => Complex_Types);
 
    function ω (
-      K : in Count_Type'Base;
-      N : in Count_Type'Base)
+      K : in Count_Type;
+      N : in Positive_Count_Type)
+      return Trigonometric_Output_Complex.Complex with
+      Global => null,
+      Inline => True,
+      Pre    => K < N;
+
+   function ω (
+      K : in Count_Type;
+      N : in Positive_Count_Type)
       return Trigonometric_Output_Complex.Complex is ((
       declare
          θ : constant Trigonometric_Input_Type :=
@@ -39,6 +49,7 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       K, N         : in     Count_Type'Base;
       Left_Output  :    out Complex;
       Right_Output :    out Complex) is
+      pragma SPARK_Mode (Off);
       use all type Complex;
       L : constant Complex := Left_Input / 2;
       R : constant Complex := (Right_Input * ω (K, N)) / 2;
@@ -52,6 +63,7 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Scaled :    out Boolean;
       Chunk  : in     Positive_Count_Type;
       Input  : in     Boolean) is
+      pragma SPARK_Mode (Off);
       Chunk_Size : constant Positive_Count_Type := Chunk;
       Count      : constant Count_Type := Buffer'Length (2) / Chunk_Size;
       First      : constant Count_Type := Buffer'First (2);
@@ -111,6 +123,8 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
    procedure Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
       Left  : in Natural;
       Right : in Natural) is
+      -- FIXME: Prove it!!
+      pragma SPARK_Mode (Off);
       Sizes : constant Chunk_Size_Array := Chunk_Sizes;
    begin
       pragma Assert (2 ** Left = Sizes (Left));

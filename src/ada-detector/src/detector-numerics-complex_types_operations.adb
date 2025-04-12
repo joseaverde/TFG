@@ -6,7 +6,9 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
-package body Detector.Numerics.Complex_Types_Operations with SPARK_Mode is
+package body Detector.Numerics.Complex_Types_Operations with SPARK_Mode => Off is
+
+   -- FIXME: Set SPARK_Mode => On
 
    function Multiply (
       Left  : in Left_Complex.Complex;

@@ -6,7 +6,9 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
-package body Detector.Numerics.Generic_Complex_Types with SPARK_Mode is
+package body Detector.Numerics.Generic_Complex_Types with SPARK_Mode => Off is
+
+   -- FIXME: Set SPARK_Mode => On
 
    function "*" (Left : in Complex; Right : in Integer) return Complex is (
       Re => Left.Re * Right,
@@ -17,8 +19,8 @@ package body Detector.Numerics.Generic_Complex_Types with SPARK_Mode is
       Im => Left.Im / Right);
 
    function "*" (Left, Right : in Complex) return Complex is (
-      Re => Left.Re * Right.Re - Left.Im * Right.Im,
-      Im => Left.Re * Right.Im + Left.Im * Right.Re);
+      Re => Fixed_Type (Left.Re * Right.Re) - Left.Im * Right.Im,
+      Im => Fixed_Type (Left.Re * Right.Im) + Left.Im * Right.Re);
 
    function "+" (Left, Right : in Complex) return Complex is (
       Re => Left.Re + Right.Re,

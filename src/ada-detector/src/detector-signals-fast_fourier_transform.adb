@@ -23,15 +23,17 @@ begin
 
    pragma Assert (Input'Length = Sizes (Power));
    for I in 1 .. Power loop
-      pragma Loop_Invariant (Layer = Sizes (I));
-      pragma Loop_Invariant (Scale in 0 .. I);
+      pragma Loop_Invariant (Layer = Sizes (I - 1));
+      pragma Loop_Invariant (Scale in 0 .. I - 1);
       pragma Loop_Variant (Increases => Layer);
       exit when Layer > Input'Length;
-      pragma Assert (Layer = 2 ** I);
+      pragma Assert (Layer = 2 ** (I - 1));
       pragma Assert (Input'Length = 2 ** Power);
       pragma Assert (Input'Length >= Layer);
-      pragma Assert (Power >= I);
-      Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (Power, I);
+      pragma Assert (Power >= (I - 1));
+      pragma Assert (Input'Length = Buffer'Length (2));
+      Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
+         Power, I - 1);
       Conquer (Buffer, Scaled, Layer, Result);
       if Scaled then
          Scale := Scale + 1;
@@ -39,6 +41,7 @@ begin
       Result := not Result;
       Layer := Layer * 2;
    end loop;
+   pragma Assert (Scale in 0 .. Power);
 
    pragma Assert (Buffer'Length (2) = Output'Length);
    Output := [for I in Output'Range => Buffer (Result, I - Output'First)];
