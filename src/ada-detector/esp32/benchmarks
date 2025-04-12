@@ -115,7 +115,7 @@ Elapsed: 1.02000E+00 s
 Ratio:   22 epochs/second
 ......................
 
-==== Benchmarking [master        ] ============================================
+==== Benchmarking [master 24563ac] ============================================
 Added PSDs to the detector. Obviously it decreases the amount of epochs per
 second. About the variations in the other features. I think it happens because
 of the Duration precision. In some of them it is 1.00000E+00 s, in the last one
