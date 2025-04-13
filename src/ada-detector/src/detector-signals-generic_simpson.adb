@@ -9,7 +9,7 @@
 function Detector.Signals.Generic_Simpson (
    Signal : in Signal_Type;
    dx     : in Sample_Type)
-   return Result_Type with SPARK_Mode is
+   return Result_Type with SPARK_Mode => Off is
 
    -- Internal type for the accumulator
 

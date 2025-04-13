@@ -35,6 +35,7 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       "Detector.Signals.Batch_Normalisation",
       "Detector.Signals.Fast_Fourier_Transform",
       "Detector.Signals.Fast_Fourier_Transform_Details",
+      "Detector.Signals.Generic_Accumulation",
       "Detector.Signals.Generic_Energy",
       "Detector.Signals.Generic_Dynamic_Time_Warping",
       "Detector.Signals.Generic_Simpson",

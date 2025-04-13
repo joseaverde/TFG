@@ -1,4 +1,13 @@
+--/-------------------------------------------------------------------------\--
+--| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--|-------------------------------------------------------------------------|--
+--| File:    detector-signals-quarter_variance.adb                          |--
+--| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
+--| License: European Union Public License 1.2                              |--
+--\-------------------------------------------------------------------------/--
+
 with Detector.Signals.Lemmas, Detector.Signals.Mean;
+with Detector.Signals.Generic_Accumulation;
 with SPARK.Lemmas.Fixed_Point_Arithmetic;
 
 function Detector.Signals.Quarter_Variance (
@@ -24,7 +33,6 @@ function Detector.Signals.Quarter_Variance (
 
    subtype Uniform_Result is Result_Type
       range 0.0 .. Result_Type (Sample_Type'Last);
-   type Uniform_Array is array (Index_Type range <>) of Uniform_Result;
 
    -- We compute square of the difference between the element and the mean. We
    -- want to do it as fast as possible. And we want to prove it doesn't
@@ -54,42 +62,12 @@ function Detector.Signals.Quarter_Variance (
    -- function that returns the partial results of the accumulation of
    -- normalised numbers.
 
-   function Acc_Sum (
-      Item : in Uniform_Array)
-      return Result_Array with
-      Ghost    => True,
-      Global   => null,
-      Pre      => Item'Length > 0,
-      Post     => Acc_Sum'Result'First = Item'First
-         and then Acc_Sum'Result'Length = Item'Length
-         and then Acc_Sum'Result (Item'First) = Item (Item'First)
-         and then (for all I in Item'First + 1 .. Item'Last =>
-                     Acc_Sum'Result (I - 1) in
-                        0.0 .. Uniform_Result'Last * Positive (I - Item'First)
-                     and then Acc_Sum'Result (I)
-                                 = Acc_Sum'Result (I - 1) + Item (I))
-         and then Acc_Sum'Result (Item'Last) in
-            0.0 .. Uniform_Result'Last * Item'Length;
-
-   function Acc_Sum (
-      Item : in Uniform_Array)
-      return Result_Array is
-      Result : Result_Array (Item'Range) := [others => 0.0];
-   begin
-      Result (Item'First) := Item (Item'First);
-      for Index in Item'First + 1 .. Item'Last loop
-         pragma Loop_Invariant (Result (Item'First) = Item (Item'First));
-         pragma Loop_Invariant (
-            (for all I in Item'First + 1 .. Index - 1 =>
-               Result (I - 1) in
-                  0.0 .. Uniform_Result'Last * Positive (I - Item'First)
-               and then Result (I) = Result (I - 1) + Item (I)
-               and then Result (I) in
-                  0.0 .. Uniform_Result'Last * Positive (I - Item'First + 1)));
-         Result (Index) := Result (Index - 1) + Item (Index);
-      end loop;
-      return Result;
-   end Acc_Sum;
+   function Acc_Sum is new Detector.Signals.Generic_Accumulation (
+      Fixed_Type => Result_Type,
+      Index_Type => Index_Type,
+      Array_Type => Result_Array,
+      First      => 0.0,
+      Last       => Uniform_Result'Last);
 
    -- Finally we create a ghost function that applies the transformation to
    -- all the elements of the array so the accumulator function can use it.
@@ -97,27 +75,28 @@ function Detector.Signals.Quarter_Variance (
    function Map (
       Item : in Signal_Type;
       μ    : in Sample_Type)
-      return Uniform_Array with
+      return Result_Array with
       Ghost    => True,
       Global   => null,
       Pre      => Item'Length > 0,
       Post     => Map'Result'First = Item'First
          and then Map'Result'Length = Item'Length
          and then (for all Index in Item'Range =>
-                     Map'Result (Index)
-                        = Difference_Squared (Item (Index),  μ));
+                     Map'Result (Index) = Difference_Squared (Item (Index), μ)
+                     and then Map'Result (Index) in Uniform_Result);
 
    function Map (
       Item : in Signal_Type;
       μ    : in Sample_Type)
-      return Uniform_Array is
-      Result : Uniform_Array (Item'Range) := [others => 0.0];
+      return Result_Array is
+      Result : Result_Array (Item'Range) := [others => 0.0];
    begin
       for Index in Item'Range loop
          Result (Index) := Difference_Squared (Item (Index), μ);
          pragma Loop_Invariant (
             (for all I in Item'First .. Index =>
-               Result (I) = Difference_Squared (Item (I), μ)));
+               Result (I) = Difference_Squared (Item (I), μ)
+               and then Result (I) in Uniform_Result));
       end loop;
       return Result;
    end Map;
@@ -125,7 +104,7 @@ function Detector.Signals.Quarter_Variance (
    -- Declare the variables and the ghost ones for the proof.
 
    μ      : constant Sample_Type := Mean (Item);
-   Mapped : constant Uniform_Array := Map (Item, μ) with Ghost;
+   Mapped : constant Result_Array := Map (Item, μ) with Ghost;
    Result : Result_Type;
 
 begin
