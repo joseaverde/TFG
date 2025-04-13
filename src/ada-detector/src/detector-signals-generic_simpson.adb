@@ -6,10 +6,12 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
+with Detector.Signals.Lemmas;
+
 function Detector.Signals.Generic_Simpson (
    Signal : in Signal_Type;
    dx     : in Sample_Type)
-   return Result_Type with SPARK_Mode => Off is
+   return Result_Type with SPARK_Mode => On is
 
    -- Internal type for the accumulator
 
@@ -26,19 +28,62 @@ function Detector.Signals.Generic_Simpson (
 
    -- Accumulator function
 
+   type Internal_Array is array (Index_Type range <>) of Internal_Type;
+   subtype Internal_Step is Internal_Type
+      range 6 * Internal_Type (Sample_Type'First)
+         .. 6 * Internal_Type (Sample_Type'Last);
+
+   function Acc_Sum is
+      new Detector.Signals.Lemmas.Generic_Accumulation (
+      Fixed_Type => Internal_Type,
+      Index_Type => Index_Type,
+      Array_Type => Internal_Array,
+      First      => Internal_Step'First,
+      Last       => Internal_Step'Last);
+
    -- Variables
 
-   Result : Internal_Type := 0.0;
+   Length : constant Positive_Count_Type := (Signal'Length - 3) / 2 + 1;
+   Mapped : constant Internal_Array (1 .. Length) :=
+      [for I in 1 .. Length =>
+           Internal_Type (Signal (Signal'First + 0 + (I - 1) * 2))
+         + Internal_Type (Signal (Signal'First + 1 + (I - 1) * 2)) * 4
+         + Internal_Type (Signal (Signal'First + 2 + (I - 1) * 2))] with
+      Ghost => True;
+
+   Result : Internal_Type;
    Extra  : Internal_Type := 0.0;
    Index  : Count_Type    := Signal'First;
+   Value  : Internal_Step;
 begin
 
-   while Index <= Signal'Last - 2 loop
+   pragma Assert (Mapped'First = 1);
+   pragma Assert (
+      (for all I in Mapped'Range =>
+         Mapped (I) in Internal_Step));
+
+   Index := @ + 2;
+   Result := Internal_Type (Signal (Index - 2))
+           + Internal_Type (Signal (Index - 1)) * 4
+           + Internal_Type (Signal (Index));
+   pragma Assert (Result = Mapped (1));
+   pragma Assert (Acc_Sum (Mapped) (1) = Mapped (1));
+   pragma Assert (Result = Acc_Sum (Mapped) (1));
+   for Iter in 2 .. Length loop
       Index  := @ + 2;
-      Result := @ + Internal_Type (Signal (Index - 2));
-      Result := @ + Internal_Type (Signal (Index - 1)) * 4;
-      Result := @ + Internal_Type (Signal (Index));
-      -- Increments in 6 units each step
+      Value := Internal_Type (Signal (Index - 2))
+             + Internal_Type (Signal (Index - 1)) * 4
+             + Internal_Type (Signal (Index));
+      Result := @ + Value;
+
+      pragma Loop_Invariant (Index - 2 >= Signal'First);
+      pragma Loop_Invariant (Index = Iter * 2 + Signal'First);
+      pragma Loop_Invariant (Mapped (Iter) = Value);
+      pragma Loop_Invariant (
+         Result = Acc_Sum (Mapped) (Iter)
+         and then Result in Internal_Step'First * Positive (Iter)
+                         .. Internal_Step'Last * Positive (Iter));
+      pragma Loop_Variant (Increases => Iter);
    end loop;
    -- Result in 6 * First * Length .. 6 * Last * Length
    Result := @ / 3;
