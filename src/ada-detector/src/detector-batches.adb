@@ -7,7 +7,6 @@
 --\-------------------------------------------------------------------------/--
 
 with Detector.Signals.Windows;
-with Detector.Signals.Generic_Simpson;
 with Detector.Signals.Generic_Welch;
 
 package body Detector.Batches with SPARK_Mode is
@@ -137,8 +136,6 @@ package body Detector.Batches with SPARK_Mode is
       -- FIXME: Set it to SPARK_Mode => On
       procedure Hann_Welch is
          new Detector.Signals.Generic_Welch (Detector.Signals.Windows.Hann);
-      function Simpson is
-         new Detector.Signals.Generic_Simpson (Feature_Type);
       Size   : constant Positive_Count_Type := Welch_Window_Size;
       Pxx    : Signals.Signal_Type (1 .. Size / 2 + 1);
       Period : constant Signals.Sample_Type :=

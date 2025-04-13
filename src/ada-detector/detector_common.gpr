@@ -44,8 +44,4 @@ abstract project Detector_Common is
       for Global_Configuration_Pragmas use "gnat.adc";
    end Builder;
 
-   package Linker is
-      for Linker_Options use ("-lm");
-   end Linker;
-
 end Detector_Common;

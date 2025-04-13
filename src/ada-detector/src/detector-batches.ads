@@ -10,6 +10,7 @@ with Detector.Signals;
 with Detector.Signals.Batch_Normalisation;
 with Detector.Signals.Generic_Dynamic_Time_Warping;
 with Detector.Signals.Generic_Energy;
+with Detector.Signals.Generic_Simpson;
 with Detector.Signals.Max_Distance;
 
 generic
@@ -111,6 +112,10 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       new Detector.Signals.Generic_Energy (
       Normalisation => Normalisation,
       Result_Type   => Feature_Type);
+
+   function Simpson is
+      new Detector.Signals.Generic_Simpson (
+      Result_Type => Feature_Type);
 
    -- TODO: Make it generic with as many ranges as possible
    procedure Power_Spectral_Densities (

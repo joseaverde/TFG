@@ -20,6 +20,14 @@ def read_signal ():
 def complex_img(c):
     return f"{c.real}, {c.imag}"
 
+def write_signal (signal):
+    print("[", end="", flush=True)
+    if len(signal) > 0:
+        print(f"{signal[0]}", flush=True, end="")
+        for i in range(1, len(signal)):
+            print(f", {signal[i]}", flush=True, end="")
+    print("]", flush=True)
+
 def write_complex_signal (signal):
     print("[", end="", flush=True)
     if len(signal) > 0:

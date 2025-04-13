@@ -6,5 +6,11 @@ Power Spectral Density:
 Functions:
  * Square Root (Prove it)
 
+Validator:
+ * Make it multithreaded
+ * For the reduction use a compressed vector-like type counting the number
+   of seizures/non-seizure instead of using Booleans
+ * Add also the other parameters in the Python code
+
 Optimisations on Variance:
    Σ (x² - μ) / n = Σ x² - μ²

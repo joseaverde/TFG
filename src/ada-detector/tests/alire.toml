@@ -31,6 +31,12 @@ executables = ["seizure_detector_fixed_tests"]
                    # , "-gnatyt"          # Check token separation rules
                    , "-gnatyu"          # Check no unnecessary blank lines
                    , "-gnatyx"          # Check extra parenthesis around conditionals
+                   ,"-gnato"            # Enable numeric overflow checking
+                   ,"-gnatwa"           # Enable all warnings
+                   ,"-gnatVa"           # All validity checks
+                   ,"-gnatwe"           # Warnings as errors
+                   ,"-gnatw.X"          # Disable warnings for No_Exception_Propagation
+                   ,"-gnata"            # Enable assertions and contracts
                    ]
 
 [[depends-on]]

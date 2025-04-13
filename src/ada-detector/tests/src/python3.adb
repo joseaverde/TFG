@@ -17,6 +17,9 @@ package body Python3 is
    function Parent (Item : in String) return String
       renames Ada.Directories.Containing_Directory;
 
+   function Root return String is (
+      Parent (Parent (Ada.Directories.Full_Name (Command_Name))));
+
    function "/" (Left, Right : in String) return String is (
       Ada.Directories.Compose (Left, Right));
 
@@ -157,10 +160,9 @@ package body Python3 is
       Arguments.Append (Script);
       Listener.Stdin := To_Unbounded_String (Params);
       Append (Listener.Stdin, ASCII.LF);
-      Listener.Process.Set_Program ("/usr/bin/python3");
+      Listener.Process.Set_Program (Root / ".venv" / "bin" / "python3");
       Listener.Process.Set_Arguments (Arguments);
-      Listener.Process.Set_Working_Directory (
-         Parent (Parent (Command_Name) / "scritps"));
+      Listener.Process.Set_Working_Directory (Root / "scripts");
       Listener.Process.Set_Listener (Listener'Unchecked_Access);
       Listener.Process.Start;
 
@@ -247,9 +249,8 @@ package body Python3 is
    function Script (
       Name : in String)
       return String is
-      use Ada.Directories;
    begin
-      return Parent (Parent (Full_Name (Command_Name))) / "scripts" / Name;
+      return Root / "scripts" / Name;
    end Script;
 
 end Python3;

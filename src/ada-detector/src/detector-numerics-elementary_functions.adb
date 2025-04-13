@@ -158,7 +158,6 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
       C := A - 1.0;
       pragma Assert (C >= -0.5 and then C < 1.0);
 
-
       -- A ∈ [0.5, 2)
       -- C ∈ [-0.5, 1)
       --

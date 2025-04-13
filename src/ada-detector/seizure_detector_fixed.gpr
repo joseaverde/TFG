@@ -1,4 +1,5 @@
 with "detector_common.gpr";
+with "config/seizure_detector_fixed_config.gpr";
 library project Seizure_Detector_Fixed extends "sparklib_external" is
 
    for Create_Missing_Dirs use "True";
@@ -155,5 +156,9 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
    package Binder renames Detector_Common.Binder;
    package Install renames Detector_Common.Install;
    package Builder renames Detector_Common.Builder;
+   package Naming is
+      for Implementation ("Detector.Batches.Validator")
+         use "detector-batches-validator__single_threaded.adb";
+   end Naming;
 
 end Seizure_Detector_Fixed;

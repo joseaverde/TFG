@@ -12,5 +12,6 @@ function Detector.Signals.Generic_Simpson (
    Signal : in Signal_Type;
    dx     : in Sample_Type)
    return Result_Type with
-   Global => null,
+   Global   => null,
+   Pre      => Signal'Length >= 3 and then dx > 0.0,
    Pure, SPARK_Mode;
