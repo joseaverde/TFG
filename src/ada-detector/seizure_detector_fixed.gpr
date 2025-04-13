@@ -23,6 +23,7 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       "Detector",
       "Detector.Batches",
       "Detector.Batches.Runner",
+      "Detector.Batches.Validator",
       "Detector.Containers",
       "Detector.Containers.Vectors",
       "Detector.Numerics",

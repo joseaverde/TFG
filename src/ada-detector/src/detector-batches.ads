@@ -59,6 +59,12 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       Inline => True,
       Pre    => Patterns'Length > 0;
 
+   function Copy (
+      Item : in Batch_Type)
+      return Batch_Type with
+      Global => null,
+      Inline => True;
+
    procedure Is_Seizure (
       Batch  : in out Batch_Type;
       Epoch  : in     Epoch_Type;
@@ -129,5 +135,20 @@ private
       Was_Seizure                           : Boolean    := False;
       Streak                                : Count_Type := 0;
    end record;
+
+   function Copy (
+      Item : in Batch_Type)
+      return Batch_Type is (
+      Count       => Item.Count,
+      PSD_1       => Item.PSD_1,
+      PSD_2       => Item.PSD_2,
+      PSD_3       => Item.PSD_3,
+      Max_Dist    => Item.Max_Dist,
+      Energy      => Item.Energy,
+      d_max_c     => Item.d_max_c,
+      Patterns    => Item.Patterns,
+      Lookback    => Item.Lookback,
+      Was_Seizure => False,
+      Streak      => 0);
 
 end Detector.Batches;

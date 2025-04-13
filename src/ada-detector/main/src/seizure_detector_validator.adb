@@ -1,26 +1,14 @@
-with Ada.Text_IO;
 with Default_Detector;
-with Detector.Signals;
+with Detector.Batches.Validator;
 with Detector.Containers.Vectors;
 
 procedure Seizure_Detector_Validator with SPARK_Mode => On is
 
    subtype Raw_Sample is Default_Detector.Sample_Type;
-   subtype Sample_Type is Detector.Signals.Sample_Type;
-   package Sample_Vectors is
-      new Detector.Containers.Vectors (
-      Element_Type => Sample_Type,
-      "="          => Detector.Signals."=");
-   use Sample_Vectors;
+   use all type Raw_Sample;
+   package Vectors is new Detector.Containers.Vectors (Raw_Sample);
 
-   Signal : Vector := Create (1_000_000, 0.0);
-
+   package Validator is new Default_Detector.Batches.Validator (Cores => 4);
 begin
-
-   declare
-      Dummy : Nullable_Vector := Signal;
-   begin
-      Free (Dummy);
-   end;
-
+   null;
 end Seizure_Detector_Validator;

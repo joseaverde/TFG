@@ -12,7 +12,7 @@ pragma Restrictions (
    No_Secondary_Stack);
 --    No_Implicit_Dynamic_Code
 -- );
--- pragma Profile (Ravenscar);
+pragma Profile (Ravenscar);
 -- Building High Integrity Applications with SPARK, p237
 pragma Suppress (Discriminant_Check);
 pragma Suppress (Division_Check);
