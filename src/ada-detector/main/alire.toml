@@ -13,9 +13,13 @@ executables = ["seizure_detector_fixed_main"]
 
 [[depends-on]]
 seizure_detector_fixed = "*"
+gnatprove = "^14.1.1"
 
 [[pins]]
 seizure_detector_fixed = { path='..' }
 
 [gpr-set-externals]
 BUILD_MODE = "release"
+
+# [[depends-on]]
+# utilada = "^2.8.0"

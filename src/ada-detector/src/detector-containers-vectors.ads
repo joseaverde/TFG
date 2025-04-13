@@ -9,10 +9,13 @@
 with Ada.Unchecked_Deallocation;
 
 generic
-   type Element_Type is delta <>;
+   type Element_Type is private;
+   with function "=" (Left, Right : in Element_Type) return Boolean is <>;
 package Detector.Containers.Vectors with Preelaborate, SPARK_Mode is
 
    pragma Unevaluated_Use_Of_Old (Allow);
+
+   Default_Capacity : constant := 8;
 
    -- This package contains a simple implementation of Vectors. It is not for
    -- the detector itself. However, if we want to apply parallelisation or run
@@ -27,7 +30,8 @@ package Detector.Containers.Vectors with Preelaborate, SPARK_Mode is
       Data : Element_Array (1 .. Capacity);
       Last : Count_Type := 0;
    end record with
-   Dynamic_Predicate => Last <= Capacity;
+   Dynamic_Predicate => Last <= Capacity
+               and then Capacity >= Default_Capacity;
    -- This is the internal Vector's structure. For performance it has the
    -- capacity in the discriminant. It shouldn't be used as it is. You should
    -- use the `Vector' type instead (which is an access type). As the sole
@@ -51,13 +55,13 @@ package Detector.Containers.Vectors with Preelaborate, SPARK_Mode is
    -- fails it terminates. There is no way to recover from it. And if there
    -- was a way it would be too cubersome.
 
-   Default_Capacity : constant := 8;
-
    function Create (
-      Capacity : in Index_Type := Default_Capacity)
+      Capacity : in Index_Type   := Default_Capacity;
+      Fill     : in Element_Type)
       return Vector with
       Global   => null,
       Inline   => True,
+      Pre      => Capacity >= Default_Capacity,
       Post     => Create'Result.Capacity = Capacity
          and then Create'Result.Last = 0;
 
@@ -65,10 +69,24 @@ package Detector.Containers.Vectors with Preelaborate, SPARK_Mode is
       Container    : in out Vector;
       New_Capacity : in     Index_Type) with
       Post     => Container.Capacity
-                  = Index_Type'Max (Container.Capacity'Old, New_Capacity)
+                  = Index_Type'Max (Default_Capacity,
+                     Index_Type'Max (Container.Capacity'Old, New_Capacity))
          and then Container.Last = Container.Last'Old
          and then Container.Data'Old (1 .. Container.Last)
                   = Container.Data (1 .. Container.Last);
+
+   procedure Append (
+      Container : in out Vector;
+      Element   : in     Element_Type;
+      Count     : in     Positive_Count_Type := 1) with
+      Pre      => Container.Last <= Index_Type'Last - Count,
+      Post     => Container.Capacity >= Container.Last
+         and then Container.Last = Container.Last'Old + Count
+         and then Container.Data'Old (1 .. Container.Last'Old)
+                  = Container.Data (1 .. Container.Last'Old)
+         and then (for all X of Container.Data (Container.Last'Old + 1
+                                               .. Container.Last'Old + Count)
+                     => X = Element);
 
    procedure Free is
       new Ada.Unchecked_Deallocation (

@@ -13,7 +13,8 @@ project Seizure_Detector_Fixed_Main is
    Mains := ();
    case Detector_Common.Target_Name is
       when "native" => Mains := ("seizure_detector_fixed.adb",
-                                 "seizure_detector_ftests.adb");
+                                 "seizure_detector_ftests.adb",
+                                 "seizure_detector_validator.adb");
       when  others  => Mains := ("dummy.adb");
    end case;
    for Main use Mains;
