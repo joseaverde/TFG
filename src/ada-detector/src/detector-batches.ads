@@ -11,7 +11,7 @@ with Detector.Signals.Batch_Normalisation;
 with Detector.Signals.Generic_Dynamic_Time_Warping;
 with Detector.Signals.Generic_Energy;
 with Detector.Signals.Generic_Simpson;
-with Detector.Signals.Max_Distance;
+with Detector.Signals.Generic_Max_Distance;
 
 generic
    type Sample_Type is delta <>;
@@ -100,7 +100,7 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       Global => null;
 
    function Max_Distance is
-      new Detector.Signals.Max_Distance.Generic_Max_Distance (
+      new Detector.Signals.Generic_Max_Distance (
       Result_Type   => Feature_Type,
       Normalisation => Normalisation);
 

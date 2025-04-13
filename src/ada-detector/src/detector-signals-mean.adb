@@ -6,7 +6,7 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
-with Detector.Signals.Generic_Accumulation;
+with Detector.Signals.Lemmas;
 with SPARK.Lemmas.Fixed_Point_Arithmetic;
 
 function Detector.Signals.Mean (
@@ -29,7 +29,7 @@ function Detector.Signals.Mean (
    -- The reduction
 
    function Acc_Sum is
-      new Detector.Signals.Generic_Accumulation (
+      new Lemmas.Generic_Accumulation (
       Fixed_Type => Result_Type,
       Index_Type => Index_Type,
       Array_Type => Result_Array,

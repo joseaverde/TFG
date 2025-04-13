@@ -7,7 +7,6 @@
 --\-------------------------------------------------------------------------/--
 
 with Detector.Signals.Lemmas, Detector.Signals.Mean;
-with Detector.Signals.Generic_Accumulation;
 with SPARK.Lemmas.Fixed_Point_Arithmetic;
 
 function Detector.Signals.Quarter_Variance (
@@ -62,7 +61,8 @@ function Detector.Signals.Quarter_Variance (
    -- function that returns the partial results of the accumulation of
    -- normalised numbers.
 
-   function Acc_Sum is new Detector.Signals.Generic_Accumulation (
+   function Acc_Sum is
+      new Lemmas.Generic_Accumulation (
       Fixed_Type => Result_Type,
       Index_Type => Index_Type,
       Array_Type => Result_Array,
