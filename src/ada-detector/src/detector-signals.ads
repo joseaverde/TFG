@@ -45,6 +45,8 @@ package Detector.Signals with Pure, SPARK_Mode => On is
          .. 2.0 ** Big_Sample_Whole_Bits - Big_Sample_Delta with
       Size => Big_Sample_Bits;
 
+   type Big_Signal_Type is array (Index_Type range <>) of Big_Sample_Type;
+
    -- Normalisation
 
    generic

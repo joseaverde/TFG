@@ -15,7 +15,6 @@ with Detector.Signals.Generic_Max_Distance;
 with Detector.Signals.Generic_Welch;
 with Detector.Signals.Windows;
 
-
 generic
    type Sample_Type is delta <>;
    type Feature_Type is delta <>;
@@ -130,9 +129,20 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       Pre    => Signal'Length = Epoch_Size,
       Always_Terminates;
 
+   Welch_Bits          : constant := 2 * Bits;
+   Welch_Fraction_Bits : constant := Welch_Bits / 2;
+   Welch_Whole_Bits    : constant := Welch_Bits - Welch_Fraction_Bits - 1;
+   Welch_Delta         : constant := 2.0 ** (-Welch_Fraction_Bits);
+   type Welch_Rescaling_Factor_Type is
+      delta Welch_Delta
+      range -2.0 ** Welch_Whole_Bits
+         .. 2.0 ** Welch_Whole_Bits - Welch_Delta with
+      Size => Welch_Bits;
+
    procedure Welch is
       new Detector.Signals.Generic_Welch (
-      Window => Detector.Signals.Windows.Hann);
+      Window      => Detector.Signals.Windows.Hann,
+      Result_Type => Welch_Rescaling_Factor_Type);
 
 private
 

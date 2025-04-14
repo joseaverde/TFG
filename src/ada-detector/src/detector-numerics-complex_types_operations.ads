@@ -22,4 +22,13 @@ package Detector.Numerics.Complex_Types_Operations with Pure, SPARK_Mode is
       Global => null,
       Inline => True;
 
+   generic
+      with package Input_Complex is new Generic_Complex_Types (<>);
+      type Result_Type is delta <>;
+   function Norm_Squared (
+      Item : in Input_Complex.Complex)
+      return Result_Type with
+      Global => null,
+      Inline => True;
+
 end Detector.Numerics.Complex_Types_Operations;

@@ -5,6 +5,7 @@
 --| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
+with Debug_IO;
 
 package body Detector.Batches with SPARK_Mode is
 
@@ -133,26 +134,25 @@ package body Detector.Batches with SPARK_Mode is
       -- FIXME: Set it to SPARK_Mode => On
       Size   : constant Positive_Count_Type := Welch_Window_Size;
       Pxx    : Signals.Signal_Type (1 .. Size / 2 + 1);
-      Period : constant Signals.Sample_Type :=
-         1.0 / Fixed_Integer (Stride_Size);
       Fq_Res : constant Signals.Sample_Type :=
          Fixed_Integer (Stride_Size) / Fixed_Integer (Size);
+      Scale  : Welch_Rescaling_Factor_Type;
       First  : Count_Type;
       Last   : Count_Type;
    begin
-      Welch (Signal, Pxx, Period, Size, Size / 2);
+      Welch (Signal, Pxx, Stride_Size, Size, Size / 2, Scale);
 
       First := Count_Type (Feature_Type (2.0)  / Fq_Res);
       Last  := Count_Type (Feature_Type (12.0) / Fq_Res);
-      PSD_1 := Simpson (Signal (First .. Last), Fq_Res);
+      PSD_1 := Simpson (Signal (First .. Last), Fq_Res) * Scale;
 
       First := Count_Type (Feature_Type (12.0)  / Fq_Res);
       Last  := Count_Type (Feature_Type (18.0) / Fq_Res);
-      PSD_2 := Simpson (Signal (First .. Last), Fq_Res);
+      PSD_2 := Simpson (Signal (First .. Last), Fq_Res) * Scale;
 
       First := Count_Type (Feature_Type (18.0)  / Fq_Res);
       Last  := Count_Type (Feature_Type (35.0) / Fq_Res);
-      PSD_3 := Simpson (Signal (First .. Last), Fq_Res);
+      PSD_3 := Simpson (Signal (First .. Last), Fq_Res) * Scale;
    end Power_Spectral_Densities;
 
 end Detector.Batches;

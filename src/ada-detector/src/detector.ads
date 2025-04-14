@@ -76,4 +76,9 @@ package Detector with Pure, SPARK_Mode is
    --
    -- It will compile and work as expected.
 
+   type Fixed_Long_Integer is
+      delta 1.0
+      range -2.0 ** (Bits * 2 - 1) .. 2.0 ** (Bits * 2 - 1) - 1.0 with
+   Size => Bits * 2;
+
 end Detector;

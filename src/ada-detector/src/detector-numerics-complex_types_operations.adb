@@ -20,4 +20,9 @@ package body Detector.Numerics.Complex_Types_Operations with SPARK_Mode => Off i
          Im => Left.Re * Right.Im + Left.Im * Right.Re);
    end Multiply;
 
+   function Norm_Squared (
+      Item : in Input_Complex.Complex)
+      return Result_Type is (
+      Item.Re * Item.Re + Item.Im * Item.Im);
+
 end Detector.Numerics.Complex_Types_Operations;
