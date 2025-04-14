@@ -86,6 +86,16 @@ package Detector.Python3.Fixed_Types.${Type_Name} with Preelaborate is
       Convention    => C,
       External_Name => "${Prefix}_delta";
 
+   function Attr_First return Fixed is (Fixed'First) with
+      Export        => True,
+      Convention    => C,
+      External_Name => "${Prefix}_first";
+
+   function Attr_Last return Fixed is (Fixed'Last) with
+      Export        => True,
+      Convention    => C,
+      External_Name => "${Prefix}_last";
+
    -- Conversions
 
    function To_Long (Item : in Fixed)
