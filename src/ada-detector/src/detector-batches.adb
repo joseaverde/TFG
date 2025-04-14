@@ -6,9 +6,6 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
-with Detector.Signals.Windows;
-with Detector.Signals.Generic_Welch;
-
 package body Detector.Batches with SPARK_Mode is
 
    procedure Is_Seizure (
@@ -134,8 +131,6 @@ package body Detector.Batches with SPARK_Mode is
       PSD_3  :    out Feature_Type) is
       pragma SPARK_Mode (Off);
       -- FIXME: Set it to SPARK_Mode => On
-      procedure Hann_Welch is
-         new Detector.Signals.Generic_Welch (Detector.Signals.Windows.Hann);
       Size   : constant Positive_Count_Type := Welch_Window_Size;
       Pxx    : Signals.Signal_Type (1 .. Size / 2 + 1);
       Period : constant Signals.Sample_Type :=
@@ -145,7 +140,7 @@ package body Detector.Batches with SPARK_Mode is
       First  : Count_Type;
       Last   : Count_Type;
    begin
-      Hann_Welch (Signal, Pxx, Period, Size, Size / 2);
+      Welch (Signal, Pxx, Period, Size, Size / 2);
 
       First := Count_Type (Feature_Type (2.0)  / Fq_Res);
       Last  := Count_Type (Feature_Type (12.0) / Fq_Res);

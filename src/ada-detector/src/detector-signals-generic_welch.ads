@@ -11,8 +11,7 @@ generic
    with function Window (
       Index : in Count_Type;
       Size  : in Positive_Count_Type)
-      return Windows.Window_Output_Type with
-      Pre => Index < Size;
+      return Windows.Window_Output_Type;
 procedure Detector.Signals.Generic_Welch (
    Signal  : in     Signal_Type;
    Pxx     :    out Signal_Type;

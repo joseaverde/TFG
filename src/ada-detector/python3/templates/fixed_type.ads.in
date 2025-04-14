@@ -1,0 +1,102 @@
+with Interfaces.C.Strings;
+
+package Detector.Python.Fixed_Types.${Type_Name} with Preelaborate is
+
+   use Interfaces.C, Interfaces.C.Strings;
+
+   Fixed_Bits  : constant := ${Fixed_Bits};
+   Fixed_Delta : constant := ${Fixed_Delta};
+   type Fixed is delta Fixed_Delta with Size => Fixed_Bits;
+
+   -- Constructors
+
+   function Zero
+      return Fixed is (0.0) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_zero;
+
+   function From_Double (Item : in double)
+      return Fixed is (0.0) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_from_double;
+
+   function From_Long (Item : in long)
+      return Fixed is (Fixed (Item)) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_from_long;
+
+   function From_Frac (Num, Den : in long)
+      return Fixed is (
+      Fixed_Long (Num) / Fixed_Long (Den)) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_from_frac;
+
+   -- Binary operations
+
+   function Add (Left, Right : in Fixed)
+      return Fixed is (Left + Right) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_add;
+
+   function Sub (Left, Right : in Fixed)
+      return Fixed is (Left - Right) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_sub;
+
+   function Cmp (Left, Right : in Fixed)
+      return int is (
+      (if Left = Right then 0 elsif Left < Right then -1 else 1)) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_cmp;
+
+   -- Unary operations
+
+   function Absf (Right : in Fixed)
+      return Fixed is (abs Right) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_abs;
+
+   function Pos (Right : in Fixed)
+      return Fixed is (+Right) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_pos;
+
+   function Neg (Right : in Fixed)
+      return Fixed is (-Right) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_neg;
+
+   -- Attributes
+
+   function Attr_Delta return Fixed is (Fixed'Delta) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_delta;
+
+   -- Conversions
+
+   function To_Long (Item : in Fixed)
+      return long is (
+      long (Item)) with
+      Export => True,
+      Convention => C,
+      External_Name => ${Prefix}_to_long;
+
+   function To_Str (Item : in Fixed)
+      return Strings.chars_ptr is (
+      Strings.New_String (Item'Image)) with
+      Export        => True,
+      Convention    => C,
+      External_Name => ${Prefix}_to_str;
+
+end Detector.Python.Fixed_Types.${Type_Name};

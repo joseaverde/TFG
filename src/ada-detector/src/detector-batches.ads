@@ -12,6 +12,9 @@ with Detector.Signals.Generic_Dynamic_Time_Warping;
 with Detector.Signals.Generic_Energy;
 with Detector.Signals.Generic_Simpson;
 with Detector.Signals.Generic_Max_Distance;
+with Detector.Signals.Generic_Welch;
+with Detector.Signals.Windows;
+
 
 generic
    type Sample_Type is delta <>;
@@ -126,6 +129,10 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       Global => null,
       Pre    => Signal'Length = Epoch_Size,
       Always_Terminates;
+
+   procedure Welch is
+      new Detector.Signals.Generic_Welch (
+      Window => Detector.Signals.Windows.Hann);
 
 private
 
