@@ -2,7 +2,7 @@ with Ada.Directories; use Ada.Directories;
 with Default_Detector;
 with Gen_Fixed_Type;
 
-procedure Gen_Fixed_Types is
+procedure Gen is
    package Batches renames Default_Detector.Batches;
    procedure Gen_Raw_Sample_Type is
       new Gen_Fixed_Type (
@@ -20,4 +20,4 @@ begin
    end if;
    Gen_Raw_Sample_Type (Gen, Template);
    Gen_Feature_Type (Gen, Template);
-end Gen_Fixed_Types;
+end Gen;

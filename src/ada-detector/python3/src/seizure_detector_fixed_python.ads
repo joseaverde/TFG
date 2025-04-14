@@ -1,3 +1,0 @@
-package Seizure_Detector_Fixed_Python is
-
-end Seizure_Detector_Fixed_Python;

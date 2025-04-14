@@ -1,12 +1,15 @@
 with Interfaces.C.Strings;
 
-package Detector.Python.Fixed_Types.${Type_Name} with Preelaborate is
+package Detector.Python3.Fixed_Types.${Type_Name} with Preelaborate is
 
-   use Interfaces.C, Interfaces.C.Strings;
+   use Interfaces.C;
 
    Fixed_Bits  : constant := ${Fixed_Bits};
-   Fixed_Delta : constant := ${Fixed_Delta};
-   type Fixed is delta Fixed_Delta with Size => Fixed_Bits;
+   Fixed_First : constant := ${Fixed_First};
+   Fixed_Last  : constant := ${Fixed_Last};
+   Fixed_Delta : constant := 2.0 ** (-${Fixed_Delta_Bits});
+   type Fixed is delta Fixed_Delta range Fixed_First .. Fixed_Last with
+      Size => Fixed_Bits;
 
    -- Constructors
 
@@ -14,26 +17,26 @@ package Detector.Python.Fixed_Types.${Type_Name} with Preelaborate is
       return Fixed is (0.0) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_zero;
+      External_Name => "${Prefix}_zero";
 
    function From_Double (Item : in double)
-      return Fixed is (0.0) with
+      return Fixed is (Fixed (Item)) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_from_double;
+      External_Name => "${Prefix}_from_double";
 
    function From_Long (Item : in long)
       return Fixed is (Fixed (Item)) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_from_long;
+      External_Name => "${Prefix}_from_long";
 
    function From_Frac (Num, Den : in long)
       return Fixed is (
       Fixed_Long (Num) / Fixed_Long (Den)) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_from_frac;
+      External_Name => "${Prefix}_from_frac";
 
    -- Binary operations
 
@@ -41,20 +44,20 @@ package Detector.Python.Fixed_Types.${Type_Name} with Preelaborate is
       return Fixed is (Left + Right) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_add;
+      External_Name => "${Prefix}_add";
 
    function Sub (Left, Right : in Fixed)
       return Fixed is (Left - Right) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_sub;
+      External_Name => "${Prefix}_sub";
 
    function Cmp (Left, Right : in Fixed)
       return int is (
       (if Left = Right then 0 elsif Left < Right then -1 else 1)) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_cmp;
+      External_Name => "${Prefix}_cmp";
 
    -- Unary operations
 
@@ -62,26 +65,26 @@ package Detector.Python.Fixed_Types.${Type_Name} with Preelaborate is
       return Fixed is (abs Right) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_abs;
+      External_Name => "${Prefix}_abs";
 
    function Pos (Right : in Fixed)
       return Fixed is (+Right) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_pos;
+      External_Name => "${Prefix}_pos";
 
    function Neg (Right : in Fixed)
       return Fixed is (-Right) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_neg;
+      External_Name => "${Prefix}_neg";
 
    -- Attributes
 
    function Attr_Delta return Fixed is (Fixed'Delta) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_delta;
+      External_Name => "${Prefix}_delta";
 
    -- Conversions
 
@@ -90,13 +93,13 @@ package Detector.Python.Fixed_Types.${Type_Name} with Preelaborate is
       long (Item)) with
       Export => True,
       Convention => C,
-      External_Name => ${Prefix}_to_long;
+      External_Name => "${Prefix}_to_long";
 
    function To_Str (Item : in Fixed)
       return Strings.chars_ptr is (
       Strings.New_String (Item'Image)) with
       Export        => True,
       Convention    => C,
-      External_Name => ${Prefix}_to_str;
+      External_Name => "${Prefix}_to_str";
 
-end Detector.Python.Fixed_Types.${Type_Name};
+end Detector.Python3.Fixed_Types.${Type_Name};

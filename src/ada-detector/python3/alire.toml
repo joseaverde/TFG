@@ -7,9 +7,17 @@ maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
 maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""
-# project-files = ["tools.gpr", "seizure_detector_fixed_python.gpr"]
-project-files = ["tools.gpr"]
+project-files = ["seizure_detector_fixed_python.gpr"]
 tags = []
+
+
+[[actions]]
+type = "pre-build"
+command = ["alr", "exec", "--", "gprbuild", "-P", "tools.gpr"]
+
+[[actions]]
+type = "pre-build"
+command = ["./bin/gen"]
 
 [[depends-on]]
 seizure_detector_fixed = "*"
@@ -51,7 +59,7 @@ LIBRARY_TYPE = "relocatable"
 
 
 [configuration.variables]
-Python3_Minor_Version = {type = "Integer", default = 12}
+Python3_Minor_Version = {type = "Integer", default = 13}
 
 [[depends-on]]
 gnatcoll = "^25.0.0"
