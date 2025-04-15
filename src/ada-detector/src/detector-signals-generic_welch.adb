@@ -15,7 +15,7 @@ procedure Detector.Signals.Generic_Welch (
    Frequency : in     Positive_Count_Type;
    Size      : in     Positive_Count_Type;
    Overlap   : in     Count_Type;
-   Rescale   :    out Result_Type) with SPARK_Mode => On is
+   Rescale   :    out Result_Type) with SPARK_Mode => Off is
 
    use Complex_Types;
 

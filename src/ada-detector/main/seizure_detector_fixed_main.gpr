@@ -10,18 +10,22 @@ project Seizure_Detector_Fixed_Main is
    for Object_Dir use "obj/" & Detector_Common.Suffix;
    for Exec_Dir use "bin/" & Detector_Common.Suffix;
 
-   Mains := ();
-   case Detector_Common.Target_Name is
-      when "native" => Mains := ("seizure_detector_fixed.adb",
-                                 "seizure_detector_ftests.adb",
-                                 "seizure_detector_validator.adb");
-      when  others  => Mains := ("dummy.adb");
-   end case;
-   for Main use Mains;
+   for Main use (
+      "seizure_detector_fixed.adb",
+      "seizure_detector_ftests.adb",
+      "seizure_detector_validator.adb");
 
-   package Compiler renames Detector_Common.Compiler;
-   package Binder renames Detector_Common.Binder;
-   package Install renames Detector_Common.Install;
-   package Builder renames Detector_Common.Builder;
+   package Compiler is
+      for Default_Switches ("Ada") use
+         Seizure_Detector_Fixed_Main_Config.Ada_Compiler_Switches;
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es");
+   end Binder;
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
 
 end Seizure_Detector_Fixed_Main;

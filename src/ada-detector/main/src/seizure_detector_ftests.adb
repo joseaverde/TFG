@@ -43,7 +43,8 @@ begin
       Count  : Count_Type;
       Signal : Sample_Array_Access;
       Batch  : Batch_Type :=
-         Make_Batch (PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW, Epochs);
+         Make_Batch (PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW,
+                     Epochs (1 .. Pat_Count));
       Index  : Count_Type;
       Is_It  : Boolean;
       Data   : Epoch_Type;
