@@ -153,7 +153,7 @@ Elapsed: 1.08000E+00 s
 Ratio:   11 epochs/second
 ............
 
-==== Benchmarking [master        ] ============================================
+==== Benchmarking [master e4892fe] ============================================
 Finished finally the Welch function. I needed to denormalise twice. And I was
 doing the Simpson over the normal Signal without applying Welch. There is no
 worseining in the number of Epochs per second. The only problem right now is
