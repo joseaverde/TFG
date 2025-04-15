@@ -87,13 +87,13 @@ begin
       Value    : Sample_Type;
       Metrics  : Validator.Quality_Metrics;
       Seizures : constant Validator.Span_Array := [
-         (10196, 10236),
-         (12267, 12294),
-         (52132, 52172),
-         (55015, 55066),
-         (62920, 63010),
-         (1390,  71483),
-         (90925, 91026)];
+         (10196 + 1, 10236),
+         (12267 + 1, 12294),
+         (52132 + 1, 52172),
+         (55015 + 1, 55066),
+         (62920 + 1, 63010),
+         (1390  + 1, 71483),
+         (90925 + 1, 91026)];
 
       package Score_IO is new Fixed_IO (Validator.Score_Type);
       package Count_IO is new Integer_IO (Validator.Metric_Count_Type);
