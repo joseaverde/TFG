@@ -30,3 +30,4 @@ procedure Detector.Signals.Generic_Welch (
 -- This function computes Welch:
 -- @param Period
 -- The inverse of the frequency
+-- NOTE: TO RESCALE YOU HAVE TO DENORMALISE TWICE!!!

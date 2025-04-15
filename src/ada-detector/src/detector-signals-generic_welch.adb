@@ -15,7 +15,7 @@ procedure Detector.Signals.Generic_Welch (
    Frequency : in     Positive_Count_Type;
    Size      : in     Positive_Count_Type;
    Overlap   : in     Count_Type;
-   Rescale   :    out Result_Type) with SPARK_Mode => Off is
+   Rescale   :    out Result_Type) with SPARK_Mode => On is
 
    use Complex_Types;
 
@@ -59,9 +59,9 @@ procedure Detector.Signals.Generic_Welch (
       Input_Complex => Complex_Types,
       Result_Type   => Big_Sample_Type);
 
-   function Half_Norm (Item : in Complex) return Big_Sample_Type is (
+   function Quarter_Norm (Item : in Complex) return Big_Sample_Type is (
       Base_Norm ((Re => Item.Re / 2, Im => Item.Im / 2))) with
-      Post => Half_Norm'Result >= 0.0 and then Half_Norm'Result < 0.5;
+      Post => Quarter_Norm'Result >= 0.0 and then Quarter_Norm'Result < 0.5;
 
    -- When we do the FFT it returns a scaling factor of the output. Furthermore
    -- we multiply the Re and Im numbers between themselves. Which means the
@@ -86,9 +86,18 @@ procedure Detector.Signals.Generic_Welch (
    -- a double precision IEEE 754 floating point type you only get up to 52
    -- bits of precision.
 
-   Scale    : Natural := 0;
-   Scaling  : Natural;
-   Exponent : Natural;
+   Scale     : Natural := 0;
+   Scaling   : Natural;
+
+   -- We are going to use the maximum value of the T_Pxx and the Norms. And get
+   -- the scaling factor from them. That way we can always make sure to be
+   -- using the maximum number of bits available.
+
+   Exp_Left  : Natural;
+   Exp_Right : Natural;
+   Max_Left  : Big_Sample_Type;
+   Max_Right : Big_Sample_Type;
+   Norms     : Big_Signal_Type (T_Pxx'Range);
 
    -- Once we reach the end of the loop. All the values will be within 0.0 and
    -- 1.0. We have to rescale back. We have to rescale by:
@@ -141,27 +150,97 @@ begin
                   Signal (I - Input'First + Index)];
       Fast_Fourier_Transform (Input, Output, Power, Scaling);
 
-      -- Rescale the signal if necessary.
+      -- Compute the norms squared and their scaling factor
 
-      Scaling := Scaling * 2;
+      -- Note that the norms before squaring where divided by 2 both their
+      -- imaginary and real parts, and the result multiplied by 2. Which means
+      -- the result was divided by 4. Also they where scaled by a given scaling
+      -- factor. That means they scaling factor is doubled and we need to add 2
+      -- from the division by 4.
+
+      Scaling := Scaling * 2 + 2;
+      Max_Right := 0.0;
+      for I in Norms'Range loop
+         Norms (I) := Quarter_Norm (Output (I));
+         Max_Right := Big_Sample_Type'Max (Norms (I), Max_Right);
+         pragma Loop_Invariant (
+            (for all J in Norms'First .. I
+               =>       Norms (J) >= 0.0
+               and then Norms (J) < 0.5
+               and then Max_Right >= Norms (J)));
+      end loop;
+      pragma Assert (
+         (for all J in Norms'Range =>
+            Max_Right >= Norms (J)));
+      pragma Assert (Max_Right >= 0.0 and then Max_Right < 0.5);
+
+   -- if Max_Right = 0.0 then
+   --    -- This is never going to happen unless all the vales in the fast
+   --    -- fourier transform are 0.0. In which case, let's set the scaling
+   --    -- factor to 0. The result is not scaled.
+   --    Scaling := 0;
+   -- else
+   --    -- The values are all in range [0.0, 0.5). The same goes for the
+   --    -- maximum number. What we have to do is multiply by two until it is
+   --    -- greater than 0.5. Each time we multiply. We reduce the scaling one
+   --    -- by one. That way we now the maximum is as near to 0.5 as it can.
+   --    while Scaling > 0 and then 2 * Max_Right < 0.5 loop
+   --       Max_Right := 2 * @;
+   --       Scaling   := @ - 1;
+   --    end loop;
+   -- end if;
+
+      -- Now we now that:
+      --
+      --    Norm * (2 ** (Scaling'Old * 2 + 2))
+      --
+      -- was the real result. Which meant that the solution was divided by
+      --
+      --    2 ** (Scaling'Old * 2 + 2)
+      --
+      -- In order to fit the uniform type. However multiplied the result by 2
+      -- until the maximum value was as near to 0.5 as possible. That means
+      -- that the number is divided by:
+      --
+      --    2 ** Scaling
+      --
+      -- Where
+      --
+      --    Scaling := Scaling'Old * 2 + 2 - <Amount of times to reach 0.5>
+      --
+      -- Because we multiplied <Amount of times to reach 0.5> the numerator
+      -- to reach to 0.5.
+      --
+      -- Similarly we had the Scale factor for the T_Pxx variable. Where we
+      -- know that the values are scaed.
+
       if Scale = Scaling then
-         T_Pxx :=
-            [for I in T_Pxx'Range =>
-               T_Pxx (I) / 2 + Half_Norm (Output (I))];
+         Exp_Left := 1;
+         Exp_Right := 0;
          Scale := Scale + 1;
-      elsif Scale <= Scaling then
-         Exponent := Scaling - Scale + 1;
-         T_Pxx :=
-            [for I in T_Pxx'Range =>
-               T_Pxx (I) / (2 ** Exponent) + Half_Norm (Output (I))];
+      elsif Scale < Scaling then
+         Exp_Left := Scaling - Scale + 1;
+         Exp_Right := 0;
          Scale := Scaling + 1;
       else
-         Exponent := Scale - Scaling;
-         T_Pxx :=
-            [for I in T_Pxx'Range =>
-               T_Pxx (I) / 2 + Half_Norm (Output (I)) / (2 ** Exponent)];
+         Exp_Left := 1;
+         Exp_Right := Scale - Scaling;
          Scale := Scale + 1;
       end if;
+
+      -- Add the values
+
+      Max_Left := 0.0;
+      for I in T_Pxx'Range loop
+         T_Pxx (I) := @ / (2 ** Exp_Left) + Norms (I) / (2 ** Exp_Right);
+         Max_Left := Big_Sample_Type'Max (@, T_Pxx (I));
+         pragma Loop_Invariant (
+            (for all J in T_Pxx'First .. I =>
+               Max_Left >= T_Pxx (J)));
+      end loop;
+      pragma Assert (
+         (for all J in T_Pxx'Range =>
+            Max_Left >= T_Pxx (J)));
 
       -- Increment counters and repeat
 
@@ -175,10 +254,11 @@ begin
    end loop;
 
    pragma Assert (Steps >= 0);
-   Pxx := [for I in Pxx'Range => Sample_Type (T_Pxx (I))];
+   Pxx := [for I in Pxx'Range =>
+             Sample_Type (T_Pxx (I - Pxx'First + T_Pxx'First))];
    -- TODO: Add real normalisation factor. Here it is one half which divides
    --       the Steps variable in the denominator :)
-   Rescale := Fixed_Long_Integer (2 ** Scale * 2)
-            / Fixed_Long_Integer (Steps * Frequency / 2);
+   Rescale := Fixed_Long_Integer (2 ** Scale)
+            / Fixed_Long_Integer (Steps * Frequency * 192);
 
 end Detector.Signals.Generic_Welch;

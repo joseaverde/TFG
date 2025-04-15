@@ -152,3 +152,20 @@ FFT:          97 epochs/second
 Elapsed: 1.08000E+00 s
 Ratio:   11 epochs/second
 ............
+
+==== Benchmarking [master        ] ============================================
+Finished finally the Welch function. I needed to denormalise twice. And I was
+doing the Simpson over the normal Signal without applying Welch. There is no
+worseining in the number of Epochs per second. The only problem right now is
+proving the abscence of errors, improving the quality of the results and
+improving a little bit more the performance.
+
+Max_distance: 2902 epochs/second
+Energy:       1688 epochs/second
+Batch Normal: 78 epochs/second
+Single DTW:   27 epochs/second
+FFT:          98 epochs/second
+...........
+Elapsed: 1.04000E+00 s
+Ratio:   11 epochs/second
+...........

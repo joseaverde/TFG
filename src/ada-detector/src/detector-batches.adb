@@ -5,7 +5,6 @@
 --| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
-with Debug_IO;
 
 package body Detector.Batches with SPARK_Mode is
 
@@ -139,20 +138,27 @@ package body Detector.Batches with SPARK_Mode is
       Scale  : Welch_Rescaling_Factor_Type;
       First  : Count_Type;
       Last   : Count_Type;
+
+      Denormalise : constant Positive := Normalisation.Factor ** 2;
+
+      function Rescale (
+         Item : in Feature_Type)
+         return Feature_Type is (
+         Feature_Type'(Item * Scale) * Denormalise);
    begin
       Welch (Signal, Pxx, Stride_Size, Size, Size / 2, Scale);
 
       First := Count_Type (Feature_Type (2.0)  / Fq_Res);
       Last  := Count_Type (Feature_Type (12.0) / Fq_Res);
-      PSD_1 := Simpson (Signal (First .. Last), Fq_Res) * Scale;
+      PSD_1 := Rescale (Simpson (Pxx (First .. Last), Fq_Res));
 
       First := Count_Type (Feature_Type (12.0)  / Fq_Res);
       Last  := Count_Type (Feature_Type (18.0) / Fq_Res);
-      PSD_2 := Simpson (Signal (First .. Last), Fq_Res) * Scale;
+      PSD_2 := Rescale (Simpson (Pxx (First .. Last), Fq_Res));
 
       First := Count_Type (Feature_Type (18.0)  / Fq_Res);
       Last  := Count_Type (Feature_Type (35.0) / Fq_Res);
-      PSD_3 := Simpson (Signal (First .. Last), Fq_Res) * Scale;
+      PSD_3 := Rescale (Simpson (Pxx (First .. Last), Fq_Res));
    end Power_Spectral_Densities;
 
 end Detector.Batches;
