@@ -25,7 +25,6 @@ Parallel = {type = "Enum", default = "True", values = ["False", "True"]}
                    , "-gnatyh"          # No horizontal tabs
                    , "-gnaty-I"         # `in' is required in parameters
                    , "-gnatyk"          # Check casing rules for keywords
-                   , "-gnatyL5"         # Maximum nesting level
                    # , "-gnatyM79"        # Maximum 79 characters.
                    , "-gnatyn"          # Check casing of package Standard identifiers
                    , "-gnatyO"          # Check overriding indicators

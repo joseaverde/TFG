@@ -16,10 +16,19 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       when others   => Library_Type := "static";
    end case;
 
+   Extra_Interface := ();
+   case Seizure_Detector_Fixed_Config.Parallel is
+      when "True" =>
+         Extra_Interface := Extra_Interface & (
+            "Detector.Parallel_Runners",
+            "Detector.Parallel_Utils");
+      when others => null;
+   end case;
+
    for Library_Kind use Library_Type;
    for Library_Name use "SeizureDetectorFixed";
    for Library_Dir use "lib/" & Detector_Common.Suffix;
-   for Library_Interface use (
+   for Library_Interface use Extra_Interface & (
       "Default_Detector",
       "Detector",
       "Detector.Batches",
@@ -157,8 +166,8 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
    package Install renames Detector_Common.Install;
    package Builder renames Detector_Common.Builder;
    package Naming is
-      for Implementation ("Detector.Batches.Validator")
-         use "detector-batches-validator__single_threaded.adb";
+      for Implementation ("Detector.Batches.Validator") use
+         "detector-batches-validator"&Detector_Common.Parallel_Suffix&".adb";
    end Naming;
 
 end Seizure_Detector_Fixed;

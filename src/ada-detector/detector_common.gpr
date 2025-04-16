@@ -11,6 +11,12 @@ abstract project Detector_Common is
    Runtime           := "";
    Compiler_Switches := ();
 
+   Parallel_Suffix := "";
+   case Seizure_Detector_Fixed_Config.Parallel is
+      when "True"  => Parallel_Suffix := "__multi_threaded";
+      when "False" => Parallel_Suffix := "__single_threaded";
+   end case;
+
    case Target_Name is
       when "native" =>
          Target  := "";
