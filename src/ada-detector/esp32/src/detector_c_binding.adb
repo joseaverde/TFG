@@ -2,6 +2,7 @@ with Ada.Text_IO;
 with Detector.Signals.Batch_Normalisation;
 with Detector.Batches.Runner;
 with Detector.Signals.Fast_Fourier_Transform;
+with Detector.Signals.Mean;
 with Safe_Time;
 
 package body Detector_C_Binding with
@@ -16,8 +17,7 @@ is
      Effective_Reads  => True,
      Effective_Writes => False;
 
-   subtype Epoch_Signal is
-      Detector.Signals.Signal_Type (1 ..  Default_Detector.Epoch_Size);
+   -- Simple benchmarking functions --
 
    procedure Read_Signal (Item : out Detector.Signals.Signal_Type) is
       use Default_Detector;
@@ -32,18 +32,25 @@ is
       end loop;
    end Read_Signal;
 
-   procedure Max_Distance (Result : out Feature_Type) is
-      Epoch : Epoch_Signal;
+   procedure Max_Distance (
+      Epoch  : in     Epoch_Access;
+      Result :    out Feature_Type) is
    begin
-      Read_Signal (Epoch);
-      Result := Default_Detector.Batches.Max_Distance (Epoch);
+      Result := Default_Detector.Batches.Max_Distance (Epoch.all);
    end Max_Distance;
 
-   procedure Energy (Result : out Feature_Type) is
-      Epoch : Epoch_Signal;
+   procedure Mean (
+      Epoch  : in     Epoch_Access;
+      Result :    out Feature_Type) is
    begin
-      Read_Signal (Epoch);
-      Result := Default_Detector.Batches.Energy (Epoch);
+      Result := Feature_Type (Detector.Signals.Mean (Epoch.all));
+   end Mean;
+
+   procedure Energy (
+      Epoch  : in     Epoch_Access;
+      Result :    out Feature_Type) is
+   begin
+      Result := Default_Detector.Batches.Energy (Epoch.all);
    end Energy;
 
    procedure Batch_Normalise (Result : out Feature_Type) is

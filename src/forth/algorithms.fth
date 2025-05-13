@@ -1,4 +1,0 @@
-: EPOCH 512 0 ;
-: F-AT FLOATS + F@ ;
-
-: MEAN ( addr -- x) 0 EPOCH DO OVER I F-AT OVER FMAX LOOP NIP ;

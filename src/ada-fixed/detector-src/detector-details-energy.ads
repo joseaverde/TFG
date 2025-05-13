@@ -15,6 +15,7 @@ package Detector.Details.Energy with SPARK_Mode => On is
    -- And then:
    --    Σ (Signal (I) - μ)² / Epoch_Size ∈ 0 .. (Last - First)²
    -- That gives us the upper limit for the energy computation.
+   --
 
    Real_Bits     : constant := 64;
    Real_Mantissa : constant := Sample_Mantissa * 2;
