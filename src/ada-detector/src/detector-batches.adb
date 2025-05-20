@@ -32,8 +32,8 @@ package body Detector.Batches with SPARK_Mode is
             Result :=
                (for some I in 1 .. Batch.Count =>
                   Dynamic_Time_Warping (Normal, Batch.Patterns (I),
-                                             Warping_Window)
-                  < d_th * Batch.d_max_c.High);
+                                             Warping_Window) / d_th
+                  < Batch.d_max_c.High);
          end if;
       end if;
 

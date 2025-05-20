@@ -54,7 +54,7 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
 
    type Batch_Type is limited private;
 
-   d_th : constant := 1.05;
+   d_th : constant Feature_Type := 105.0 / 1;
 
    function Make_Batch (
       PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW : in Span_Type;

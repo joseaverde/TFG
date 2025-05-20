@@ -1,12 +1,13 @@
 --/-------------------------------------------------------------------------\--
 --| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
 --|-------------------------------------------------------------------------|--
---| File:    detector-batches-validator__single_threaded.adb                |--
+--| File:    detector-batches-validator__multi_threaded.adb                 |--
 --| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
-with Debug_IO;
+with Detector.Parallel_Runners;
+with Detector.Parallel_Utils;
 
 package body Detector.Batches.Validator with SPARK_Mode is
 
@@ -19,48 +20,43 @@ package body Detector.Batches.Validator with SPARK_Mode is
       Count        : constant Count_Type := (Signal'Length - Epoch_Size)
                                             / Stride_Size;
       Detections   : array (Positive_Count_Type range 1 .. Count) of Boolean;
-      Copy         : Batch_Type := Batches.Copy (Batch);
       Index, Last  : Positive_Count_Type := Signal'First;
       Span         : Span_Type;
       Non_Seizures : Span_Array (Seizures'First .. Seizures'Last + 1);
 
+      procedure Compute (Id : in Positive) is
+         Batch : Batch_Type := Copy (Validate.Batch);
+         First : Count_Type;
+         Last  : Count_Type;
+         Index : Positive_Count_Type;
+      begin
+         Parallel_Utils.Partition (
+            Cores  => Cores,
+            Id     => Id,
+            Length => Count,
+            First  => First,
+            Last   => Last);
+
+         Index := Signal'First + First * Stride_Size;
+         for I in First .. Last loop
+            pragma Loop_Invariant (Index = Signal'First + I * Stride_Size);
+            Is_Seizure (Batch, Signal (Index .. Index + Epoch_Size - 1),
+                        Detections (I + 1));
+            Index := Index + Stride_Size;
+         end loop;
+      end Compute;
+
+      package Runner is
+         new Detector.Parallel_Runners (
+         Compute    => Compute,
+         Cores      => Cores);
+
    begin
+
+      Runner.Start;
+      Runner.Wait;
       Quality := (others => 0);
       pragma Assert (Count * Stride_Size <= Signal'Length - Epoch_Size);
-
-      -- Fill the detections array.
-
-      for I in Detections'Range loop
-         pragma Loop_Invariant (Index = Signal'First + (I - 1) * Stride_Size);
-         Is_Seizure (Copy, Signal (Index .. Index + Epoch_Size - 1),
-                     Detections (I));
-
-      -- if Detections (I) then
-      --    declare
-      --       PSD_1    : Feature_Type;
-      --       PSD_2    : Feature_Type;
-      --       PSD_3    : Feature_Type;
-      --       Energy   : Feature_Type;
-      --       Max_Dist : Feature_Type;
-      --       DTW_Dist : Feature_Type;
-      --    begin
-      --       Get_Features (Copy, Signal (Index .. Index + Epoch_Size - 1),
-      --                     PSD_1, PSD_2, PSD_3, Energy, Max_Dist, DTW_Dist);
-      --       Debug_IO.Put_Line ("Dump at" & I'Image);
-      --       Debug_IO.Put ("Seizure? = ");
-      --       Debug_IO.Put_Line (Detections (I)'Image);
-      --       Debug_IO.Put ("PSD_1    ="); Debug_IO.Put_Line (PSD_1'Image);
-      --       Debug_IO.Put ("PSD_2    ="); Debug_IO.Put_Line (PSD_2'Image);
-      --       Debug_IO.Put ("PSD_3    ="); Debug_IO.Put_Line (PSD_3'Image);
-      --       Debug_IO.Put ("Energy   ="); Debug_IO.Put_Line (Energy'Image);
-      --       Debug_IO.Put ("Max_Dist ="); Debug_IO.Put_Line (Max_Dist'Image);
-      --       Debug_IO.Put ("DTW      ="); Debug_IO.Put_Line (DTW_Dist'Image);
-      --       Debug_IO.New_Line;
-      --    end;
-      -- end if;
-
-         Index := Index + Stride_Size;
-      end loop;
 
       -- Check first seizure regions for detections.
 

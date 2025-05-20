@@ -1,8 +1,10 @@
 with Ada.Text_IO;
+with Ada.Real_Time;
 with Detector.Batches.Runner;
 with Default_Detector;
+with Ada.Calendar;
 procedure Seizure_Detector_Fixed with SPARK_Mode => On, No_Return is
-   use Default_Detector, Default_Detector.Batches;
+   use Ada.Real_Time, Default_Detector, Default_Detector.Batches;
    Patterns : constant := 3;
    Batch    : Batch_Type := Make_Batch (
       PSD_1    => (Feature_Type'First, Feature_Type'Last),
@@ -15,16 +17,38 @@ procedure Seizure_Detector_Fixed with SPARK_Mode => On, No_Return is
                      [for J in Epoch_Type'Range =>
                         (Sample_Type (I) * Sample_Type (J))]]);
 
+   Notify_After : constant := 1_000;
+   Start        : Time;
+   Count        : Natural := 0;
+
+   procedure Update_Clock is
+      use Ada.Text_IO;
+      package Duration_IO is new Fixed_IO (Duration);
+      use Duration_IO;
+      Stop    : Time;
+      Elapsed : Duration;
+   begin
+      Count := Count + 1;
+      if Count > Notify_After then
+         Count := 0;
+         Stop := Clock;
+         Elapsed := To_Duration (Stop - Start);
+         Put (Duration (Notify_After) / Elapsed, 1);
+         Put_Line (" epochs/second");
+         Start := Clock;
+      end if;
+   end Update_Clock;
+
    procedure Notify_Seizure is
    begin
       Ada.Text_IO.New_Line;
       Ada.Text_IO.Put_Line ("Seizure");
+      Update_Clock;
    end Notify_Seizure;
 
    procedure Notify_Nothing is
    begin
-      null;
-      -- Ada.Text_IO.Put ('.');
+      Update_Clock;
    end Notify_Nothing;
 
    procedure Read (Item : out Stride_Type) is
@@ -41,5 +65,6 @@ procedure Seizure_Detector_Fixed with SPARK_Mode => On, No_Return is
       Notify_Nothing => Notify_Nothing);
 
 begin
+   Start := Clock;
    Run (Batch);
 end Seizure_Detector_Fixed;

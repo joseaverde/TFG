@@ -20,6 +20,7 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
    case Seizure_Detector_Fixed_Config.Parallel is
       when "True" =>
          Extra_Interface := Extra_Interface & (
+            "Detector.Parallel_Execution",
             "Detector.Parallel_Runners",
             "Detector.Parallel_Utils");
       when others => null;

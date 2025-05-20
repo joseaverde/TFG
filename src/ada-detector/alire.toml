@@ -11,7 +11,7 @@ tags = []
 
 [configuration.variables]
 Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
-Parallel = {type = "Enum", default = "True", values = ["False", "True"]}
+Parallel = {type = "Enum", default = "False", values = ["False", "True"]}
 
 [build-switches]
 "*".ada_version    = "Ada2022"

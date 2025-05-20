@@ -12,23 +12,23 @@ package body Detector.Parallel_Utils with SPARK_Mode is
       Cores  : in     Positive;
       Id     : in     Positive;
       Length : in     Positive_Count_Type;
-      First  :    out Count_Type;
+      First  :    out Positive_Count_Type;
       Last   :    out Count_Type) is
       Chunk     : constant Count_Type := Length / Count_Type (Cores);
       Remainder : constant Count_Type := Length mod Count_Type (Cores);
    begin
-      pragma Assert (Chunk + Remainder = Length);
+      pragma Assert (Chunk * Count_Type (Cores) + Remainder = Length);
 
-      First := Count_Type (Id - 1) * Chunk;
-      Last := Count_Type (Id) * Chunk - 1;
+      First := Count_Type (Id - 1) * Chunk + 1;
+      Last := Count_Type (Id) * Chunk;
 
       if Count_Type (Id - 1) < Remainder then
-         First := First + 1;
+         First := First + (Remainder - Count_Type (Id - 1));
       end if;
 
       if Count_Type (Id) < Remainder then
          pragma Assert (Id /= Cores);
-         Last := Last + 1;
+         Last := Last + (Remainder - Count_Type (Id));
       end if;
 
    end Partition;
