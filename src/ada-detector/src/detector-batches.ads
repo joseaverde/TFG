@@ -54,6 +54,8 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
 
    type Batch_Type is limited private;
 
+   d_th : constant := 1.05;
+
    function Make_Batch (
       PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW : in Span_Type;
       Patterns                                   : in Epoch_Array)
@@ -74,6 +76,16 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       Result :    out Boolean) with
       Global => null,
       Always_Terminates;
+
+   procedure Get_Features (
+      Batch    : in     Batch_Type;
+      Epoch    : in     Epoch_Type;
+      PSD_1    :    out Feature_Type;
+      PSD_2    :    out Feature_Type;
+      PSD_3    :    out Feature_Type;
+      Energy   :    out Feature_Type;
+      Max_Dist :    out Feature_Type;
+      DTW_Dist :    out Feature_Type);
 
    -->> Instantiation <<--
 

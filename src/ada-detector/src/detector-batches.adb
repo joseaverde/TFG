@@ -31,9 +31,9 @@ package body Detector.Batches with SPARK_Mode is
             Normalise (Signal, Normal);
             Result :=
                (for some I in 1 .. Batch.Count =>
-                  Is_In (Dynamic_Time_Warping (Normal, Batch.Patterns (I),
-                                             Warping_Window),
-                        Batch.d_max_c));
+                  Dynamic_Time_Warping (Normal, Batch.Patterns (I),
+                                             Warping_Window)
+                  < d_th * Batch.d_max_c.High);
          end if;
       end if;
 
@@ -49,6 +49,30 @@ package body Detector.Batches with SPARK_Mode is
       end if;
 
    end Is_Seizure;
+
+   procedure Get_Features (
+      Batch    : in     Batch_Type;
+      Epoch    : in     Epoch_Type;
+      PSD_1    :    out Feature_Type;
+      PSD_2    :    out Feature_Type;
+      PSD_3    :    out Feature_Type;
+      Energy   :    out Feature_Type;
+      Max_Dist :    out Feature_Type;
+      DTW_Dist :    out Feature_Type) is
+      Signal : Signals.Signal_Type (Epoch'Range);
+      Normal : Pattern_Type;
+   begin
+      Normalise (Epoch, Signal);
+      Normalise (Signal, Normal);
+      Max_Dist := Batches.Max_Distance (Signal);
+      Energy := Batches.Energy (Signal);
+      Power_Spectral_Densities (Signal, PSD_1, PSD_2, PSD_3);
+      DTW_Dist := Feature_Type'Last;
+      for I in 1 .. Batch.Count loop
+         DTW_Dist := Feature_Type'Min (@,
+            Dynamic_Time_Warping (Normal, Batch.Patterns (I), Warping_Window));
+      end loop;
+   end Get_Features;
 
 -- function Is_Seizure (
 --    Item  : in Sample_Epoch;

@@ -83,7 +83,8 @@ def load (patient : str, chbmit_dir : str, model_file : str):
     result.batch.energy   = (get("e_min"),  get("e_max"))
     result.batch.max_dist = (get("d_min"),  get("d_max"))
     result.batch.d_max_c  = get("dmax")
-    result.batch.patterns = [Scv[index * samplerate : index * samplerate + query_size]
+    result.batch.patterns = [Scv[index * samplerate
+                                 : index * samplerate + query_size]
                                  for index in indices]
     return result
 
@@ -206,9 +207,8 @@ def dump_output(result : Result, output : str):
         for feature in result.features:
             print(" ".join(map(str, feature)), file=fp)
 
-chbmit_dir = "/home/joseaverde/Development/seizure-algorithm/CHBMIT"
-model_file = ("/home/joseaverde/Development/seizure-algorithm/datos/" +
-              "DatosDeteccionSeizure/aa_ma_params_b3z2mz18ws5.json")
+chbmit_dir = "/home/joseaverde/TFG/reference/CHBMIT"
+model_file = ("/home/joseaverde/DatosDeteccionSeizure/aa_ma_params_b3z2mz18ws5.json")
 for patient in range(1,8):
     chb = "chb%02d" % patient
     print(f"Processing {chb}")

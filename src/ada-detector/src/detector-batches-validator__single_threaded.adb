@@ -6,6 +6,8 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
+with Debug_IO;
+
 package body Detector.Batches.Validator with SPARK_Mode is
 
    procedure Validate (
@@ -14,12 +16,12 @@ package body Detector.Batches.Validator with SPARK_Mode is
       Seizures : in     Span_Array;
       Quality  :    out Quality_Metrics) is
 
-      Count       : constant Count_Type := (Signal'Length - Epoch_Size)
-                                           / Stride_Size;
-      Detections  : array (Positive_Count_Type range 1 .. Count) of Boolean;
-      Copy        : Batch_Type := Batches.Copy (Batch);
-      Index, Last : Positive_Count_Type := Signal'First;
-      Span        : Span_Type;
+      Count        : constant Count_Type := (Signal'Length - Epoch_Size)
+                                            / Stride_Size;
+      Detections   : array (Positive_Count_Type range 1 .. Count) of Boolean;
+      Copy         : Batch_Type := Batches.Copy (Batch);
+      Index, Last  : Positive_Count_Type := Signal'First;
+      Span         : Span_Type;
       Non_Seizures : Span_Array (Seizures'First .. Seizures'Last + 1);
 
    begin
@@ -32,6 +34,43 @@ package body Detector.Batches.Validator with SPARK_Mode is
          pragma Loop_Invariant (Index = Signal'First + (I - 1) * Stride_Size);
          Is_Seizure (Copy, Signal (Index .. Index + Epoch_Size - 1),
                      Detections (I));
+
+         if Detections (I) or I = 8931 then
+            declare
+               PSD_1    : Feature_Type;
+               PSD_2    : Feature_Type;
+               PSD_3    : Feature_Type;
+               Energy   : Feature_Type;
+               Max_Dist : Feature_Type;
+               DTW_Dist : Feature_Type;
+            begin
+               Get_Features (Copy, Signal (Index .. Index + Epoch_Size - 1),
+                             PSD_1, PSD_2, PSD_3, Energy, Max_Dist, DTW_Dist);
+               Debug_IO.Put_Line ("Dump at" & I'Image);
+               Debug_IO.Put ("Seizure? = ");
+               Debug_IO.Put_Line (Detections (I)'Image);
+               Debug_IO.Put ("PSD_1    ="); Debug_IO.Put_Line (PSD_1'Image);
+               Debug_IO.Put ("PSD_2    ="); Debug_IO.Put_Line (PSD_2'Image);
+               Debug_IO.Put ("PSD_3    ="); Debug_IO.Put_Line (PSD_3'Image);
+               Debug_IO.Put ("Energy   ="); Debug_IO.Put_Line (Energy'Image);
+               Debug_IO.Put ("Max_Dist ="); Debug_IO.Put_Line (Max_Dist'Image);
+               Debug_IO.Put ("DTW      ="); Debug_IO.Put_Line (DTW_Dist'Image);
+               Debug_IO.New_Line;
+            end;
+         end if;
+
+      -- Debuging_Shit : declare
+      --    Item : Detector.Signals.Signal_Type (1 .. Epoch_Size);
+      -- begin
+      --    Normalise (Signal (Index .. Index + Epoch_Size - 1), Item);
+      --    Debug_IO.Put_Line ("Max_Dist =" & Max_Distance (Item)'Image);
+      --    if Detections (I) then
+      --       Debug_IO.Put ("Possible seizure idx = ");
+      --       Debug_IO.Put (I'Image);
+      --       Debug_IO.New_Line;
+      --    end if;
+      -- end Debuging_Shit;
+
          Index := Index + Stride_Size;
       end loop;
 
