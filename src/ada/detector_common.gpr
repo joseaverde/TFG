@@ -29,7 +29,7 @@ abstract project Detector_Common is
       when others =>
          System_Path       := "standard";
          Target            := "armv6";
-         Runtime           := 
+         Runtime           := "";
    end case;
 
    -->> Confguration <<--
@@ -41,6 +41,12 @@ abstract project Detector_Common is
       when "Fixed_2"  => Suffix := "fixed2";
       when "Fixed_10" => Suffix := "fixed10";
    end case;
+
+   case Seizure_Detector_Config.Suppress is
+      when "True"  => Suffix := Suffix & "-suppress";
+      when "False" => Suffix := Suffix & "-assert";
+   end case;
+
    Suffix := Seizure_Detector_Config.Build_Profile & "-"
       & Seizure_Detector_Config.Target
       & "-"  & Suffix
@@ -69,7 +75,12 @@ abstract project Detector_Common is
 
    Pragmas := "";
    case Seizure_Detector_Config.Build_Profile is
-      when "release" => Pragmas := "release.adc";
+      when "release" =>
+         Pragmas := "release.adc";
+         case Seizure_Detector_Config.Suppress is
+            when "True" => Pragmas := "suppress.adc";
+            when "False" => Pragmas := "assert.adc";
+         end case;
       when others    => Pragmas := "debug.adc";
    end case;
    package Builder is

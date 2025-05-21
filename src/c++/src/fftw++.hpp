@@ -17,11 +17,12 @@
 #define SEIZURE_FFTWPP_HPP
 
 #include <concepts>
-#include <fftw3.h>
 #include <type_traits>
 #include <complex>
 
 namespace Seizure {
+
+  constexpr int FFTW_ESTIMATE = 0;
 
   template <typename T>
   struct FFTW {

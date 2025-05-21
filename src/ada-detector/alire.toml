@@ -10,7 +10,7 @@ website = ""
 tags = []
 
 [configuration.variables]
-Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
+Target = {type = "Enum", default = "native", values = ["native", "esp32c3", "rpi"]}
 Parallel = {type = "Enum", default = "True", values = ["False", "True"]}
 
 [build-switches]
@@ -37,5 +37,5 @@ Parallel = {type = "Enum", default = "True", values = ["False", "True"]}
                    ]
 
 [[depends-on]]
-gnatprove = "^14.1.1"
+gnatprove = "^13.0.0"
 

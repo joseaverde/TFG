@@ -12,21 +12,22 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} \
    -Ofast -Wno-ignored-optimization-argument")
-add_compile_options(-Wall -Wextra -Werror -pedantic -pedantic-errors -fPIC -g)
+add_compile_options(-Wall -Wextra -Werror -pedantic -pedantic-errors -g)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+   add_compile_options(-Wno-nan-infinity-disabled)
    # Sanitizer tests:
    #  * -fsanitize=address
    #  * -fsanitize=memory
    #  * -fsanitize=undefined
    #  * -fsanitize=dataflow
    #  * -fsanitize=thread
-   set(CMAKE_CXX_CLANG_TIDY clang-tidy;
-        -format-style=file;
-        -header-filter=.;)
-   set(sanitizer -fsanitize=address)
-   add_compile_options(${sanitizer} -fno-omit-frame-pointer -Og -g)
-   add_link_options(${sanitizer})
+   # set(CMAKE_CXX_CLANG_TIDY clang-tidy;
+   #      -format-style=file;
+   #      -header-filter=.;)
+   # set(sanitizer -fsanitize=address)
+   # add_compile_options(${sanitizer} -fno-omit-frame-pointer -Og -g)
+   # add_link_options(${sanitizer})
 endif ()
 
 set(SEIZURE_LIBRARIES)
@@ -84,8 +85,7 @@ find_package(pybind11 REQUIRED)
 find_package(FFTW3 REQUIRED)
 find_package(benchmark REQUIRED)
 find_package(range-v3 REQUIRED)
-list(APPEND SEIZURE_LIBRARIES range-v3::range-v3 Microsoft.GSL::GSL
-   FFTW3::fftw3 FFTW3::fftw3f FFTW3::fftw3l)
+list(APPEND SEIZURE_LIBRARIES range-v3::range-v3 Microsoft.GSL::GSL)
 
 # =========================================================================== #
 # ======================= S U B D I R E C T O R I E S ======================= #

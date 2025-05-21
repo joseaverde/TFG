@@ -20,6 +20,11 @@ abstract project Detector_Common is
          Target := "riscv64-elf";
          Runtime := "light-rv32imac";
          Compiler_Switches := ("-march=rv32imc", "-mabi=ilp32");
+      when "rpi" =>
+         Target := "arm-eabi";
+         -- Runtime := "light-cortex-m7f";
+         Runtime := "light-rpi2";
+         Compiler_Switches := ();
    end case;
 
    -->> Configuration <<--

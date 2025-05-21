@@ -1,0 +1,12 @@
+name = "seizure_detector_fixed_simulator"
+description = "Seizure Detector Fixed Point Real Time Simulator"
+version = "0.1.0-dev"
+
+authors = ["José Antonio Verde Jiménez"]
+maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
+maintainers-logins = ["joseaverde"]
+licenses = "EUPL-1.2"
+website = ""
+tags = []
+
+executables = ["seizure_detector_fixed_simulator"]

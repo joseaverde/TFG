@@ -32,8 +32,8 @@ private
       Make ("Simpson (0 Values)       -> Error", Test_0_Values'Access),
       Make ("Simpson (1 Value)        -> Error", Test_1_Value'Access),
       Make ("Simpson (2 Values)       -> Error", Test_2_Values'Access),
-      Make ("Simpson (Odd)",                     Test_Even_Values'Access),
-      Make ("Simpson (Even)",                    Test_Odd_Values'Access)
+      Make ("Simpson (Odd)",                     Test_Odd_Values'Access),
+      Make ("Simpson (Even)",                    Test_Even_Values'Access)
    ];
 
 end Detector.Signals.Simpson_Tests;

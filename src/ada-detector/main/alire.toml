@@ -21,8 +21,9 @@ seizure_detector_fixed = { path='..' }
 [gpr-set-externals]
 BUILD_MODE = "release"
 
-[[depends-on]]
-utilada = "^2.8.0"
+
+[configuration.values]
+seizure_detector_fixed.Target = "rpi"
 
 [build-switches]
 "*".ada_version    = "Ada2022"
@@ -48,3 +49,5 @@ utilada = "^2.8.0"
                    ]
 
 
+[[depends-on]]
+gnat_arm_elf = "^14.2.1"

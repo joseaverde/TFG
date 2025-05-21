@@ -1,2 +1,3 @@
 [configuration.values]
 seizure_detector.real_type="Single"
+seizure_detector.suppress="True"

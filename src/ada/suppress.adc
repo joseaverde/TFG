@@ -1,0 +1,7 @@
+pragma Suppress (All_Checks);
+pragma Restrictions (No_Secondary_Stack);
+
+-- En Ada:
+-- Ada CON cehcks: 4055 epochs/segundo
+-- Ada SIN checks: 4219 epochs/segundo
+-- C++           : 4319 epochs/segundo
