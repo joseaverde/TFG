@@ -21,9 +21,9 @@ seizure_detector_fixed = { path='..' }
 [gpr-set-externals]
 BUILD_MODE = "release"
 
-
 [configuration.values]
-seizure_detector_fixed.Target = "rpi"
+seizure_detector_fixed.Parallel = "True"
+# seizure_detector_fixed.Target = "rpi"
 
 [build-switches]
 "*".ada_version    = "Ada2022"
@@ -37,7 +37,6 @@ seizure_detector_fixed.Target = "rpi"
                    , "-gnatyh"          # No horizontal tabs
                    , "-gnaty-I"         # `in' is required in parameters
                    , "-gnatyk"          # Check casing rules for keywords
-                   , "-gnatyL5"         # Maximum nesting level
                    # , "-gnatyM79"        # Maximum 79 characters.
                    , "-gnatyn"          # Check casing of package Standard identifiers
                    , "-gnatyO"          # Check overriding indicators

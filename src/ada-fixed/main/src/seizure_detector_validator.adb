@@ -1,4 +1,5 @@
 with Ada.Text_IO;
+with Ada.Real_Time;
 with Default_Detector;
 with Detector;
 with Detector.Batches.Validator;
@@ -40,7 +41,7 @@ procedure Seizure_Detector_Validator with SPARK_Mode => On is
    subtype Raw_Sample is Default_Detector.Sample_Type;
    use all type Raw_Sample;
    package Vectors is new Detector.Containers.Vectors (Raw_Sample);
-   package Validator is new Default_Detector.Batches.Validator (Cores => 4);
+   package Validator is new Default_Detector.Batches.Validator (Cores => 8);
 
    use Ada.Text_IO, Default_Detector, Detector, Unsafe;
    package B renames Default_Detector.Batches;
@@ -78,10 +79,12 @@ begin
    New_Line;
 
    Validate_Signal : declare
-      use Vectors;
+      use Ada.Real_Time, Vectors;
       Batch    : constant B.Batch_Type := B.Make_Batch (
          PSD_1, PSD_2, PSD_3, Max_Dist, Energy, DTW,
          Patterns (1 .. Pat_Count));
+      Epoch_Count : constant Count_Type :=
+         (Signal_Length - Epoch_Size) / Stride_Size;
       Signal   : Vector := Create (Signal_Length, 0.0);
       Temp     : Nullable_Vector;
       Value    : Sample_Type;
@@ -92,12 +95,14 @@ begin
          (52132 + 1, 52172),
          (55015 + 1, 55066),
          (62920 + 1, 63010),
-         (1390  + 1, 71483),
+         (71390 + 1, 71483),
          (90925 + 1, 91026)];
 
       package Score_IO is new Fixed_IO (Validator.Score_Type);
       package Count_IO is new Integer_IO (Validator.Metric_Count_Type);
-      use Score_IO, Count_IO;
+      package Duration_IO is new Fixed_IO (Duration);
+      Start, Stop : Time;
+      use Score_IO, Count_IO, Duration_IO;
    begin
       for I in 1 .. Signal_Length loop
          Get (Value);
@@ -111,11 +116,13 @@ begin
       end loop;
       New_Line;
 
+      Start := Clock;
       Validator.Validate (
          Signal   => B.Sample_Array (Signal.Data (1 .. Signal.Last)),
          Batch    => Batch,
          Seizures => Seizures,
          Quality  => Metrics);
+      Stop := Clock;
 
       Put_Line ("----- Quality metrics -----");
       Set_Col (12 + 1 * Validator.Metric_Count_Type'Width - 4); Put ("True");
@@ -133,6 +140,9 @@ begin
       Put ("Precision   = "); Put (Validator.Precision (Metrics));   New_Line;
       Put ("Sensitivity = "); Put (Validator.Sensitivity (Metrics)); New_Line;
       Put ("F1 Score    = "); Put (Validator.F1_Score (Metrics));    New_Line;
+      Put ("Elapsed "); Put (To_Duration (Stop - Start), 1); Put_Line (" s");
+      Put (Duration'(Duration (Epoch_Count) / To_Duration (Stop - Start)), 1);
+      Put (" epochs/s");
 
       Temp := Signal;
       Free (Temp);

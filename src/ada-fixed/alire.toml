@@ -11,7 +11,7 @@ tags = []
 
 [configuration.variables]
 Target = {type = "Enum", default = "native", values = ["native", "esp32c3", "rpi"]}
-Parallel = {type = "Enum", default = "True", values = ["False", "True"]}
+Parallel = {type = "Enum", default = "False", values = ["False", "True"]}
 
 [build-switches]
 "*".ada_version    = "Ada2022"
@@ -25,7 +25,6 @@ Parallel = {type = "Enum", default = "True", values = ["False", "True"]}
                    , "-gnatyh"          # No horizontal tabs
                    , "-gnaty-I"         # `in' is required in parameters
                    , "-gnatyk"          # Check casing rules for keywords
-                   , "-gnatyL5"         # Maximum nesting level
                    # , "-gnatyM79"        # Maximum 79 characters.
                    , "-gnatyn"          # Check casing of package Standard identifiers
                    , "-gnatyO"          # Check overriding indicators
@@ -37,5 +36,5 @@ Parallel = {type = "Enum", default = "True", values = ["False", "True"]}
                    ]
 
 [[depends-on]]
-gnatprove = "^13.0.0"
+gnatprove = "^14.1.1"
 

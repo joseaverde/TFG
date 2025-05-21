@@ -1,7 +1,9 @@
 pragma Discard_Names;
+-- Restrictions for embedded programming
 pragma Restrictions (
    No_Secondary_Stack,
    No_Implicit_Dynamic_Code);
+pragma Partition_Elaboration_Policy (Sequential);
 pragma Profile (Ravenscar);
 -- Building High Integrity Applications with SPARK, p237
 pragma Suppress (Discriminant_Check);
