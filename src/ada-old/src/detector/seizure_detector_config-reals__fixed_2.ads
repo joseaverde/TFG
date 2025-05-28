@@ -1,7 +1,7 @@
 package Seizure_Detector_Config.Reals with Pure, SPARK_Mode => On is
 
-   Bits  : constant := 64;
-   Right : constant := 24;
+   Bits  : constant := Whole_Digits;
+   Right : constant := Fractional_Digits;
    Left  : constant := Bits - Right - 1;
    Small : constant := 2.0 ** (-Right);
 

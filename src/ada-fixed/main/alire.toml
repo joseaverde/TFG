@@ -2,8 +2,8 @@ name = "seizure_detector_fixed_main"
 description = ""
 version = "0.1.0-dev"
 
-authors = ["José Antonio Verde Jiménez"]
-maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
+authors = ["JosÃ© Antonio Verde JimÃ©nez"]
+maintainers = ["JosÃ© Antonio Verde JimÃ©nez <joseaverde@protonmail.com>"]
 maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""
@@ -22,8 +22,8 @@ seizure_detector_fixed = { path='..' }
 BUILD_MODE = "release"
 
 [configuration.values]
-seizure_detector_fixed.Parallel = "True"
-# seizure_detector_fixed.Target = "rpi"
+seizure_detector_fixed.Parallel = "False"
+seizure_detector_fixed.Target = "rpi4"
 
 [build-switches]
 "*".ada_version    = "Ada2022"
@@ -46,7 +46,6 @@ seizure_detector_fixed.Parallel = "True"
                    , "-gnatyu"          # Check no unnecessary blank lines
                    , "-gnatyx"          # Check extra parenthesis around conditionals
                    ]
-
 
 [[depends-on]]
 gnat_arm_elf = "^14.2.1"

@@ -1,3 +1,4 @@
+uv sync
 for profile in profiles/*; do
    uv run conan install . --build=missing -pr=$profile
 done

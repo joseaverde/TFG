@@ -1,6 +1,6 @@
-name = "seizure_detector_fixed"
-description = "SPARK-proved fixed point implementation of seizure detection algorithm"
-version = "0.6.0"
+name = "seizure_detector"
+description = "SPARK-proved seizure detector"
+version = "0.1.0-dev"
 
 authors = ["José Antonio Verde Jiménez"]
 maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
@@ -8,10 +8,16 @@ maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""
 tags = []
+executables = ["seizure_detector"]
 
 [configuration.variables]
-Target = {type = "Enum", default = "native", values = ["native", "esp32c3", "rpi4"]}
-Parallel = {type = "Enum", default = "False", values = ["False", "True"]}
+Samples_Per_Stride = {type = "Integer", first = 16, default = 256}
+Strides_Per_Epoch = {type = "Integer", first = 1, default = 5}
+Real_Type = {type = "Enum", values = ["Single", "Double", "Fixed_2", "Fixed_10"]}
+Fractional_Digits = {type = "Integer", first = 1, default = 16}
+Whole_Digits = {type = "Integer", first = 1, default = 32}
+Target = {type = "Enum", default = "native", values = ["native", "esp32c3"]}
+Suppress = {type = "Enum", default = "False", values = ["True", "False"]}
 
 [build-switches]
 "*".ada_version    = "Ada2022"
@@ -19,13 +25,15 @@ Parallel = {type = "Enum", default = "False", values = ["False", "True"]}
                    , "-gnatya"          # Check attribute casing
                    , "-gnatyA"          # Check array attribute indexes
                    , "-gnatyb"          # No blanks at end of lines
+                   , "-gnatyC"          # Comment format: 1 space (-- comment)
                    , "-gnatyd"          # No DOS line terminators
                    , "-gnatye"          # end/exit labels present
                    , "-gnatyf"          # No form feeds or vertical tabs
                    , "-gnatyh"          # No horizontal tabs
                    , "-gnaty-I"         # `in' is required in parameters
                    , "-gnatyk"          # Check casing rules for keywords
-                   # , "-gnatyM79"        # Maximum 79 characters.
+                   # , "-gnatyL6"         # Maximum nesting level
+                   , "-gnatyM79"        # Maximum 79 characters.
                    , "-gnatyn"          # Check casing of package Standard identifiers
                    , "-gnatyO"          # Check overriding indicators
                    , "-gnatyp"          # Check pragma casing
@@ -37,4 +45,11 @@ Parallel = {type = "Enum", default = "False", values = ["False", "True"]}
 
 [[depends-on]]
 gnatprove = "^14.1.1"
-
+gnat_native = "^14.1.1"
+gnat_riscv64_elf = "^14.1.1"
+[configuration.values]
+seizure_detector.target="esp32c3"
+seizure_detector.real_type="Fixed_2"
+seizure_detector.suppress="True"
+seizure_detector.whole_digits=64
+seizure_detector.fractional_digits=16

@@ -64,8 +64,8 @@ is
          Temp : Normalised_Signal (Epoch'Range);
       begin
          Normalise (Epoch, Temp);
-         Result := Feature_Type (Temp (Temp'First))
-                 * Feature_Type (Temp (Temp'Last));
+         Result := Feature_Type'First;
+         -- Result := Feature_Type (Temp (Temp'First));
       end;
    end Batch_Normalise;
 
@@ -92,7 +92,8 @@ is
    begin
       Read_Signal (Input);
       Fast_Fourier_Transform (Input, Output, Size, Scale);
-      Result := Feature_Type (2 ** Scale) * Output (Output'First).Re;
+      Result := Feature_Type (abs Output (Output'First).Re);
+      -- Result := Feature_Type (2 ** Scale) * Output (Output'First).Re;
    end Single_FFT;
 
    procedure Seizure_Detector is
@@ -116,7 +117,7 @@ is
             New_Line;
 
             Put ("Ratio:  ");
-            Put (Natural (Float (Count) / Float (Elapsed))'Image);
+            Put (Duration (Float (Count) / Float (Elapsed))'Image);
             Put (" epochs/second");
             New_Line;
 

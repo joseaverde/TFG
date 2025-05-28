@@ -1,0 +1,6 @@
+[configuration.values]
+seizure_detector.target="esp32c3"
+seizure_detector.real_type="Fixed_2"
+seizure_detector.suppress="True"
+seizure_detector.whole_digits=64
+seizure_detector.fractional_digits=16

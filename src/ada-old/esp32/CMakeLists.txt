@@ -5,7 +5,7 @@ project(seizure_detector)
 
 add_library(detector STATIC IMPORTED GLOBAL)
 set_property(TARGET detector PROPERTY IMPORTED_LOCATION
-   "${CMAKE_SOURCE_DIR}/../lib/release-esp32c3-fixed2-s256-e5/libdetector.a")
+   "${CMAKE_SOURCE_DIR}/../lib/release-esp32c3-fixed2_64-suppress-s256-e5/libdetector.a")
 target_link_libraries(seizure_detector.elf PRIVATE detector)
 # 
 # Get path of Ada run-time library (libgnat.a)

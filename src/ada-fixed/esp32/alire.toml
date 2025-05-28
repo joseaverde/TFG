@@ -2,8 +2,8 @@ name = "seizure_detector_fixed_esp32"
 description = ""
 version = "0.1.0-dev"
 
-authors = ["JosÃ© Antonio Verde JimÃ©nez"]
-maintainers = ["JosÃ© Antonio Verde JimÃ©nez <joseaverde@protonmail.com>"]
+authors = ["José Antonio Verde Jiménez"]
+maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
 maintainers-logins = ["joseaverde"]
 licenses = "EUPL-1.2"
 website = ""

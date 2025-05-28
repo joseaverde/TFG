@@ -1,0 +1,5 @@
+[configuration.values]
+seizure_detector.real_type="Fixed_2"
+seizure_detector.suppress="True"
+seizure_detector.whole_digits=32
+seizure_detector.fractional_digits=8

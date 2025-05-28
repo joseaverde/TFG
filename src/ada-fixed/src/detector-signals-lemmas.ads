@@ -49,7 +49,7 @@ private package Detector.Signals.Lemmas with Pure, SPARK_Mode is
                                     .. Positive (I - Item'First) * Last
                      and then Result (I) = Result (I - 1) + Item (I))
          and then Result (Item'Last) in Item'Length * First
-                                    .. Item'Length * Last);
+                                     .. Item'Length * Last);
    -- This is a ghost functions for proofs that require some kind of
    -- accumulation. It returns an array with the intermediate results of the
    -- accumulation:

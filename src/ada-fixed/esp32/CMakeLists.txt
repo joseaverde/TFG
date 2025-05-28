@@ -37,7 +37,7 @@ add_custom_command(
    COMMAND ${CMAKE_COMMAND} -E copy "${ada_runtime_dir}/libgnat.a" "${GNAT}"
    COMMAND ar d "${GNAT}" "s-macres.o"
    DEPENDS libgnat
-   COMMENT "========== NO MORE ABORT FOR YOU ==========="
+   COMMENT "====================="
    VERBATIM)
 
 add_custom_target(stripped_libgnat DEPENDS ${GNAT})

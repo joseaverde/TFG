@@ -1,0 +1,4 @@
+[configuration.values]
+seizure_detector.real_type="Single"
+seizure_detector.suppress="True"
+seizure_detector.target="esp32c3"

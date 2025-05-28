@@ -38,7 +38,7 @@ abstract project Detector_Common is
    case Seizure_Detector_Config.Real_Type is
       when "Single"   => Suffix := "float32";
       when "Double"   => Suffix := "float64";
-      when "Fixed_2"  => Suffix := "fixed2";
+      when "Fixed_2"  => Suffix := "fixed2_" & Seizure_Detector_Config.Whole_Digits;
       when "Fixed_10" => Suffix := "fixed10";
    end case;
 

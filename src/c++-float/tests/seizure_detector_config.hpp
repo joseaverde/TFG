@@ -2,8 +2,8 @@
 
 #include <cstddef>
 
-using Real = double;
-#define REAL_NAME "double"
+using Real = float;
+#define REAL_NAME "float"
 
 constexpr std::size_t stride_size = 256;
 constexpr std::size_t warping_window = 16;
