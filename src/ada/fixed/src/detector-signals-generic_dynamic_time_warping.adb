@@ -1,3 +1,11 @@
+--/-------------------------------------------------------------------------\--
+--| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--|-------------------------------------------------------------------------|--
+--| File:    detector-signals-generic_dynamic_time_warping.adb              |--
+--| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
+--| License: European Union Public License 1.2                              |--
+--\-------------------------------------------------------------------------/--
+
 function Detector.Signals.Generic_Dynamic_Time_Warping (
    Left           : in Batch_Normalisation.Normalised_Signal;
    Right          : in Batch_Normalisation.Normalised_Signal;
@@ -94,12 +102,6 @@ begin
       pragma Assert (2 * Warping_Window + 1 = Band_Size - 2);
 
       for Col in F .. L loop
-         -- TODO: A good optimisation is to make the square not saturating
-         --       because if we add certain precondition to the normalised
-         --       sample. We can make sure that most of the values will be
-         --       near 0.0. Therefore there won't be an overflow (mostly).
-         --       For values that are far outside the range, we can just
-         --       ignore them.
          Dist := Distance (Left (Row - 1 + Left'First),
                            Right (Col - 1 + Right'First));
          if Row = 1 and Col = 1 then
