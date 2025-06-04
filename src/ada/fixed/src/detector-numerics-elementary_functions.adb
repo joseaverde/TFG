@@ -74,39 +74,6 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
 
    -->> Square Root <<--
 
-   function Integer_Sqrt (Item : in Integer_Type) return Integer_Type'Base is
-      -- TODO: PROVE IT!
-      pragma SPARK_Mode (Off);
-      -- https://en.wikipedia.org/wiki/Methods_of_computing_square_roots
-      --    #Binary_numeral_system
-      subtype Int is Integer_Type'Base range 0 .. Integer_Type'Base'Last;
-      X : Int := Item;
-      C : Int := 0;
-      D : Int := 1;
-   begin
-
-      -- D is the highest power of 4, with D <= Item
-      while D * 4 <= Item loop
-         D := D * 4;
-      end loop;
-
-      while D /= 0 loop
-         pragma Loop_Invariant (D >= 0);
-         pragma Loop_Invariant (C >= 0);
-         pragma Loop_Invariant (X >= 0);
-         if X >= C + D then
-            X := X - C - D;
-            C := C / 2 + D;
-         else
-            C := C / 2;
-         end if;
-         D := D / 4;
-      end loop;
-
-      return C;
-
-   end Integer_Sqrt;
-
    type Fix is delta 1.0
       range -2.0 ** (Max_Bits - 1) .. 2.0 ** (Max_Bits - 1) - 1.0 with
       Size => Max_Bits;
@@ -165,7 +132,7 @@ package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
       --    A' := A - AC/2
       --    AC     ∈ [-1.0, 2]
       --    AC/2   ∈ [-0.5, 1]
-      --    A-AC/2 ∈ [-0.5, 2
+      --    A-AC/2 ∈ [-0.5, 2]
       -- TODO: Think it in parts
 
       for I in 1 .. Max_Iters loop
