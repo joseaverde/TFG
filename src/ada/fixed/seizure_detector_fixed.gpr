@@ -35,6 +35,7 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       "Detector.Batches",
       "Detector.Batches.Runner",
       "Detector.Batches.Validator",
+      "Detector.C_API",
       "Detector.Containers",
       "Detector.Containers.Vectors",
       "Detector.Numerics",
@@ -56,6 +57,7 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
       "Detector.Signals.Mean",
       "Detector.Signals.Quarter_Variance",
       "Detector.Signals.Windows",
+      "Seizure_Detector_Fixed_Config",
       "Spark",
       "Spark.Lemmas"
       );

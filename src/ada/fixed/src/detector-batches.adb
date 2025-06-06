@@ -185,4 +185,50 @@ package body Detector.Batches with SPARK_Mode is
       PSD_3 := Rescale (Simpson (Pxx (First .. Last), Fq_Res));
    end Power_Spectral_Densities;
 
+   -->> Setters & Getters <<--
+
+   procedure Reset (Batch : in out Batch_Type) is
+   begin
+      Batch.Was_Seizure := False;
+      Batch.Streak := 0;
+   end Reset;
+
+   procedure Set_PSD_1 (Batch : in out Batch_Type; Item : in Span_Type) is
+   begin
+      Batch.PSD_1 := Item;
+   end Set_PSD_1;
+
+   procedure Set_PSD_2 (Batch : in out Batch_Type; Item : in Span_Type) is
+   begin
+      Batch.PSD_2 := Item;
+   end Set_PSD_2;
+
+   procedure Set_PSD_3 (Batch : in out Batch_Type; Item : in Span_Type) is
+   begin
+      Batch.PSD_3 := Item;
+   end Set_PSD_3;
+
+   procedure Set_Energy (Batch : in out Batch_Type; Item : in Span_Type) is
+   begin
+      Batch.Energy := Item;
+   end Set_Energy;
+
+   procedure Set_Max_Dist (Batch : in out Batch_Type; Item : in Span_Type) is
+   begin
+      Batch.Max_Dist := Item;
+   end Set_Max_Dist;
+
+   procedure Set_DTW_Dist (Batch : in out Batch_Type; Item : in Span_Type) is
+   begin
+      Batch.d_max_c := Item;
+   end Set_DTW_Dist;
+
+   procedure Set_Pattern (
+      Batch : in out Batch_Type;
+      Index : in     Count_Type;
+      Value : in     Pattern_Type) is
+   begin
+      Batch.Patterns (Index) := Value;
+   end Set_Pattern;
+
 end Detector.Batches;

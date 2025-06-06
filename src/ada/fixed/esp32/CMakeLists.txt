@@ -16,7 +16,7 @@ set_property(TARGET SeizureDetectorFixed PROPERTY IMPORTED_LOCATION
 # Add the other souce code library
 add_library(Binding STATIC IMPORTED GLOBAL)
 set_property(TARGET Binding PROPERTY IMPORTED_LOCATION
-   "${CMAKE_SOURCE_DIR}/lib/release-esp32c3/libdetector_binding.a")
+   "${CMAKE_SOURCE_DIR}/lib/release-esp32c6/libdetector_binding.a")
 target_link_libraries(seizure_detector.elf PUBLIC Binding SeizureDetectorFixed)
 
 # Get path of Ada run-time library (libgnat.a)

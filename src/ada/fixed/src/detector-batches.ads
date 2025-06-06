@@ -62,19 +62,22 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       return Batch_Type with
       Global => null,
       Inline => True,
-      Pre    => Patterns'Length > 0;
+      Pre    => Patterns'Length in 1 .. Max_Patterns,
+      Post   => Get_Pattern_Count (Make_Batch'Result) = Patterns'Length;
 
    function Copy (
       Item : in Batch_Type)
       return Batch_Type with
       Global => null,
-      Inline => True;
+      Inline => True,
+      Post   => Get_Pattern_Count (Copy'Result) = Get_Pattern_Count (Item);
 
    procedure Is_Seizure (
       Batch  : in out Batch_Type;
       Epoch  : in     Epoch_Type;
       Result :    out Boolean) with
       Global => null,
+      Post   => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch),
       Always_Terminates;
 
    procedure Get_Features (
@@ -86,6 +89,46 @@ package Detector.Batches with Preelaborate, SPARK_Mode is
       Energy   :    out Feature_Type;
       Max_Dist :    out Feature_Type;
       DTW_Dist :    out Feature_Type);
+
+   -->> Setters & Getters <<--
+
+   function Get_Pattern_Count (Batch : in Batch_Type) return Count_Type with
+      Post   => Get_Pattern_Count'Result in 1 .. Max_Patterns,
+      Global => null,
+      Inline => True;
+
+   function Get_Pattern (
+      Batch : in Batch_Type;
+      Index : in Count_Type)
+      return Pattern_Type with
+      Pre    => Index in 1 .. Get_Pattern_Count (Batch),
+      Global => null,
+      Inline => True;
+
+   procedure Reset (Batch : in out Batch_Type) with
+      Global => null,
+      Inline => True,
+      Post   => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch);
+
+   procedure Set_PSD_1    (Batch : in out Batch_Type; Item : in Span_Type) with
+      Post => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch);
+   procedure Set_PSD_2    (Batch : in out Batch_Type; Item : in Span_Type) with
+      Post => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch);
+   procedure Set_PSD_3    (Batch : in out Batch_Type; Item : in Span_Type) with
+      Post => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch);
+   procedure Set_Energy   (Batch : in out Batch_Type; Item : in Span_Type) with
+      Post => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch);
+   procedure Set_Max_Dist (Batch : in out Batch_Type; Item : in Span_Type) with
+      Post => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch);
+   procedure Set_DTW_Dist (Batch : in out Batch_Type; Item : in Span_Type) with
+      Post => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch);
+   procedure Set_Pattern (
+      Batch : in out Batch_Type;
+      Index : in     Count_Type;
+      Value : in     Pattern_Type) with
+      Global => null,
+      Pre    => Index in 1 .. Get_Pattern_Count (Batch),
+      Post   => Get_Pattern_Count (Batch)'Old = Get_Pattern_Count (Batch);
 
    -->> Instantiation <<--
 
@@ -184,5 +227,16 @@ private
       Lookback    => Item.Lookback,
       Was_Seizure => False,
       Streak      => 0);
+
+   -->> Setters & Getters <<--
+
+   function Get_Pattern_Count (Batch : in Batch_Type) return Count_Type is (
+      Batch.Count);
+
+   function Get_Pattern (
+      Batch : in Batch_Type;
+      Index : in Count_Type)
+      return Pattern_Type is (
+      Batch.Patterns (Index));
 
 end Detector.Batches;

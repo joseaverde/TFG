@@ -10,7 +10,7 @@ website = ""
 tags = []
 
 [configuration.variables]
-Target = {type = "Enum", default = "native", values = ["native", "esp32c3", "rpi4"]}
+Target = {type = "Enum", default = "native", values = ["native", "esp32c3", "esp32c6", "rpi4"]}
 Parallel = {type = "Enum", default = "False", values = ["False", "True"]}
 
 [build-switches]

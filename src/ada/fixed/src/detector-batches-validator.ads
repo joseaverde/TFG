@@ -12,6 +12,8 @@ generic
    Exclusion  : in Positive_Count_Type := 10;
 package Detector.Batches.Validator with SPARK_Mode => On is
 
+   pragma Unreferenced (Cores);
+
    type Span_Type is record
       First : Positive_Count_Type;
       Last  : Positive_Count_Type;

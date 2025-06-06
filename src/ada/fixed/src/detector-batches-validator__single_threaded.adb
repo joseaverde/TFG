@@ -6,8 +6,6 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
-with Debug_IO;
-
 package body Detector.Batches.Validator with SPARK_Mode is
 
    procedure Validate (
