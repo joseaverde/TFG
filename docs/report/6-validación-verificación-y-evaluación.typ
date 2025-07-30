@@ -1,1 +1,0 @@
-= Validación, verificación y evaluación

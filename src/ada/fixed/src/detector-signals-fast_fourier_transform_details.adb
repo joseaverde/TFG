@@ -6,7 +6,6 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
-with Ada.Numerics.Elementary_Functions;
 with Detector.Numerics.Elementary_Functions;
 with Detector.Numerics.Complex_Types_Operations;
 

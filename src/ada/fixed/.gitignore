@@ -5,3 +5,6 @@
 /lib/
 *.swp
 /proof
+/.python-version
+/uv.lock
+/.venv
