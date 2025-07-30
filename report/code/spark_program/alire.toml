@@ -1,0 +1,15 @@
+name = "spark_program"
+description = ""
+version = "0.1.0-dev"
+
+authors = ["JosÃ© Antonio Verde JimÃ©nez"]
+maintainers = ["JosÃ© Antonio Verde JimÃ©nez <joseaverde@protonmail.com>"]
+maintainers-logins = ["joseaverde"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = []
+
+executables = ["spark_program"]
+
+[[depends-on]]
+gnatprove = "^14.1.1"
