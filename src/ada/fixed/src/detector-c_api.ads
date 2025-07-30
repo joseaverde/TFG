@@ -77,6 +77,8 @@ is
       Export, Convention => C, External_Name => "detector_max_sample";
    Min_Sample : constant Sample_Type := Sample_Type'First with
       Export, Convention => C, External_Name => "detector_min_sample";
+   Zero_Sample : constant Sample_Type := Sample_Type'First with
+      Export, Convention => C, External_Name => "detector_zero_sample";
 
    -- Feature conversion functions --
 
@@ -93,6 +95,8 @@ is
       Export, Convention => C, External_Name => "detector_max_feature";
    Min_Feature : constant Feature_Type := Feature_Type'First with
       Export, Convention => C, External_Name => "detector_min_feature";
+   Zero_Feature : constant Feature_Type := Feature_Type'First with
+      Export, Convention => C, External_Name => "detector_zero_feature";
 
    -- Batch configuration functions --
 

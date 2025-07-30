@@ -1,0 +1,22 @@
+name = "detector"
+description = ""
+version = "0.1.0-dev"
+
+authors = ["José Antonio Verde Jiménez"]
+maintainers = ["José Antonio Verde Jiménez <joseaverde@protonmail.com>"]
+maintainers-logins = ["joseaverde"]
+licenses = "EUPL-1.2"
+website = ""
+tags = []
+
+executables = ["detector"]
+
+[configuration.values]
+seizure_detector_fixed.Target = "esp32c6"
+
+[[depends-on]]
+gnat_riscv64_elf = "^14.2.1"
+seizure_detector_fixed = "*"
+
+[[pins]]
+seizure_detector_fixed = { path="../../../ada/fixed" }

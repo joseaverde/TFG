@@ -12,7 +12,12 @@
 
 /* *** ==== Main function ============================================== *** */
 
-_Noreturn void detector_application (void) {
+#if defined(IDF_PROJECT)
+void app_main (void)
+#else
+int main ()
+#endif
+{
   puts("Hello, World!");
   for (;;) { }
 }

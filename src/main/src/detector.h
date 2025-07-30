@@ -14,7 +14,7 @@
 
 /* *** ==== DETECTOR_SAMPLE_SIZE ======================================= *** */
 
-#if not defined (DETECTOR_SAMPLE_SIZE)
+#if !defined (DETECTOR_SAMPLE_SIZE)
 # error "DETECTOR_SAMPLE_SIZE is undefined"
 #elif DETECTOR_SAMPLE_SIZE == 32
   typedef int32_t sample_type;
@@ -26,7 +26,7 @@
 
 /* *** ==== DETECTOR_FEATURE_SZIE ====================================== *** */
 
-#if not defined (DETECTOR_FEATURE_SIZE)
+#if !defined (DETECTOR_FEATURE_SIZE)
 # error "DETECTOR_FEATURE_SIZE is undefined"
 #elif DETECTOR_FEATURE_SIZE == 32
   typedef int32_t feature_type;
@@ -66,7 +66,7 @@ typedef sample_type epoch_type[SAMPLES_PER_EPOCH];
 
 /* *** ==== PATTERN_COUNT ============================================== *** */
 
-#define MAX_PATTERN_COUNT
+#define MAX_PATTERN_COUNT 16
 #ifndef PATTERN_COUNT
 # error "PATTERN_COUNT is undefined"
 #elif PATTERN_COUNT <= 0
@@ -89,20 +89,24 @@ extern "C" {
   extern const char *detector_real_type;
   extern const char *detector_target;
 
+  extern void detectorinit();
+
   /* Sample conversion functions */
 
   sample_type detector_convert_double_to_sample (double item);
   sample_type detector_convert_int_to_sample    (int item);
   double      detector_convert_sample_to_double (sample_type item);
-  extern const sample_t detector_max_sample;
-  extern const sample_t detector_min_sample;
+  extern const sample_type detector_max_sample;
+  extern const sample_type detector_min_sample;
+  extern const sample_type detector_zero_sample;
 
   /* Feature conversion functions */
 
   feature_type detector_convert_double_to_feature (double item);
   double       detector_convert_feature_to_double (feature_type item);
-  extern const sample_t detector_max_feature;
-  extern const sample_t detector_min_feature;
+  extern const feature_type detector_max_feature;
+  extern const feature_type detector_min_feature;
+  extern const feature_type detector_zero_feature;
 
   /* Batch configuration functions */
 

@@ -1,0 +1,6 @@
+with "config/detector_config.gpr";
+with "detector_common.gpr";
+abstract project Detector is
+   for Target use Detector_Common.Target;
+   for Runtime ("Ada") use Detector_Common.Runtime;
+end Detector;

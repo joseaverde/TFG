@@ -26,7 +26,7 @@ library project Seizure_Detector_Fixed extends "sparklib_external" is
    end case;
 
    for Library_Kind use Library_Type;
-   for Library_Name use "SeizureDetectorFixed";
+   for Library_Name use "detector";
    for Library_Dir use "lib/" & Detector_Common.Suffix;
    for Library_Interface use Extra_Interface & (
       "Debug_IO",

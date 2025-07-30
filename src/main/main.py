@@ -1,13 +1,16 @@
 import enum
+import os
 
-class Strategy(enum.Enum):
-    Fixed = 1
-    Single = 2
-    Double = 3
+# ==== Structure ============================================================ #
 
 class Language(enum.Enum):
     Ada = 1
     CXX = 2
+
+class Real(enum.Enum):
+    Fixed  = 1
+    Single = 2
+    Double = 3
 
 class Profile(enum.Enum):
     Release           = 1
@@ -30,30 +33,81 @@ class Compiler(enum.Enum):
 class Executable(enum.Enum):
     Benchmark   = 1
     Application = 2
+    Test        = 3
+    Module      = 4
+
+# ==== Configuration ======================================================== #
 
 class Configuration:
-    def __init__ (self,
+    def __init__ (self, *,
                   language : Language,
-                  strategy : Strategy,
+                  real     : Real,
                   profile  : Profile,
                   target   : Target,
                   compiler : Compiler):
         self.language = language
-        self.strategy = strategy
+        self.real     = real
         self.profile  = profile
         self.target   = target
         self.compiler = compiler
 
+    @property
+    def name(self) -> str:
+        return (f"{self.language.name}-{self.real.name}-{self.profile.name}-"
+                f"{self.target.name}-{self.compiler.name}")
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __repr__(self) -> str:
+        return self.name
+
+
+# ==== Project ============================================================== #
+
+class BaseProject:
+    def __init__ (self, config):
+        self.config = config
+
+    @property
+    def path(self) -> str:
+        return os.path.join(BUILD_DIR, self.config.name)
+
+    def prepare(self):
+        pass
+
+    def compile(self):
+        pass
+
+    def run(self):
+        pass
+
+
+class ESPProject (BaseProject):
+    def prepare(self):
+        pass
+
+    def compile(self):
+        pass
+
+    def run(self):
+        pass
+
+"""
+    def prepare(self):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+
     def __compile_ada(self):
         config = {}
         flags = []
-        match self.strategy:
-            case Strategy.Fixed:
+        match self.real:
+            case Real.Fixed:
                 path = "fixed"
-            case Strategy.Single:
+            case Real.Single:
                 path = "float"
                 flags.append("-XFloat_Type=Single")
-            case Strategy.Double:
+            case Real.Double:
                 path = "float"
                 flags.append("-XFloat_Type=Double")
 
@@ -93,3 +147,13 @@ class Configuration:
             self.__compile_ada()
         else:
             self.__compile_cxx()
+"""
+
+if __name__ == "__main__":
+    conf = Configuration(
+            language = Language.Ada,
+            real     = Real.Fixed,
+            profile  = Profile.Release,
+            target   = Target.ESP32C6,
+            compiler = Compiler.GCC)
+    print(conf.name)
