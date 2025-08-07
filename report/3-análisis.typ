@@ -2,10 +2,10 @@
 
 = Análisis
 En este capítulo se da una descripción general del problema
-(@sec:análisis-descripción), los casos de uso (@sec:análisis-casos-de-uso) y
+(@sec:plantemiento), los casos de uso (@sec:análisis-casos-de-uso) y
 los requisitos del mismo (@sec:análisis-requisitos).
 
-== Descripción general <sec:análisis-descripción>
+== Planteamiento del problema <sec:plantemiento>
 El objetivo es implementar el algoritmo para la detección de ataques
 epilépticos a partir de patrones y las características de una señal
 encefalograma desarrollado en la Universidad de Málaga @PaFESD, de forma que
@@ -110,15 +110,14 @@ para posteriormente detectar ataques epilépticos.
       [Subfunción],
     
       [*Actores principales*],
-      [Sensor],
+      [],
     
       [*Parte interesada*],
       [
-- Sensor: Quiere muestrear continuamente.
-- Detector: Quiere un surtido continuo de muestras de encefalograma para
-  realizar su función.
-- Doctor: Quiere toda la señal de encefalograma en bruto para entrenar el
-  modelo.
+- Paciente: Quiere que la señal de encefalograma para detectar un posible
+  ataque epiléptico sea continua y no se detenga bajo ningún concepto.
+- Doctor: Quiere poder utilizar tanto señales reales como señales pregrabadas y
+  como señales sintéticas para hacer estudios y entrenar el modelo.
   ],
     
       [*Precondiciones*],
@@ -181,17 +180,18 @@ para posteriormente detectar ataques epilépticos.
       [Detectar ataque],
     
       [*Alcance*],
-      [Entrenamiento],
+      [Entrenamiento y dispositivo empotrado],
     
       [*Nivel*],
       [Meta de usuario],
     
       [*Actores principales*],
-      [Detector],
+      [Paciente],
     
       [*Parte interesada*],
       [
-- Detector: Quiere clasificar la época actual.
+- Detector: Quiere clasificar las distintas épocas de la señal para entrenar el
+  modelo o hacer estudios..
 - Paciente: Quiere saber si está teniendo un ataque epiléptico.
 ],
     
@@ -257,13 +257,12 @@ para posteriormente detectar ataques epilépticos.
       [Entrenamiento],
     
       [*Actores principales*],
-      [Doctor y detector],
+      [Doctor],
     
       [*Parte interesada*],
       [
-Doctor: Quiere obtener el modelo y su eficacia.
-Detector: Quiere utilizar el modelo para hacer su trabajo.
-Paciente: Quiere el modelo para configurar y personalizar su sistema de detección.
+- Doctor: Quiere obtener el modelo y su eficacia.
+- Paciente: Quiere un modelo eficaz para detectar sus posibles ataques epilépticos.
 ],
     
       [*Precondiciones*],
@@ -305,70 +304,8 @@ Paciente: Quiere el modelo para configurar y personalizar su sistema de detecci�
   set block(breakable: false)
 }
 
-#{
-  show figure: set block(breakable: true)
-  show table.cell.where(x: 0): set par(justify: false)
-  figure(
-    caption: [Notifica al paciente],
-    table(
-      // columns: (13.5em, auto),
-      columns: (8.0em, auto),
-      align: (left, left),
-      table.header([*Campo*], [*Comentario*]),
-    
-      [*Nombre*],
-      [Notifica al paciente],
-    
-      [*Alcance*],
-      [Entrenamiento y dispositivo empotrado],
-    
-      [*Nivel*],
-      [Meta de usuario],
-    
-      [*Actores principales*],
-      [Detector y paciente],
-    
-      [*Parte interesada*],
-      [
-Detector: Quiere notificar al paciente que está teniendo un ataque epiléptico.
-Paciente: Quiere saber si está teniendo un ataque epiléptico.
-Doctor: Quiere saber si su paciente está teniendo un ataque epiléptico.
-],
-    
-      [*Precondiciones*],
-      [El dectector configurado y el sensor alimentado.],
-    
-      [*Postcondiciones*],
-      [Ninguna],
-    
-      [*Escenario de éxito principal*],
-      [
-1. El paciente está teniendo un ataque epiléptico.
-2. El detector lo detecta.
-3. El detector lo notifica.
-],
-    
-      [*Extensiones*],
-      [
-1. Si el paciente está teniendo un ataque epiléptico, pero el detector no lo
-   detecta como tal.
-   1. El paciente marca en la señal, dónde ha tenido el ataque.
-   2. El modelo se reentrena con la información actualizada.
-   3. Se informa del caso al doctor y a los desarrolladores.
-],
-    
-      [*Requisitos especiales*],
-      [Ninguno],
-
-      [*Frecuencia en que ocurre*],
-      [Escasa, cada vez que tiene un ataque epiléptico el paciente],
-    )
-  )
-  set block(breakable: false)
-}
-
 #figure(
-  image("uml/casos-de-uso.svg", width: 80%),
+  image("uml/casos-de-uso.svg", width: 70%),
   caption: [Modelo de casos de uso]
 )
 

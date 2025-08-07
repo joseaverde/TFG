@@ -5,10 +5,16 @@
   title: "Procesamiento de señales de encefalograma para la detección de ataques epilépticos.",
   author: "José Antonio Verde Jiménez",
   advisors: ("José Daniel García Sánchez",),
+  place: "Leganés",
+  // bibliography_file: "referencias.bib",
+  date: datetime.today,
   toc: true,
   logo: "new",
+  shortitle: "Detección de ataques epilépticos",
+  chapter_on_new_page: true,
   language: "es",
 )
+
 #set text(
   lang:   "es",
   region: "es")

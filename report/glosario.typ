@@ -4,3 +4,16 @@ punto fijo
 punto flotante
 sistema empotrado
 época
+desbordar
+subdesbordar
+indexar
+teorema
+lema
+corolario
+caché
+
+función
+procedimiento
+subrutina
+recursión
+log

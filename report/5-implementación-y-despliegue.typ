@@ -543,7 +543,7 @@ Se siguen viendo similaridades con `max-distance`, y se ve que comparte sus
 dos primeros problemas @algorithm-max-distance-problems:
 
 - En el paso *2*, $v(1)$ falla si $m = 0$.
-- En el paso *5*, $i + 1$ falla si $i in bb(I)_b and i + 1 not in bb(I)_b$,
+- En el paso *5*, $i + 1$ falla si $i in bb(I)_b and i + 1 in.not bb(I)_b$,
   por ejemplo si $i in bb(I)_b$ y $m = 2^(b-1) - 1$
 - Además en el paso *4*, se ve un problema similar al que tenía `max-distance`
   en su paso número *6*. Y es que la suma puede desbordar en punto fijo.
@@ -562,7 +562,7 @@ entonces el resultado debe estar en $bb(X)_(b+B-1,f)$.
   Si $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$. Se la
   función de acumulación $g(v,m)=sum_(i=1)^(m) v(i)$, como $bb(X)_(b,f)$ y
   $bb(I)_B$ son finitos, el codominio de $g$ también es finito y tiene un valor
-  máximo y mínimo que perteneces a $bb(X)_(b+B-1,f)$
+  máximo y mínimo que pertenece a $bb(X)_(b+B-1,f)$
 
   La función se maximiza cuando $v(i) = (2^(b-1) - 1) 2^f, forall i = 1, 2,
   ..., m$, el resultado entonces sería:
@@ -803,6 +803,8 @@ O en diagrama de flujo:
   caption: [Algoritmo de la media]
 )
 
+==== Problemas <algorithm-mean-problems>
+
 Se siguen manteniendo los problemas de la acumulación
 como se puede ver en la @algorithm-accumulation-problems. Pero en el caso de
 punto fijo el resultado, si $v(i) in bb(X)_(b,f), forall i = 1, 2, ..., m$,
@@ -829,7 +831,7 @@ binarios: $0.1_(10) = 0.00overline(0011)_2$ y $0.2_(10) = 0.0overline(0011)$.
 Luego no se puede hacer dicha suposición cuando se trabaja en cualquier
 $bb(F)_b$.
 
-=== Subconjunto uniforme de $bb(X)_(b,1-b)$
+=== Subconjunto uniforme de $bb(X)_(b,1-b)$ <uniform>
 Para los siguientes algoritmos resulta bastante trabajar con un punto fijo
 con un exponente $f$ del coeficiente arbitrario, pues muchos de ellos necesitan
 utilizar multiplicaciones. Además, dado que hay un valor negativo más que
@@ -847,7 +849,7 @@ bits:
   Dados $x = p 2^(1-b), x in bb(U)_b$ e $y = q 2^f, y in bb(U)_(b')$, su
   producto $x y = p 2^(1-b) q 2^(1-b')$, también es uniforme
   $x y in bb(U)_(b+b'-1)$.
-]
+] <thm:uniform-product>
 
 #proof[
   Dados $x = p 2^(1-b), x in bb(U)_b$ e $y = q 2^f, q in bb(U)_(b')$. Por
@@ -876,7 +878,8 @@ bits:
   $exists.not x in bb(U)_b$, $exists.not y in bb(U)_(b')$ tales que $x y = -1$.
   Y por ende:
 
-    $ x y in bb(X)_(b+b'-1,2-b-b') without {-1} = bb(I)_(b+b'-1) $
+    $ x y in bb(X)_(b+b'-1,2-b-b') without {-1} $
+    $ x y in bb(U)_(b+b'-1) $
 ]
 
 #theorem(title: [Producto de enteros de computador])[
@@ -907,52 +910,188 @@ bits:
         &= { p 2^f y : p in bb(I)_b, y in bb(X)_(b',f') } \
         &= { p 2^f q 2^(f') : p in bb(I)_b, q in bb(I)_(b') } \
         &= { p q 2^(f+f') : p in bb(I)_b, q in bb(I)_(b') } \
-        &= { k 2^(f+f') : k in bb(I)_(b+b'-1) } #text([\[$k := p q$, @thm:integer-product\]])
+        &subset.eq { k 2^(f+f') : k in bb(I)_(b+b'-1) } #text([\[$k := p q$, @thm:integer-product\]]) \
+        &= bb(X)_(b+b'-1,f+f')
     $
 
+  Como $x y in P subset.eq bb(X)_(b+b'-1,f+f')$, se puede afirmar que
+  $x y in bb(X)_(b+b'-1,f+f')$.
 ]
 
-#definition(title: [$"mult"_((b,f),(b',f'))(x, y)$])[
-  Se denota la función de multiplicación entre dos conjuntos de punto fijo
-  $bb(X)_(b,f)$ y $bb(X)_(b',f')$ como:
+#definition(title: [Conversión del producto])[
+  Dados $x in bb(X)_(b,f)$ e $y in bb(X)_(b',f')$ se denota como:
 
-    $ "mult"_((b,f),(b',f')): bb(X)_(b,f) -> bb(X)_(b',f') -> bb(X)_(b+b'-1,f+f') $
+    $ x *_(b'',f'') y = "conv"_(b'',f'') (x y) $
 
-   Dados $x = p 2^f in bb(X)_(b,f)$ e $y = q 2^(f') in bb(X)_(b',f')$, se
-   define su producto en punto fijo como:
+  Y si $x in bb(U)_(b)$ e $y in bb(X)_(b')$, también se denota como:
 
-   $ "mult"_((b,f),(b',f')) (x, y) = p q 2^(f+f') in bb(X)_(b+b'-1,f+f') $
-]
+    $ x *_(b'') y = "conv"_(b'',1-b'') (x y) $
 
-#definition(title: [Producto-conversión])[
-  Dados $x in bb(X)_(b,f)$ e $y in bb(X)_(b',f')$ y su producto en punto fijo
-  $z = "mult"_((b,f),(b',f')) (x, y) in bb(X)_(b+b'-1, f+f')$; se denota como
-  $x *_((b'',f'')) y$ a la operación:
+  A la conversión del producto de ambos en otro punto fijo.
+] 
 
-    $ x *_((b'',f'')) y = "conv"_(b'',f'') ("mult"_((b,f),(b',f')) (x, y)) $
-
-  Además si $x in bb(X)_b$ e $y in bb(X)_(b')$ y su producto de punto fijo
-  $z = "mult"_((b,1-b),(b',1-b')) (x, y)$, $z in bb(X)_(b+b'-1,2-b-b') =
-  bb(U)_(b+b'-1)$, se denota como $x *_(b'') y$ a la operación:
-
-    $ x *_(b'') y = "conv"_(b'',1-b'') ("mult"_((b,1-b),(b',1-b')) (x, y)) $
-]
-
-#theorem[
-  Si $x in bb(U)_b$ e $y in bb(U)_(b')$, entonces $x *_(b'') y in bb(U)_(b'')$
-]
+#theorem(title: [Conversión del producto de uniformes es uniforme])[
+  Si $x in bb(U)_b$ e $y in bb(U)_(b')$. Entonces $x *_(b'') y in bb(U)_(b'')$.
+] <thm:uniform-conv-product>
 
 #proof[
-  Dados $x = p 2^(1-b) in bb(U)_(b)$ e $y = q 2^(1-b') in bb(U)_(b')$. Se sabe
-  que $p in bb(I)_b without {2^(b-1)}$ y que
-  $q in bb(I)_(b') without {2^(b'-1)}$.
+  Dados $x in bb(U)_b$ e $y in bb(U)_(b')$. Sea su producto $z = x y$, que
+  según el @thm:uniform-product se sabe que $z in bb(U)_(b+b'-1)$. Finalmente
+  aplicamos el @thm:conv-bit-cond con:
 
-  Sea el producto $z = "mult"_((b,1-b),(b',1-b')) (x, y) = p q 2^(2-b-b') in
-  bb(X)_(b+b',2-b-b')$. Como $abs(x), abs(y) < 1 => abs(x y) < 1 => abs(z) < 1$
-  por el @lem:uniform-less-than-one. Además $bb(U)$
+  - $b := b+b'-1$
+  - $f := 1 - (b+b'-1) = 2-b-b'$
+  - $b' := b''$
+  - $f' := 1 - b''$
+
+  Si es cierto que:
+
+    $ b'' >=& (b + b' - 1) + [(2 - b - b') - (1 - b'')] \
+           =& b + b' - 1 + 2 - b - b' - 1 + b'' \
+           =& b''
+    $
+
+  (que siempre es cierto), significaba que
+  $z in bb(X)_(b+b'-1,2-b-b')$, luego su conversión
+  $"conv"_(b'',1-b'') (z) in bb(X)_(b'',1-b'')$.
+  Es decir $x *_(b'') y in bb(X)_(b'', 1-b'')$. Lo único que es necesario
+  determinar para terminar de demostrar este teorema es que
+  $exists.not x in bb(U)_b, exists.not y in bb(U)_(b'), x *_(b'') y = -1$.
+
+  Supongamos que $exists x = p 2^(1-b) in bb(U)_(b)$ y
+  $exists y = q 2^(1-b') in bb(U)_(b')$, para los que $z = x *_(b'') y = -1$.
+  Según la @def:fixed-point-conversion, $z = k 2^(1-b'')$, donde $k$ es:
+
+    $ k = cases(floor(2^((2 - b - b') - (1 - b'')) p q)", " & "si" p q >= 0,
+                ceil(2^((2 - b - b') - (1 - b'')) p q)", "  & "si" p q < 0) $
+
+  Estamos intentando buscar una $k$ para que $z = -1 = k 2^(1-b'') =>
+  k = -2^(b''-1) in bb(I)_(b'')$. Como $k < 0 => p q < 0$.
+
+    $ k = ceil(2^((2 - b - b') - (1 - b'')) p q) = -2^(b''-1) $
+
+  Como $abs(p) < 2^(b-1)$ y $abs(q) < 2^(b'-1)$, $abs(p q) < 2^(b+b'-2)$. Y
+  como $p q < 0$ entonces $0 > p q > -2^(b+b'-2)$.-
+
+    $ 0 &&> p q >&& -2^(b+b'-2) \
+      0 &&> 2^((2-b-b') - (1-b'')) p q >&& 2^((2-b-b') - (1-b'')) (-2^(b+b'-2)) \
+      0 &&> 2^((2-b-b') - (1-b'')) p q >&& -2^(b''-1)
+    $
+
+  Sabemos que $ceil(-2^(b''-1)) = -2^(b''-1)$ porque $b'' > 1, b'' in bb(N)$.
+  Según el @lem:ceil-range:
+
+    $ ceil(-2^(b''-1)) = -2^(b''-1) <=> -2^(b''-1) - 1 < -2^(b''-1) <=
+    -2^(b''-1) $
+
+  Como $-2^(b''-1) < 2^((2-b-b') - (b''-1)) p q$, se concluye que
+  $ceil(2^((2-b-b') - (b''-1)) p q) > -2^(b''-1)$. Luego 
+  $exists.not x in bb(U)_b, exists.not y in bb(U)_(b'), x *_(b'') y = -1$, y
+  por tanto: $x *_(b'') y in bb(U)_(b'')$.
 ]
 
+=== Uniformización un vector $bb(X)_(b,f)^n, n in bb(N)^+$
+Antes de definir en qué consiste uniformizar un vector. Es necesario definir
+la división para el punto fijo. La definición se hace de manera incremental,
+para dar distintas propiedades. La definición general (similar a la del
+producto):
+
+#definition(title: [Conversión del cociente])[
+  Dados $x in bb(X)_(b,f)$ e $y in bb(X)_(b',f')$ se define:
+
+    $ z = x div_(b'',f'') y = "conv"_(b'',f'') (x / y) $
+]
+
+*TODO: TERMINAR DE DEFINIR ESTO*
+
+
 === Varianza
+La varianza se define como:
+
+  $ "Var"(v, m) = sum_(i=1)^m (x - mu (v, m))^2 $
+
+donde $v in bb(R)^m$. Se parece mucho a la media, es una acumulación, su
+diagrama de flujo sigue siendo parecido:
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((0,v-sep), align(center)[*2*:
+      $"res" <- v(1)$ \
+      $i <- 2$ \
+      $mu' <- mu (v, m)$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((0,v-sep*3), align(center)[
+      *4*:
+      $"res" <- "res" + (v(i) - mu')^2$],
+      shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
+    edge("l,u,u,r", "-|>")
+    edge(<loop.east>, <end.west>, "-|>")
+    node((1, v-sep*2), name: <end>, align(center)[*6*: Fin], shape: shapes.pill)
+  }),
+  caption: [Algoritmo de la varianza]
+)
+
+==== Problemas
+Para punto flotante sigue habiendo los mismos problemas que para la acumulación
+(@algorithm-accumulation-problems) en cuanto a indexado:
+
+- El paso *2*, $v(1)$ falla si $m = 0$
+- En el paso *5*, $v(i+1)$ falla.
+
+Sin contar los numerosos problemas que acarrea utilizar punto flotante:
+
+- En el paso *3* puede subdesbordar $v(i) - mu'$.
+- En el paso *3*, además, puede desbordar el cuadrado $(v(i) - mu')^2$
+- Es más, en el paso *3*, la suma también puede desbordar:
+  $"res" + (v(i) - mu')^2$.
+
+==== Soluciones
+Cuando los números son uniformes @uniform tenemos propiedades interesantes.
+Por ejemplo, en el supuesto en que $v(i) - mu'$ fuera uniforme, su cuadrado
+también lo será según el @thm:uniform-conv-product.
+
+Además como se vio en la función media es (@algorithm-mean-problems), su
+resultado también está en el conjunto que los elementos del vector:
+
+  $ mu: bb(X)_(b,f)^n -> bb(N)^+ -> bb(X)_b $
+
+De esta manera si estamos trabajando en $bb(U)_b$, también se sigue cumpliendo:
+
+  $ mu: bb(U)_b^n -> bb(N)^+ -> bb(U)_b $
+
+Se decide entonces trabajar con $v in bb(U)_b^m, m > 0$ e $i in bb(I)_B$.
+Entonces $mu' in bb(U)_b$. El problema es que:
+
+  $ v(i) - mu' in (-2, 2) $
+
+Y entonces:
+
+  $ (v(i) - mu')^2 in (0, 4) $
+
+Para solucionarlo, antes de restar se dividen entre dos ambos operandos, para
+que:
+
+  $ v(i) div_b 2 - mu' div_b 2 in (-1, 1) $
+
+Y por tanto:
+
+  $ (v(i) div_b 2 - mu' div_b 2)^2 in (-1, 1) $
+
+Luego, al final del algoritmo, se multiplica por $4$ y se desuniformiza el
+resultado y se obtiene el valor que se espera de la varianza.
+
+*TODO: MOSTRAR EL ALGORITMO MODIFICADO CON LA UNIFORMALIZACIÓN Y DESUNIFORMALIZACIÓN*
+
 === _Energy_
 === Transformada de Fourier (FFT)
 ==== Recursivo a iterativa

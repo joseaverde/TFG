@@ -1,2 +1,4 @@
 layout
 *.pdf
+/uml/*.png
+/uml/*.svg

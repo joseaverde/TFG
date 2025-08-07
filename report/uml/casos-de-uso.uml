@@ -1,0 +1,15 @@
+@startuml
+
+actor "Paciente" as Patient
+actor "Doctor"   as Doctor
+
+"Leer señal de encefalograma" as (Sample)
+"Detectar ataque"             as (Detect)
+"Entrenar el modelo"          as (Train)
+
+Doctor -> (Train)
+(Detect) <- Patient
+(Detect) ..> (Sample) : "Incluye"
+(Train) --> (Detect)
+
+@enduml
