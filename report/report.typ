@@ -33,11 +33,11 @@
 #include "1-introducción.typ"
 #include "2-estado-del-arte.typ"
 #include "3-análisis.typ"
-#include "4-diseño.typ"
-#include "5-implementación-y-despliegue.typ"
-#include "6-validación-verificación-y-evaluación.typ"
-#include "7-planificación-y-análisis-de-costes.typ"
-#include "8-marco-regulatorio.typ"
+#include "4-diseño-e-implementación.typ"
+#include "5-validación-verificación-y-evaluación.typ"
+#include "6-marco-regulador.typ"
+#include "7-entorno-socio-económico-y-ods.typ"
+#include "8-planificación.typ"
 #include "9-conclusiones-y-trabajo-futuro.typ"
 
 #bibliography("referencias.bib")

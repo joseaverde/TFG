@@ -1,2 +1,11 @@
- Procesamiento de señales de encefalograma para la detección de ataques epilépticos.
 = Introducción
+*TODO*
+
+== Motivación
+*TODO*
+
+== Objetivos
+*TODO*
+
+== Estructura del documento
+*TODO*

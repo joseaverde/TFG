@@ -16,3 +16,17 @@
 
   line(a, b, c, d, e, f, g)
 }
+
+#let code(
+  contents,
+  caption: none,
+  tag:     "") = [
+    #show figure: set block(breakable: true)
+    #figure(
+    [
+      #show raw: set text(size: 8.2pt)
+      #contents
+    ],
+    caption: caption)
+    #label(tag)
+  ]

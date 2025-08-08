@@ -13,7 +13,9 @@
 
 #show math.equation.where(block: false): box
 
-= Implementación y despliegue
+= Diseño e implementación
+*TODO*: REFORMULAR
+
 En este capítulo se describen tanto la implementación del algoritmo con todas
 sus peculiaridades matemáticas y el despliegue del proyecto entero.
 
@@ -27,7 +29,9 @@ En la sección de despliegue se describen los métodos que se utilizan para
 desplegar el proyecto y su reproducibilidad. Se comentan los métodos de
 compilación cruzada que se han utilizado para las distintas plataformas.
 
-== Implementación <implementación>
+*TODO: Reformular con la parte de diseño y uniformizar los capítulos*
+
+== Estudio de la solución final <sec:4-estudio-de-la-solución-final>
 La implementación original del algoritmo de detección de ataques epilépticos
 que se analiza en este proyecto (PaFESD) /* TODO: Referenciar */ se escribió
 en Python 3.10. En este trabajo se analiza el impacto en el rendimiento de
@@ -622,11 +626,10 @@ En SPARK se utilizan lo que se llaman funciones fantasma (_Ghost_), que son
 subrutinas que no generan código y que solamente son utilizadas por el probador
 de teoremas interno. En este caso se define la función `Generic_Accumulation`:
 
-#figure(
-  caption: [Especificación de la función fantasma `Generic_Accumulation`]
-)[
-  #show raw: set text(size: 8.38pt)
-```adb
+#code(
+  caption: [Especificación de la función fantasma `Generic_Accumulation`],
+  tag: "lst:generic-accumulation-spec"
+)[```adb
 generic
    type Fixed_Type is delta <>;
    type Index_Type is range <>;
@@ -651,7 +654,7 @@ function Generic_Accumulation (
                   and then Result (I) = Result (I - 1) + Item (I))
       and then Result (Item'Last) in Item'Length * First
                                   .. Item'Length * Last);
-```]<lst:generic-accumulation-spec>
+```]
 
 La línea 10 del @lst:generic-accumulation-spec
 (@lst:generic-accumulation-spec:10) dice que es una función fantasma, que no
@@ -672,11 +675,10 @@ Finalmente la postcondición dice que:
 
 Y su implementación es:
 
-#figure(
-  caption: [Implementación de la función fantasma `Generic_Accumulation`]
-)[
-  #show raw: set text(size: 8.38pt)
-```adb
+#code(
+  caption: [Implementación de la función fantasma `Generic_Accumulation`],
+  tag: "lst:generic-accumulation-body"
+)[```adb
 function Generic_Accumulation (
    Item : in Array_Type)
    return Array_Type is
@@ -696,7 +698,7 @@ begin
    end loop;
    return Result;
 end Generic_Accumulation;
-``` ]<lst:generic-accumulation-body>
+```]
 
 Es preciso mencionar que es necesario especificar los predicados invariantes en
 el bucle (`Loop_Invariant`), es decir qué propiedades no cambian de una
@@ -727,11 +729,10 @@ tipo de punto fijo `Input_Type` ($bb(X)_(b,f)$), un tipo para indexar
 ($bb(X)_(b+B-1,f)$) y un tipo vector de elementos de tipo `Input_Type` que
 indexa con `Index_Type >= 1`:
 
-#figure(
-  caption: [Ejemplo de uso de la función fantasma `Generic_Accumulation`]
-)[
-  #show raw: set text(size: 8.38pt)
-```adb
+#code(
+  caption: [Ejemplo de uso de la función fantasma `Generic_Accumulation`],
+  tag: "lst:generic-accumulation-example"
+)[```adb
 function Accumlate (Item : in Input_Type_Array) return Result_Type is
    subtype Constrained_Result is Result_Type
       range Result_Type (Input_Type'First) .. Result_Type (Input_Type'Last)
@@ -754,7 +755,7 @@ begin
    end loop;
    return Result;
 end Accumulate;
-```]<lst:generic-accumulation-example>
+```]
 
 Se debe «instanciar» la función que `Generic_Accumulation`, es decir es
 genérica (sirve para distintos tipos de tipos) y por lo tanto está
@@ -1102,8 +1103,5 @@ resultado y se obtiene el valor que se espera de la varianza.
 === Deformación dinámica del tiempo
 === Densidad espectral de potencia
 
-== Despliegue
-=== Compilación cruzada y _toolchains_
-=== Validación y Entrenamiento
-=== Módulos de Python
-
+== Arquitectura
+*TODO*

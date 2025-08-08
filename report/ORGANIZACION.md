@@ -4,7 +4,6 @@ Organización de la Memoria
  1. Motivación
  2. Objetivos
  3. Estructura del Documento
- // 4. Análisis socio-económico y Objetivos de Desarrollo Sostenible
 2. **Estado del Arte**
  1. Detección de ataques epilépticos
   1. PaFESD

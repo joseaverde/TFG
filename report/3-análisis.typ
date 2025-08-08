@@ -1,11 +1,212 @@
-// #import "src/lib.typ" as srs
+#import "srs/lib.typ" as srs
+
+#let scale-m-type = srs.make-enum-field(
+  h: "Alto",
+  m: "Medio",
+  l: "Bajo",
+)
+
+#let scale-f-type = srs.make-enum-field(
+  h: "Alta",
+  m: "Media",
+  l: "Baja",
+)
+
+#let stability-type = srs.make-enum-field(
+  c: "Constante",
+  i: "Inconstante",
+  vu: "Inestable",
+)
+
+#let config = srs.make-config(
+//srs.make-class(
+//  "R",
+//  "Requisito",
+//  fields: (
+//    srs.make-field(
+//      "Descripción",
+//      srs.content-field,
+//      [Descripción detallada del requisito],
+//    ),
+//    srs.make-field(
+//      "Necesidad",
+//      scale-f-type,
+//      [Prioridad del requisito para el usuario],
+//    ),
+//    srs.make-field(
+//      "Prioridad",
+//      scale-f-type,
+//      [Prioridad del requisito para el desarrollador],
+//    ),
+//    srs.make-field(
+//      "Estabilidad",
+//      stability-type,
+//      [Indica la variabilidad del requisito a lo largo del proceso de
+//      desarrollo.],
+//    ),
+//    srs.make-field(
+//      "Verificabilidad",
+//      scale-f-type,
+//      [Capacidad de probar la valided del requisito.],
+//    ),
+//  ),
+//  classes: (
+//    srs.make-class(
+//      "U",
+//      "Usuario",
+//      classes: (
+//        srs.make-class("CA", "Capacidad"),
+//        srs.make-class("RE", "Restricción"),
+//      ),
+//    ),
+//    srs.make-class(
+//      "S",
+//      "Software",
+//      classes: (
+//        srs.make-class(
+//          "FN",
+//          "Funcional",
+//          origins: srs.make-origins(
+//            [Requisitos de usuario que derivaron este requisito.],
+//            srs.make-tag("R", "U", "CA"),
+//          ),
+//        ),
+//        srs.make-class(
+//          "NF",
+//          "No funcional",
+//          origins: srs.make-origins(
+//            [Requisitos de usuario que derivaron este requisito.],
+//            srs.make-tag("R", "U", "RE"),
+//          ),
+//        ),
+//      ),
+//    ),
+//  ),
+//),
+  srs.make-class(
+    "CU",
+    "Caso de uso",
+    fields: (
+      srs.make-field(
+        "Nombre",
+        srs.content-field,
+        [Brief description of the use case],
+      ),
+      srs.make-field(
+        "Actors",
+        srs.content-field,
+        [External agent that executes the use case],
+      ),
+      srs.make-field(
+        "Objective",
+        srs.content-field,
+        [The use case's purpose],
+      ),
+      srs.make-field(
+        "Pre-condition",
+        srs.content-field,
+        [Conditions that must be fulfilled _before_ executing the use case],
+      ),
+      srs.make-field(
+        "Post-condition",
+        srs.content-field,
+        [Conditions that must be fulfilled _after_ executing the use case],
+      ),
+    ),
+  ),
+//srs.make-class(
+//  "C",
+//  "Component",
+//  fields: (
+//    srs.make-field(
+//      "Role",
+//      srs.content-field,
+//      [Component's function in the system],
+//    ),
+//    srs.make-field(
+//      "Dependencies",
+//      srs.content-field,
+//      [Components that depe],
+//    ),
+//    srs.make-field(
+//      "Description",
+//      srs.content-field,
+//      [Explanation of the component's functionality],
+//    ),
+//    srs.make-field(
+//      "Inputs",
+//      srs.content-field,
+//      [Component's input data],
+//    ),
+//    srs.make-field(
+//      "Outputs",
+//      srs.content-field,
+//      [Component's output data],
+//    ),
+//  ),
+//),
+//srs.make-class(
+//  "T",
+//  "Test",
+//  fields: (
+//    srs.make-field(
+//      "Description",
+//      srs.content-field,
+//      [Test description],
+//    ),
+//    srs.make-field(
+//      "Preconditions",
+//      srs.content-field,
+//      [Conditions that must be fulfilled in order to perform the test],
+//    ),
+//    srs.make-field(
+//      "Postcondition",
+//      srs.content-field,
+//      [Conditions that must be fulfilled after performing the test in order to
+//        pass],
+//    ),
+//    srs.make-field(
+//      "Evaluation",
+//      srs.make-enum-field(ok: "OK", err: "Error"),
+//      [Result of the test],
+//    ),
+//  ),
+//  classes: (
+//    srs.make-class(
+//      "VAT",
+//      "Prueba de validación",
+//      origins: srs.make-origins(
+//        [Requirement that originated this test.],
+//        srs.make-tag("R", "S", "FN"),
+//        srs.make-tag("R", "S", "NF"),
+//      ),
+//    ),
+//  ),
+//),
+//srs.make-class(
+//  "VET",
+//  "Prueba de verificación",
+//  origins: srs.make-origins(
+//    [Requirement that originated this test.],
+//    srs.make-tag("R", "U", "CA"),
+//    srs.make-tag("R", "U", "RE"),
+//  ),
+//),
+)
+
+#let reqs = srs.create(
+  config: config,
+)
 
 = Análisis
-En este capítulo se da una descripción general del problema
-(@sec:plantemiento), los casos de uso (@sec:análisis-casos-de-uso) y
-los requisitos del mismo (@sec:análisis-requisitos).
+#config
 
-== Planteamiento del problema <sec:plantemiento>
+En este capítulo se da una descripción general del problema
+(@sec:2-plantemiento), los casos de uso (@sec:2-casos-de-uso),
+los requisitos del mismo (@sec:2-requisitos) y el análisis de los mismos
+(@sec:2-análisis-de-requisitos).
+
+== Planteamiento del problema <sec:2-plantemiento>
 El objetivo es implementar el algoritmo para la detección de ataques
 epilépticos a partir de patrones y las características de una señal
 encefalograma desarrollado en la Universidad de Málaga @PaFESD, de forma que
@@ -18,7 +219,9 @@ parámetros y el sistema empotrado usa únicamente el dicho algoritmo para
 clasificar una época de la señal en: «zona de ataque epiléptico» o «zona libre
 de ataque epiléptico» dado un modelo preentrenado llamado _batch_.
 
-== Casos de uso <sec:análisis-casos-de-uso>
+*TODO*
+
+== Casos de uso <sec:2-casos-de-uso>
 De acuerdo con Craig Larman, _Unified Process_ define el modelo de casos de uso
 dentro de la disciplina de requisitos e insiste que los casos de uso son
 documentos textuales, no diagramas, y que el modelado de casos de uso es
@@ -40,7 +243,7 @@ para posteriormente detectar ataques epilépticos.
   show figure: set block(breakable: true)
   show table.cell.where(x: 0): set par(justify: false)
   figure(
-    caption: [Plantilla del],
+    caption: [Plantilla de caso de uso],
     table(
       // columns: (13.5em, auto),
       columns: (8.0em, auto),
@@ -309,7 +512,10 @@ para posteriormente detectar ataques epilépticos.
   caption: [Modelo de casos de uso]
 )
 
-== Requisitos <sec:análisis-requisitos>
+== Requisitos <sec:2-requisitos>
+
+== Análisis de requisitos <sec:2-análisis-de-requisitos>
+*TODO*
 
 // #let make-class(
 //   id,

@@ -1,25 +1,52 @@
+/* |=======================================================================| *\
+   |                                                                       |
+   |  * * *   R E F E R E N C I A S _ B I B L I O G R Á F I C A S   * * *  |
+   |                                                                       |
+\* |=======================================================================| */
 
-@book{LarmanUML,
-   author = {Craig Larman},
-   title = {Applying UML and Patterns: An Introduction to Object-Oriented
-      Analysis and Design and Iterative Development},
-   year = 2004,
-   publisher = {Pearson Education, Inc},
-   address = {One Lake Street, Upper Saddle River, NJ 07458, EE.UU.},
-   edition = {3}
-}
 
 /* ========================================================================= */
 /* ==== 2. ESTADO DEL ARTE ================================================= */
 /* ========================================================================= */
 
-@online{Rocq,
-  author = {Institut National de Recherche en Informatique et en Automatique},
-  title = {Rocq},
-  year = 2025,
-  url = {https://rocq-prover.org/},
-  urldate = {2025-07-22}
+/* *** 2.1 Detección de ataques epilépticos *** ============================ */
+
+@article{anchundia2024revision,
+  title={Revisi{\'o}n Bibliogr{\'a}fica: La Epilepsia},
+  author={Anchundia, Allison Bel{\'e}n Cevallos and Gonz{\'a}lez, Fabiana Loj{\'a}n and Ayovi, Mariana Jisara Preciado},
+  journal={Ciencia Latina: Revista Multidisciplinar},
+  volume={8},
+  number={1},
+  pages={1979--1987},
+  year={2024},
+  publisher={Centro de Investigaci{\'o}n ALAC}
 }
+
+@article{PaFESD,
+  author={Muñoz, Felipe and Asenjo Plaza, Rafael and Navarro, Angeles},
+  journal={IEEE Transactions on Biomedical Engineering}, 
+  title={PaFESD: Patterns Augmented by Features Epileptic Seizure Detection}, 
+  year={2025},
+  volume={72},
+  number={1},
+  pages={137-151},
+  keywords={Electroencephalography;Feature extraction;Pattern matching;Measurement;Support vector machines;Discrete wavelet transforms;Databases;Electroencephalogram (EEG);epilepsy;seizure detection;signal features;pattern matching},
+  doi={10.1109/TBME.2024.3441090}}
+
+/* *** 2.3 Representación de valores numéricos en un computador ============ */
+
+@techreport{FloatsIEEE,
+  title           = {{IEEE Standard for Floating-Point Arithmetic}},
+  type            = {IEEE Std.},
+  number          = {754-2019},
+  year            = {2019},
+  institution     = {Institute of Electrical and Electronics Engineers},
+  doi             = {10.1109/IEEESTD.2019.8766229},
+}
+
+/* *** 2.4 Demostración interactiva de teoremas *** ======================== */
+
+/* 2.4.1: Rocq */
 
 @online{Coq2Rocq,
   author = {Institut National de Recherche en Informatique et en Automatique},
@@ -29,6 +56,24 @@
   urldate = {2025-07-22}
 }
 
+@online{Rocq,
+  author = {Institut National de Recherche en Informatique et en Automatique},
+  title = {Rocq},
+  year = 2025,
+  url = {https://rocq-prover.org/},
+  urldate = {2025-07-22}
+}
+
+@article{gonthier2008formal,
+  title={Formal proof--the four-color theorem},
+  author={Gonthier, Georges and others},
+  journal={Notices of the AMS},
+  volume={55},
+  number={11},
+  pages={1382--1393},
+  year={2008}
+}
+
 @online{BeaverProof,
    author = {Tristan Stérin},
    title = {BB(5) = 47,176,870},
@@ -36,6 +81,21 @@
    url = {https://discuss.bbchallenge.org/t/july-2nd-2024-we-have-proved-bb-5-47-176-870/237},
    urldate = {2025-07-22}
 }
+
+@INPROCEEDINGS{FundamentalGroupOfTheCircle,
+  author={Licata, Daniel R. and Shulman, Michael},
+  booktitle={2013 28th Annual ACM/IEEE Symposium on Logic in Computer Science}, 
+  title={Calculating the Fundamental Group of the Circle in Homotopy Type Theory}, 
+  year={2013},
+  volume={},
+  number={},
+  pages={223-232},
+  keywords={Frequency modulation;Clocks;Generators;Topology;Decoding;Geometry},
+  doi={10.1109/LICS.2013.28}}
+
+/* 2.4.2: Lean */
+
+/* 2.4.3: SPARK */
 
 @book{SPARKBook,
   author = {John W. McCormick and Peter C. Chapin},
@@ -59,6 +119,8 @@
    url = {https://docs.adacore.com/spark2014-docs/html/ug/en/appendix/alternative_provers.html},
    urldate = {2025-07-24}}
 
+/* *** 2.5 *** =================================================*/
+
 @book{ComputerArchitecture,
    author = {John L. Hennessy, David A. Patterson},
    title = {Computer Architecture: A Quantitative Approach},
@@ -68,57 +130,55 @@
    address = {340 Pine Street, Sixth Floor, San Francisco, CA, United States},
    isbn = {978-0-12-383872-8}}
 
-@INPROCEEDINGS{FundamentalGroupOfTheCircle,
-  author={Licata, Daniel R. and Shulman, Michael},
-  booktitle={2013 28th Annual ACM/IEEE Symposium on Logic in Computer Science}, 
-  title={Calculating the Fundamental Group of the Circle in Homotopy Type Theory}, 
-  year={2013},
-  volume={},
-  number={},
-  pages={223-232},
-  keywords={Frequency modulation;Clocks;Generators;Topology;Decoding;Geometry},
-  doi={10.1109/LICS.2013.28}}
+@online{cppreferenceJoin,
+   author = {cppreference},
+   title = {std::thread::join},
+   year = 2011,
+   url = {https://en.cppreference.com/w/cpp/thread/thread/join.html},
+   urldate = {2025-08-08}}
 
-@article{gonthier2008formal,
-  title={Formal proof--the four-color theorem},
-  author={Gonthier, Georges and others},
-  journal={Notices of the AMS},
-  volume={55},
-  number={11},
-  pages={1382--1393},
-  year={2008}
+@online{cppreferenceJthread,
+   author = {cppreference},
+   title = {std::jthread},
+   year = 2020,
+   url = {https://en.cppreference.com/w/cpp/thread/jthread.html},
+   urldate = {2025-08-08}}
+
+@online{cppreferenceExecutionPolicy,
+   author = {cppreference},
+   title = {std::execution::sequenced_policy, std::execution::parallel_policy, std::execution::parallel_unsequenced_policy, std::execution::unsequenced_policy},
+   year = 2017,
+   url = {https://en.cppreference.com/w/cpp/algorithm/execution_policy_tag_t.html},
+   urldate = {2025-08-08}}
+
+@techreport{ISOAda2022,
+   type = {Standard},
+   key = {ISO/IEC 8652:2023},
+   year = {2023},
+   title = {{Information technology -- Programming languages -- Ada}},
+   institution = {International Organization for Standardization}
 }
 
-@article{anchundia2024revision,
-  title={Revisi{\'o}n Bibliogr{\'a}fica: La Epilepsia},
-  author={Anchundia, Allison Bel{\'e}n Cevallos and Gonz{\'a}lez, Fabiana Loj{\'a}n and Ayovi, Mariana Jisara Preciado},
-  journal={Ciencia Latina: Revista Multidisciplinar},
-  volume={8},
-  number={1},
-  pages={1979--1987},
-  year={2024},
-  publisher={Centro de Investigaci{\'o}n ALAC}
-}
+@online{Ada202xSupport,
+   author = {Arnaud Charlet},
+   title = {Ada 202x support in GNAT},
+   year = 2020,
+   url = {https://blog.adacore.com/ada-202x-support-in-gnat},
+   urldate = {2025-08-08}}
 
-@techreport{FloatsIEEE,
-  title           = {{IEEE Standard for Floating-Point Arithmetic}},
-  type            = {IEEE Std.},
-  number          = {754-2019},
-  year            = {2019},
-  institution     = {Institute of Electrical and Electronics Engineers},
-  doi             = {10.1109/IEEESTD.2019.8766229},
-}
+/* ========================================================================= */
+/* ==== 3. ANÁLISIS ======================================================== */
+/* ========================================================================= */
 
-@article{PaFESD,
-  author={Muñoz, Felipe and Asenjo Plaza, Rafael and Navarro, Angeles},
-  journal={IEEE Transactions on Biomedical Engineering}, 
-  title={PaFESD: Patterns Augmented by Features Epileptic Seizure Detection}, 
-  year={2025},
-  volume={72},
-  number={1},
-  pages={137-151},
-  keywords={Electroencephalography;Feature extraction;Pattern matching;Measurement;Support vector machines;Discrete wavelet transforms;Databases;Electroencephalogram (EEG);epilepsy;seizure detection;signal features;pattern matching},
-  doi={10.1109/TBME.2024.3441090}}
+@book{LarmanUML,
+   author = {Craig Larman},
+   title = {Applying UML and Patterns: An Introduction to Object-Oriented
+      Analysis and Design and Iterative Development},
+   year = 2004,
+   publisher = {Pearson Education, Inc},
+   address = {One Lake Street, Upper Saddle River, NJ 07458, EE.UU.},
+   edition = {3}
+}
 
 /* ========================================================================= */
 /* ==== 5. IMPLEMENTACIÓN ================================================== */
@@ -130,3 +190,22 @@
    year = 2018,
    url = {https://blog.adacore.com/taking-on-a-challenge-in-spark},
    urldate = {2025-07-26}}
+
+/* ========================================================================= */
+/* ==== 7. ENTORNO SOCIOR-ECONÓMICO Y ODS ================================== */
+/* ========================================================================= */
+
+@online{uc3mODS,
+   author = {Universidad Carlos III de Madrid},
+   title = {¿Qué son los ODS?},
+   year = 2025,
+   url = {https://www.uc3m.es/sostenibilidad/uc3m-con-ods/que-son},
+   urldate = {2025-08-08}}
+
+@article{ElPaísConducirYEpilepsia,
+   author = {Carmen Girona},
+   date = {2006-04-11},
+   title = {Conducir con epilepsia},
+   journal = {El País},
+   url = {https://elpais.com/diario/2006/04/11/salud/1144706402_850215.html},
+   urldate = {2025-08-08}}
