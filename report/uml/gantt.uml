@@ -1,0 +1,58 @@
+@startgantt
+projectscale weekly
+Project starts 2024-09-01
+
+2024-12-21 to 2025-01-07 is closed
+2025-04-12 to 2025-04-21 is closed
+' saturday are closed
+' sunday are closed
+
+[Tarea 1] as [T1] starts 2024-09-10 and ends 2024-09-30 and is colored in Lavender/Black
+' [Conan configurado] as [M1] happens at [T1]'s end
+
+-- C++ --
+
+[Tarea 2] as [T2] starts 2024-09-30 and ends 2024-11-15
+[Tarea 2.1] as [T2.1] starts at 2024-10-01 and lasts 34 days and is colored in Pink/Black
+[Tarea 2.2] as [T2.2] starts at [T2.1]'s end and lasts 7 days and is colored in Pink/Black
+[Tarea 2.3] as [T2.3] starts at [T2.2]'s end and lasts 5 days and is colored in Pink/Black
+[T1] -> [T2]
+
+[Tarea 3] as [T3] starts 2024-11-04 and ends 2024-11-28
+[Tarea 3.1] as [T3.1] starts at 2024-11-04 and lasts 5 days and is colored in Pink/Black
+[Tarea 3.2] as [T3.2] starts at [T3.1]'s end and lasts 15 days and is colored in Pink/Black
+[Tarea 3.3] as [T3.3] starts at [T3.2]'s end and lasts 5 days and is colored in Pink/Black
+[T1] -> [T3]
+
+[Tarea 4] as [T4] starts 2024-12-02 and ends 2024-12-20
+[Tarea 4.1] as [T4.1] starts at 2024-12-03 and lasts 10 days and is colored in Pink/Black
+[Tarea 4.2] as [T4.2] starts at [T4.1]'s end and lasts 5 days and is colored in Pink/Black
+[Tarea 4.3] as [T4.3] starts at [T4.2]'s end and lasts 3 days and is colored in Pink/Black
+[T3] -> [T4]
+
+-- Ada y SPARK --
+
+[Tarea 5] as [T5] starts 2025-01-08 and ends 2025-02-07
+[Tarea 5.1] as [T5.1] starts at 2025-01-08 and lasts 14 days and is colored in Pink/Black
+[Tarea 5.2] as [T5.2] starts at [T5.1]'s end and lasts 5 days and is colored in Pink/Black
+[Tarea 5.3] as [T5.3] starts at [T5.2]'s end and lasts 8 days and is colored in Pink/Black
+[Tarea 5.4] as [T5.4] starts at [T5.3]'s end and lasts 4 days and is colored in Pink/Black
+[T4] -> [T5]
+
+[Tarea 6] as [T6] starts 2025-02-01 and ends 2025-02-14
+[Tarea 6.1] as [T6.1] starts at 2025-02-02 and lasts 5 days and is colored in Pink/Black
+[Tarea 6.2] as [T6.2] starts at [T6.1]'s end and lasts 5 days and is colored in Pink/Black
+[Tarea 6.3] as [T6.3] starts at [T6.2]'s end and lasts 3 days and is colored in Pink/Black
+
+[Tarea 7] as [T7] starts 2025-02-17 and ends 2025-05-22
+[Tarea 7.1] as [T7.1] starts at 2025-02-17 and lasts 5 days and is colored in Pink/Black
+[Tarea 7.2] as [T7.2] starts at [T7.1]'s end and lasts 25 days and is colored in Pink/Black
+[Tarea 7.3] as [T7.3] starts at [T7.2]'s end and lasts 12 days and is colored in Pink/Black
+[Tarea 7.4] as [T7.4] starts at [T7.3]'s end and lasts 7 days and is colored in Pink/Black
+[Tarea 7.5] as [T7.5] starts at [T7.4]'s end and lasts 4 days and is colored in Pink/Black
+[Tarea 7.6] as [T7.6] starts at [T7.5]'s end and lasts 32 days and is colored in Pink/Black
+
+[T6] -> [T7]
+
+
+@endgantt

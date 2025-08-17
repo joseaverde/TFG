@@ -1,13 +1,13 @@
-#import "layout/lib.typ": conf
+#import "layout/lib.typ": conf, azuluc3m
 
 #show: conf.with(
-  degree: "Ingeniería Informática",
+  degree: "Grado en Ingeniería Informática",
   title: "Procesamiento de señales de encefalograma para la detección de ataques epilépticos.",
   author: "José Antonio Verde Jiménez",
   advisors: ("José Daniel García Sánchez",),
   place: "Leganés",
-  // bibliography_file: "referencias.bib",
-  date: datetime.today,
+  bibliography_file: "../referencias.bib",
+  date: (2024, 2025),
   toc: true,
   logo: "new",
   shortitle: "Detección de ataques epilépticos",
@@ -30,14 +30,30 @@
   )
 )
 
-#include "1-introducción.typ"
-#include "2-estado-del-arte.typ"
-#include "3-análisis.typ"
-#include "4-diseño-e-implementación.typ"
-#include "5-validación-verificación-y-evaluación.typ"
-#include "6-marco-regulador.typ"
-#include "7-entorno-socio-económico-y-ods.typ"
-#include "8-planificación.typ"
-#include "9-conclusiones-y-trabajo-futuro.typ"
+#set list(marker: ([•], [--]), indent: 1em)
 
-#bibliography("referencias.bib")
+#include "1-introducción.typ"
+#pagebreak();
+#pagebreak();
+#include "2-estado-del-arte.typ"
+#pagebreak();
+#pagebreak();
+#include "3-análisis.typ"
+#pagebreak();
+#pagebreak();
+#include "4-diseño-e-implementación.typ"
+#pagebreak();
+#pagebreak();
+#include "5-validación-verificación-y-evaluación.typ"
+#pagebreak();
+#pagebreak();
+#include "6-marco-regulador.typ"
+#pagebreak();
+#pagebreak();
+#include "7-entorno-socio-económico-y-ods.typ"
+#pagebreak();
+#pagebreak();
+#include "8-planificación.typ"
+#pagebreak();
+#pagebreak();
+#include "9-conclusiones-y-trabajo-futuro.typ"

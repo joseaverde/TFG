@@ -17,3 +17,5 @@ procedimiento
 subrutina
 recursión
 log
+front-end
+O.D.S.

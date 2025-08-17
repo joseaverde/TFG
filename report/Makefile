@@ -1,6 +1,6 @@
 .PHONY: all
 
-UMLIMGS := uml/casos-de-uso.svg
+UMLIMGS := uml/casos-de-uso.svg uml/gantt.svg
 
 all: $(UMLIMGS)
 	typst compile report.typ
