@@ -21,6 +21,6 @@ factores como:
   activadas.
 - Estrategia: Punto fijo y Punto flotante
 
-
+// Consumo de energía
 
 *TODO*
