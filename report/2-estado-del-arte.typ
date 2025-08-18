@@ -98,14 +98,14 @@ _Lean_ es a la vez un probador de teoremas y un lenguaje de programación, que
 SPARK 2014 es un lenguaje de programación definido formalmente y un conjunto de
 herramientas de verificación diseñadas específicamente para permitir el
 desarrollo de _software_ de alta integridad. Con SPARK los desarrolladores
-pueden verificar formalmente propiedades su código tales como: flujo de
+pueden verificar formalmente las propiedades de su código tales como: flujo de
 información, ausencia de errores en tiempo de ejecución, corrección funcional y
 políticas de seguridad @SPARKBook.
 
 SPARK 2014 está basado en un subconjunto del lenguaje de programación Ada. Ada
 es particularmente apto para la verificación formal pues fue diseñado para
 desarrollo de _software_ crítico, el cual usa de base. Ada 2012 introdujo el
-uso de aspectos, que se pueden utilizar para denotar contratos en subrutinas.
+uso de aspectos que se pueden utilizar para denotar contratos en subrutinas.
 Y SPARK 2014 también añade sus propios aspectos para extender la capacidad de
 análisis estático @learnSPARK.
 
@@ -119,7 +119,7 @@ Alt-Ergo, Colibri, cvc5 y Z3 por defecto. También puede utilizar Coq 8.11
 (actualmente conocido como Rocq a partir de la versión 9) para realizar
 demostraciones interactivas de teoremas @SPARKaltprovers.
 
-Por ejemplo el siguiente programa en SPARK, que también es compatible con
+Por ejemplo, el siguiente programa en SPARK, que también es compatible con
 Ada y puede compilarse utilizando un compilador de Ada, tiene varios problemas:
 que las funciones `Get` y `Put` pueden lanzar excepciones inesperadas y que
 `X + Y` puede desbordar. Y SPARK es capaz de reconocerlos.
@@ -155,7 +155,7 @@ cualquier valor. Una opción es utilizar un tipo más grande para almacenar el
 resultado; otra opción sería utilizar un subrango de valores válidos para `X`
 e `Y`; y otra opción podría ser identificar el desbordamiento o
 subdesbordamiento antes de que ocurra e imprimir un mensaje de error. Por
-ejemplo el primer caso (utilizar un tipo más grande).
+ejemplo, el primer caso (utilizar un tipo más grande).
 
 #code(
   caption: [Posible solución para eliminar las excepciones del
@@ -190,8 +190,8 @@ De esta manera, uno se puede asegurar de que no va a surgir una excepción
 inesperada. No se trata de evitar que el programa no tenga errores, se trata de
 identificar los casos en los que pueda fallar y tratarlos adecuadamente.
 
-Por ejemplo la función división `"/"` en Ada
-se define implícitamente para el tipo entero (`Integer`). Sin embargo hay uno o
+Por ejemplo, la función división `"/"` en Ada
+se define implícitamente para el tipo entero (`Integer`). Sin embargo, hay uno o
 dos posibles puntos de fallo: el primero, y más obvio, es que la división entre
 cero no está definida; el segundo, y solamente en ciertos computadores que por
 ejemplo codifican los valores enteros en complemento a dos, es la división
@@ -239,7 +239,7 @@ aplicaciones de cuatro maneras distintas:
 1. Paralelismo a nivel de instrucción (_instruction-level parallelism_ o ILP):
    que explota el paralelismo a nivel de datos modestamente con ayuda del
    compilador y utiliza ideas como el _pipeline_ (cadena de montaje) y a veces
-   utilizando ejecución especulativo.
+   utilizando ejecución especulativa.
 2. Arquitecturas vectoriales (_vector architectures_), unidades de
    procesamiento gráfico (_graphic processor units_ o GPU) y juegos de
    instrucciones multimedia (_multimedia instruction sets_): que explotan el
@@ -416,12 +416,12 @@ end Accumulate;
 
 Sin embargo, la versión 2022 del estándar de Ada introduce el atributo
 `'Parallel_Reduce` y el bloque de control de flujo `parallel do`, que permiten
-simplificar la solución de este problema @ISOAda2022. Sin embargo a día de hoy
+simplificar la solución de este problema @ISOAda2022. Sin embargo, a día de hoy
 ningún compilador de Ada ha implementado esta parte del estándar. Por ejemplo,
 el equipo que más contribuye al _front-end_ de GCC de Ada (GNAT) dice que de
 momento van a pausar el desarrollo para dar soporte al paralelismo en GNAT,
 pues hay que tener en cuenta gran variedad de tecnologías actuales y habría que
-hacer cambios profundos la interfaz del lenguaje @Ada202xSupport. Sin embargo
+hacer cambios profundos la interfaz del lenguaje @Ada202xSupport. Sin embargo,
 en el @lst:2-ada-parallel_reduce y el @lst:2-ada-parallel se puede ver ejemplos
 de cómo sería.
 

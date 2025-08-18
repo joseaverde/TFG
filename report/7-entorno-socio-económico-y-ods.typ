@@ -84,13 +84,13 @@ o no en un ataque epiléptico.
 Sin embargo, desmostrar que es posible ejecutar un programa tan
 computacionalmente costoso como este en tiempo real en un dispositivo empotrado
 de bajas características permite indicar que esta clase de detectores son
-viables, y, además que no tienen por qué consumir muchos recursos. Este estudio
+viables y además, que no tienen por qué consumir muchos recursos. Este estudio
 ha sido desarrollado en colaboración la Universidad de Málaga, donde se ideó el
 algoritmo original.
 
 El otro objetivo del trabajo fue hacer un análisis comparativo entre distintas
-técnicas de programación, lenguajes de programación... Y observar cómo mejora
-o empeora el rendimiento en distintas plataformas.
+técnicas de programación, lenguajes de programación, arquitecturas... Y
+observar cómo mejora o empeora el rendimiento en distintas plataformas.
 
 Utilizar un probador de teoremas junto al código permite, entre otras cosas,
 demostrar matemáticamente que el programa no puede fallar: todos los caminos
@@ -98,7 +98,7 @@ que dan paso a un error están tratados y por ende el sistema no puede terminar
 de manera abrupta. Es un filosofía de programación que, pese a ser
 extremadamente costosa, para estos casos tan delicados como es la detección de
 ataques epilépticos da paz mental a los pacientes; pues saben que en ningún
-momento va a _petar_ la aplicación.
+momento va a terminar de forma abrupta la aplicación.
 
 
 == Objetivos de desarrollo sostenible
@@ -113,16 +113,16 @@ ataques epilépticos. Descubrir qué patrones de señales neuronales preceden un
 convulsión permite a los pacientes tomar medicación antes de que ocurra.
 
 Esto lleva al décimo objetivo de desarrollo sostenible: «reducción de las
-desigualdades». La epilepsia es una enferemedad que en 2006 afecta a seis de
-cada mil europeos y está prohibido en muchos países, por ejemplo, la conducción
-de personas con epilepsia, excepto aquellas que puedan controlar los posibles
+desigualdades». La epilepsia es una enferemedad que en 2006 afectaba a seis de
+cada mil europeos. En muchos países, por ejemplo, está prohibido que conduzcan
+personas con epilepsia, exceptuando a aquellos que puedan controlar los posibles
 ataques @ElPaísConducirYEpilepsia. Así pues, poder detectar el ataque antes de
-que ocurra podría permitir que estas personas puedan actuar y luego poder
+que ocurra permite que estas personas puedan reaccionar y, por consiguiente,
 conducir como el resto de ciudadanos.
 
 Por último, en relación con el decimotercer objetivo («acción por el clima») y
 el séptimo objetivo («energía asequible y no contaminante»), una de las
 prioridades del proyecto es que el dispositivo final corra en tiempo real y con
 un consumo mínimo. El estudio de los algoritmos, sus optimizaciones y las
-técnicas de programación son en pos de conseguir un sistema además de eficaz,
-eficiente.
+técnicas de programación tienen como finalidad la de conseguir un sistema
+que sea eficiente además de eficaz.

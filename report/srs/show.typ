@@ -123,9 +123,10 @@
 }
 
 #let default-class-formatter-maker(
+    id       : none,
     breakable: true) = (class) => {
   return _class-formatter-helper(
-    class, _class-as-template-item(class),
+    class, _class-as-template-item(class), id: id,
     caption: [Plantilla de «#class.leaf»],
     breakable: breakable)
 }

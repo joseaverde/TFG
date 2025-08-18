@@ -12,7 +12,7 @@ En total fueron 34 semanas.
 - *Tarea 1*: _Configuración y familiarización con el código original._ \
   Esta tarea consiste en preparar el computador para el desarrollo del
   programa. Como este utiliza como base un trabajo preexistente, es necesario
-  comprender cómo funciona el código original: cómo obtiene los datos de los
+  comprender: cómo funciona el código original, cómo obtiene los datos de los
   pacientes, cómo entrena modelos, dónde se puede mejorar. Finalmente, como el
   programa está escrito en #box([C++]), es necesario descargar el compilador y
   las herramientas de desarrollo.

@@ -266,7 +266,7 @@ Obsérvese el diagrama de flujo siguiente: /* TODO: Referenciar */
     node((0,v-sep*3), align(center)[
       *4*:
       $"mín"_v <- "mín"("mín"_v, e(i))$\
-      $"mán"_v <- "mán"("mán"_v, e(i))$)],
+      $"máx"_v <- "máx"("máx"_v, e(i))$)],
       shape: shapes.rect)
     edge("-|>")
     node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
@@ -563,7 +563,7 @@ entonces el resultado debe estar en $bb(X)_(b+B-1,f)$.
 ] <lem:product-greater-than-sum>
 
 #proof[
-  Si $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$. Se la
+  Si $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$. Sea la
   función de acumulación $g(v,m)=sum_(i=1)^(m) v(i)$, como $bb(X)_(b,f)$ y
   $bb(I)_B$ son finitos, el codominio de $g$ también es finito y tiene un valor
   máximo y mínimo que pertenece a $bb(X)_(b+B-1,f)$

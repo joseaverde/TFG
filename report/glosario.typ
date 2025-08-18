@@ -19,3 +19,6 @@ recursión
 log
 front-end
 O.D.S.
+retorna
+Aarch32
+RISC-V
