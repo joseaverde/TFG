@@ -274,7 +274,7 @@ Obsérvese el diagrama de flujo siguiente: /* TODO: Referenciar */
     node((1, v-sep*2), name: <end>, align(center)[
       *6*: $"result"<-"máx"_v - "mín"_v$],
       shape: shapes.rect)
-    edge(<loop.east>, <end.west>, "-|>")
+    edge(<loop.east>, <end.west>, "-|>", [No])
     edge("-|>")
     node((1, v-sep*3), align(center)[*7*: Fin], shape: shapes.pill)
   }),
@@ -311,7 +311,7 @@ cualquiera.
 
 #definition(title: [$"conv"_f (x)$])[
   *Conversión de punto fijo*: Dado un valor de punto fijo
-  $x = 2^f k, x in bb(X)_(b,f), k \in bb(I)_b$, se define la operación de
+  $x = 2^f k, x in bb(X)_(b,f), k in bb(I)_b$, se define la operación de
   conversión al tipo de punto fijo a
   $x' = 2^(f') k, x' in bb(X)_(b',f'), k' in bb(I)_(b')$ (para alguna
   $b' in bb(N)^+$ y se denota como $"conv"_(f') (x) = x'$ donde
@@ -537,7 +537,7 @@ siguiente diagrama de flujo:
     node((1, v-sep*2), name: <end>, align(center)[
       *6*: Fin],
       shape: shapes.pill)
-    edge(<loop.east>, <end.west>, "-|>")
+    edge(<loop.east>, <end.west>, "-|>", [No])
   }),
   caption: [Algoritmo «acumulación»]
 )
@@ -716,8 +716,8 @@ $v' in bb(Z)_(b+B,f)^m$ el vector de salida, de modo que
 $v(i) in [a, b], forall i = 1, 2, ..., m$.
 
 
-1. *Caso base*: $v(1) = v'(1)$ and $v(1) in [a, b]$
-2. *Hipótesis inductiva*: Para $v'(k), k > 1$, $v'(k) in [k a, k b]$.
+1. *Caso base*: $v(1) = v'(1)$ y $v(1) in [a, b]$
+2. *Hipótesis inductiva*: Para $v'(k), k > 1$ suponemos $v'(k) in [k a, k b]$.
 3. *Tesis inductiva*: Para $v'(k+1)$, si $v'(k) in [k a, k b]$, como
    $v'(k+1) = v'(k) + v(k)$ y como $v(k) in [a, b]$, entonces
    $v'(k) + v(k) in [a (k+1), b (k+1)]$, por lo que $v'(k+1) in [a (k+1), b(k+1)]$
@@ -797,7 +797,7 @@ O en diagrama de flujo:
     node((1, v-sep*2), name: <end>, align(center)[
       *6*: $"res"<-"res"slash m$],
       shape: shapes.rect)
-    edge(<loop.east>, <end.west>, "-|>")
+    edge(<loop.east>, <end.west>, "-|>", [No])
     edge("-|>")
     node((1, v-sep*3), align(center)[*7*: Fin], shape: shapes.pill)
   }),
@@ -1036,7 +1036,7 @@ diagrama de flujo sigue siendo parecido:
     edge("-|>")
     node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
     edge("l,u,u,r", "-|>")
-    edge(<loop.east>, <end.west>, "-|>")
+    edge(<loop.east>, <end.west>, "-|>", [No])
     node((1, v-sep*2), name: <end>, align(center)[*6*: Fin], shape: shapes.pill)
   }),
   caption: [Algoritmo de la varianza]

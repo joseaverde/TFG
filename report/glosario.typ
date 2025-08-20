@@ -22,3 +22,6 @@ O.D.S.
 retorna
 Aarch32
 RISC-V
+_copyleft_
+asíncrono
+toolchain
