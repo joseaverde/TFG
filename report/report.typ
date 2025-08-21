@@ -1,19 +1,80 @@
 #import "layout/lib.typ": conf, azuluc3m
 
 #show: conf.with(
-  degree: "Grado en Ingeniería Informática",
   title: "Procesamiento de señales de encefalograma para la detección de ataques epilépticos.",
   author: "José Antonio Verde Jiménez",
+  degree: "Grado en Ingeniería Informática",
   advisors: ("José Daniel García Sánchez",),
-  place: "Leganés",
-  bibliography_file: "../referencias.bib",
-  date: (2024, 2025),
-  toc: true,
-  logo: "new",
-  shortitle: "Detección de ataques epilépticos",
-  chapter_on_new_page: true,
+  location: "Leganés, España,",
+  thesis-type: "TFG",
+  date: datetime(year: 2025, month: 9, day: 8),
+  bibliography-file: "../referencias.bib",
+  bibliography-style: "ieee",
   language: "es",
-)
+  style: "fancy",
+  double-sided: false,
+  logo: "new",
+  short-title: "Detección de ataques epilépticos",
+  date-format: "[day padding:none] de septiembre de [year]",  // [month repr:long]
+  license: true,
+  flyleaf: true,
+  epigraph: (
+    quote: [Beware of bugs in the above code;\
+            I have only proved it correct,\
+            not tried it.],
+    author: "Donald E. Knuth"),
+  abstract: (
+    body: [
+      // TODO
+      *TODO*
+    ],
+    keywords: ("Optimización", "Epilepsia", "Tiempo real")),
+  english-abstract: (
+    body: [
+      // TODO
+      *TODO*
+    ],
+    keywords: ("Optimisation", "Seizure detection", "Real time")),
+  acknowledgements: [
+    *TODO*
+    // TODO
+    // José Daniel García Sánchez
+    // Rafael Asenjo Plaza, María Ángeles González Navarro y Felipe Muñoz López
+    // Álvaro Guerrero Espinosa, Lucía, Diego, Santiago y Daniel
+    // Luisda, Jorge Lázaro, Edu
+    // Amigos y familia
+  ],
+  outlines: (figures: true, tables: true, listings: true),
+  appendixes: none,
+  glossary: [
+- algoritmo
+- codificar
+- punto fijo
+- punto flotante
+- sistema empotrado
+- época
+- desbordar
+- subdesbordar
+- indexar
+- teorema
+- lema
+- corolario
+- caché
+- función
+- procedimiento
+- subrutina
+- recursión
+- log
+- front-end
+- O.D.S.
+- retorna
+- Aarch32
+- RISC-V
+- _copyleft_
+- asíncrono
+- toolchain
+],
+  abbreviations: none) // TODO
 
 #set text(
   lang:   "es",
