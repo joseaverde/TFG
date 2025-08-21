@@ -60,7 +60,7 @@ segundos de la señal que contienen artefactos (pestañeos, errores de medición
 etcétera).
 
 
-=== Convenciones matemáticas
+=== Convenciones matemáticas <sec:4-convenciones>
 Las siguientes convenciones matemáticas solo se utilizan en este capítulo y
 permiten desambiguar algunos conjuntos como $bb(N)$. Los conjuntos clásicos
 se denotan de la siguiente manera:

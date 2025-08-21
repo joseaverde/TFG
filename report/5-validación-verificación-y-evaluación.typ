@@ -7,6 +7,7 @@
 *TODO*
 == Verificación
 *TODO*
+#pagebreak()
 == Evaluación
 En esta sección se hace una evaluación del rendimiento del programa y un
 análisis del mismo. Se hace un análisis en orden cronológico y se indica las
@@ -154,30 +155,15 @@ nativo es la que mejor mejora ve.
 #[
   #set page(columns: 2)
 
-  #pre-diagram("fig:pre-simpson", [Función _Simpson_], "simpson")
-  #pre-diagram("fig:pre-welch", [Función _Welch_], "welch")
-  #pre-diagram("fig:pre-psd", [Función _PSD_], "psd")
-  #pre-diagram("fig:pre-energy", [Función _energy_], "energy")
-  #pre-diagram("fig:pre-max-distance", [Función _max distance_], "max_dist")
-  #pre-diagram("fig:pre-subrutina", [*Subrutina*], "all")
+  #pre-diagram("fig:pre-simpson", [Tiempo de ejecución\ _Simpson_], "simpson")
+  #pre-diagram("fig:pre-welch", [Tiempo de ejecución\ _Welch_], "welch")
+  #pre-diagram("fig:pre-psd", [Tiempo de ejecución\ _PSD_], "psd")
+  #pre-diagram("fig:pre-energy", [Tiempo de ejecución\ _Energy_], "energy")
+  #pre-diagram("fig:pre-max-distance", [Tiempo de ejecución\ _Max Distance_], "max_dist")
+  #pre-diagram("fig:pre-subrutina", [Tiempo de ejecución\ *Total*], "all")
 ]
 
-=== Punto flotante
-=== Punto fijo
-
-// - Alcance: Validación y ejecución. Validación se refiere a la parte
-//   paralelizable de la fase de entrenamiento. Y ejecución se refiere a la
-//   detección de ataques epilépticos
-// - Computador: Portátil, ESP32C3, ESP32C6, ESP32S3, Raspberry Pi 3 y Raspberry
-//   Pi 4.
-// - Lenguaje de programación: Python3, C++, Ada/SPARK y Python3 + C++.
-// - Compilador: GCC/GNAT y Clang
-// - Modo de compilación (en Ada): con y sin pruebas en tiempo de ejecución
-//   activadas.
-// - Estrategia: Punto fijo y Punto flotante
-
-// Consumo de energía
-
+=== Punto flotante en C++
 #let make-result(language, compiler, checks, real, target, performance) = (
   language    : language,
   compiler    : compiler,
@@ -188,19 +174,205 @@ nativo es la que mejor mejora ve.
 )
 
 #let results = (
-  // Float 32 : ESP32C3
+  // ESP32C3
   make-result("C++", "GCC 14",  false, "float32", "ESP32C3", 1.64),
   make-result("Ada", "GNAT 14", false, "float32", "ESP32C3", 0.96),
-  make-result("Ada", "GNAT 14", true,  "float32", "ESP32C3", 0.96),
-  // Float 32 : Raspberry Pi 4
+  make-result("Ada", "GNAT 14", true,  "float32", "ESP32C3", 0.94),
+  make-result("Ada", "GNAT 14", false, "fixed32", "ESP32C3", 10.36),
+  make-result("Ada", "GNAT 14", true,  "fixed32", "ESP32C3", 7.68),
+  // Raspberry Pi 4
   make-result("C++", "Clang 18", false, "float32", "RPi 4 (32 bits)", 470),
   make-result("Ada", "GNAT 10",  false, "float32", "RPi 4 (32 bits)", 286),
   make-result("Ada", "GNAT 10",  true,  "float32", "RPi 4 (32 bits)", 280),
-  // Float 32 : Slimbook
+  make-result("Ada", "GNAT 10",  false, "fixed32", "RPi 4 (32 bits)", 154.2),
+  make-result("Ada", "GNAT 10",  true,  "fixed32", "RPi 4 (32 bits)", 104.5),
+  // Raspberry Pi 3
+  make-result("C++", "GCC 12",  false, "float32", "RPi 3 (64 bits)", 217),
+  make-result("Ada", "GNAT 12", false, "float32", "RPi 3 (64 bits)", 199),
+  make-result("Ada", "GNAT 12", true,  "float32", "RPi 3 (64 bits)", 147),
+  make-result("Ada", "GNAT 12", false, "fixed32", "RPi 3 (64 bits)", 222),
+  make-result("Ada", "GNAT 12", true,  "fixed32", "RPi 3 (64 bits)", 127),
+  // Slimbook
   make-result("C++",     "Clang 18",   false, "float32", "Slimbook", 3036),
   make-result("Ada",     "GNAT 10",    false, "float32", "Slimbook", 1725),
   make-result("Ada",     "GNAT 10",    true,  "float32", "Slimbook", 1433),
   make-result("Python3", "python3.10", false, "float32", "Slimbook", 1264),
 )
 
-*TODO*
+En la *tarea 4.3* de planificación (@sec:8-planificación) se hizo las pruebas
+en el dispositivo empotrado con C++ y punto flotante. Y se obtuvo los
+siguientes resultados (véase la @tab:cxx-pre-results):
+
+#figure(
+  caption: [Épocas por segundo con tipo flotante IEEE de 32 bits en C++.\
+            Peor caso con 3 patrones],
+  table(
+    columns: (auto, auto, auto, auto),
+    align: (left, left, left, horizon),
+    table.header([*Lenguaje*], [*Compilador*], [*Máquina*], [*épocas/s*]),
+    ..(results
+       .filter((x) => (x.language == "C++"))
+       .map((x) => ([#x.language], [#x.compiler], [#x.target], [$#x.performance$]))
+       .flatten())
+)) <tab:cxx-pre-results>
+
+Se analiza el peor caso: en el que el algoritmo tiene que computar todas las
+características y compararlo con tres patrones distintos. En la
+@tab:cxx-pre-results se ve que en todas da tiempo real. Sin embargo en la
+ESP32C3, que carece de unidad de cómputo para punto flotante (FPU), está
+bastante al límite. Como consecuencia se empezó a valorar la alternativa de
+usar punto fijo a punto flotante.
+
+=== Punto flotante en Ada
+C++ carece de punto fijo de manera nativa, así que se decidió escribir el
+algoritmo en Ada, que sí lo tiene. Aquí se analiza los resultados de las tareas
+*5.3*, *5.4* y *6.3* (@sec:8-planificación). Después de haberlo implementado en
+Ada, se obtuvieron los siguientes resultados:
+
+#figure(
+  caption: [Épocas por segundo con tipo flotante IEEE de 32 bits en Ada.\ Peor
+            caso con 3 patrones],
+  table(
+    columns: (auto, auto, auto, auto, auto),
+    align: (left, left, left, left, horizon),
+    table.header([*Lenguaje*], [*_Checks_*], [*Compilador*], [*Máquina*], [*épocas/s*]),
+    ..(results
+       .filter((x) => (x.language == "Ada" and x.real == "float32"))
+       .map((x) => ([#x.language],
+                    if x.checks { [Activados] } else { [Desactivados] },
+                    [#x.compiler],
+                    [#x.target],
+                    [$#x.performance$]))
+       .flatten())
+)) <tab:ada-pre-results-float>
+
+Se ve que no da en tiempo real por poco en la ESP32C3, y que procesa la mitad
+de épocas por segundo que #box([C++]) como se puede ver en la
+@tab:float-ada-cxx-comparison. _Checks_ indica si están activados o no las
+comprobaciones en tiempo de ejecución.
+
+#let simple-comparison-diagram(real, target) = {
+  let xs = range(1)
+  let filtered = results.filter((x) => (x.real == real and x.target == target))
+  let yss = (filtered.filter((x) => (x.language == "C++")).at(0).performance,
+             filtered.filter((x) => (x.language == "Ada" and not x.checks)).at(0).performance,
+             filtered.filter((x) => (x.language == "Ada" and x.checks)).at(0).performance)
+  let mx = yss.reduce(calc.max)
+  return lq.diagram(
+    width: 5cm,
+    ylim: (0, mx * 1.2),
+    legend: (position: right + top),
+    xaxis: (ticks: ([#target -- #real],).enumerate(), subticks: none),
+    lq.bar(xs, (yss.at(0),), offset: -0.4, width: 0.4, label: [C++]),
+    lq.bar(xs, (yss.at(1),), offset: 0.0, width: 0.4, label:  [Ada]),
+    lq.bar(xs, (yss.at(2),), offset: 0.4, width: 0.4, label:  [Ada$\*$]))
+}
+
+#figure(
+  caption: [Número de épocas procesadas por segundo en #box([C++]), Ada y en
+            Ada con comprobaciones en tiempo de ejecución activadas
+            (#box([Ada$\*$]))],
+  grid(
+    columns: 2,
+    gutter: 0.75cm,
+    simple-comparison-diagram("float32", "RPi 3 (64 bits)"),
+    simple-comparison-diagram("float32", "ESP32C3"),
+    simple-comparison-diagram("float32", "RPi 4 (32 bits)"),
+    simple-comparison-diagram("float32", "Slimbook"),
+  )) <tab:float-ada-cxx-comparison>
+
+=== Punto fijo en Ada (pruebas preliminares)
+Este análisis sigue siendo parte de la *tarea 6.3* de la planificación.
+No se escribió en Ada porque se pensara que fuera a ir más rápido, sino para
+comprobar su viabilidad con punto fijo. Se probó con dos tipos de punto fijo,
+uno de 32 bits y otro de 64 bits, que pertenecen a $bb(X)_(32,-8)$ y
+$bb(X)_(64,-16)$ respectivamente (véase la @sec:4-convenciones).
+Las pruebas se hicieron para la ESP32C3 y se compiló con GNAT 14.
+
+#figure(
+  caption: [Prueba preliminares de rendimiento de punto fijo en Ada.],
+  table(
+    columns: 3,
+    align: (left, left, horizon),
+    table.header([*Checks*], [*Tipo*], [*épocas/s*]),
+    [Activados], [$bb(X)_(32,-8)$],  [`Constraint_Error`],
+    [Activados], [$bb(X)_(64,-16)$], [$1.08$],
+    [Desactivados], [$bb(X)_(32,-8)$],  [*$21.04$*],
+    [Desactivados], [$bb(X)_(64,-16)$], [$1.12$],
+  ))
+
+Con 64 bits el resultado es correcto, pero rinde peor que la versión de punto
+flotante de C++. Con pruebas activadas, la implementación con punto fijo de 32
+bits termina abruptamente por un desbordamiento; pero con las pruebas
+desactivadas alcanza un total de $21.04$ épocas por segundo.
+
+Se llega a la conclusión de que pese a que no se puede traducir directamente a
+punto fijo, pues habría que estudiar cómo evitar el desbordamiento en todas las
+operaciones que pueden llegar a desbordar, la idea de convertirlo a punto fijo
+es *viable*. Incluso si un pequeño porcentaje del código utiliza punto fijo de
+64 bits, el límite experimental nos dice que se puede mejorar enormemente.
+
+Después de estudiar por qué la solución de 64 bits era más lenta se descubrió
+que el 49.2% del tiempo total de ejecución lo pasaba dividiendo números en
+punto fijo. Así que dividir o multiplicar números de 64 bits de punto fijo en
+un procesador de 32 bits es muy costoso.
+
+=== Punto fijo en SPARK
+Finalmente fue demostrando poco a poco la ausencia de errores de programación
+utilizando SPARK junto a Ada. No dio tiempo a demostrar todas las funciones,
+pero pruebas unitarias y funcionales no llevan a error. Falta por demostrar
+formalmente `FFT` (_Fast Fourier Transform_) y `Welch`.  Aun así, los
+resultados son los siguientes:
+
+#figure(
+  caption: [Pruebas finales de rendimiento de punto fijo en SPARK + Ada.],
+  table(
+    columns: 4,
+    align: (left, left, left, horizon),
+    table.header([*Compilador*], [*Checks*], [*Máquina*], [*épocas/s*]),
+    ..(results.filter((x) => (x.real == "fixed32" and x.language == "Ada"))
+           .map((x) => (
+             [#x.compiler],
+             if x.checks { [Activados] } else { [Desactivados] },
+             [#x.target],
+             [$#x.performance$]))
+           .flatten())
+  ))
+
+Se observa que para la ESP32C3 supera con creces el requisito de tiempo real
+de una época por segundo, con $10.36$ épocas por segundo. El tiempo adicional
+permitiría o bien introducir código adicional para autoentrenamiento o bien
+dormir el dispositivo empotrado para disminuir el consumo energético.
+
+Gráficas
+
+El uso de punto fijo únicamente tiene sentido en dispositivos que no tienen
+FPU (unidad de cómputo de punto flotante). A medida que las características del
+máquina mejoran, en específico las capacidades de punto flotante, disminuye las
+capacidades del punto fijo. Además de tener unidades de cómputo específicas
+para procesar punto flotante, computadores actuales vectorizan fácilmente
+operaciones con punto flotante y no punto fijo.
+
+Gráfica
+
+El uso de punto fijo es complejo y hay que tener mucho cuidado al trabajar con
+él. Para aplicaciones modernas en dispositivos relativamente potentes, es mejor
+utilizar punto flotante. Sin embargo, para este proyecto se pidió un
+dispositivo de bajo consumo, así que punto fijo supera a punto flotante en este
+caso específico.
+
+Otra conclusión pertinente que se puede sacar es el efecto de las
+comprobaciones en tiempo de ejecución, que hace en este caso Ada, y el impacto
+que tienen en el rendimiento global. Se ve que a medida que las características
+del computador aumentan el impacto parece disminuir. Posiblemente por la
+complejidad del _hardware_: predictores de saltos, cachés...
+
+Gráfica
+
+Es importante ver cuál es el error de los cómputos. Cómo se ha calculado
+Error
+
+Finalmente y como curiosidad, he aquí las estadísticas del probador del
+teoremas a punto de terminar el proyecto.
+
+Estadísticas de SPARK
