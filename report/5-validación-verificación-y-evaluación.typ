@@ -104,42 +104,37 @@ señal. Véase la @tab:pre-slimbook y la @tab:pre-moa:
   ]
 }
 
-#let pre-diagram(id, caption, field) = {
+#let pre-diagram(field) = {
 
   let xs = range(2)
   let ys1 = (pre-results-slimbook.at(field).at(3), pre-results-moa.at(field).at(3))
   let yerr1 = (pre-results-slimbook.at(field).at(4), pre-results-moa.at(field).at(4)) 
   let ys2 = (pre-results-slimbook.at(field).at(1), pre-results-moa.at(field).at(1))
   let yerr2 = (pre-results-slimbook.at(field).at(2), pre-results-moa.at(field).at(2)) 
-  [
-    #figure(
-      caption: caption,
-      lq.diagram(
-        width: 5cm,
-        legend: (position: left + top),
 
-        xaxis: (
-          ticks: ([_Slimbook_], [Servidor])
-            .map(rotate.with(-45deg, reflow: true))
-            .map(align.with(right))
-            .enumerate()),
-        lq.bar(xs, ys1, offset: -0.2, width: 0.4, label: [C++]),
-        lq.bar(xs, ys2, offset: 0.2, width: 0.4, label: [Python 3]),
-        
-        lq.plot(
-          xs.map(x => x - 0.2), ys1, 
-          yerr: yerr1,
-          color: black,
-          stroke: none),
-        lq.plot(
-          xs.map(x => x + 0.2), ys2, 
-          yerr: yerr2,
-          color: black,
-          stroke: none)
-      )
-    )
-    #label(id)
-  ]
+  return lq.diagram(
+             width: 5cm,
+             legend: (position: left + top),
+
+             xaxis: (
+               ticks: ([_Slimbook_], [Servidor])
+                 .map(rotate.with(-45deg, reflow: true))
+                 .map(align.with(right))
+                 .enumerate()),
+             lq.bar(xs, ys1, offset: -0.2, width: 0.4, label: [C++]),
+             lq.bar(xs, ys2, offset: 0.2, width: 0.4, label: [Python 3]),
+             
+             lq.plot(
+               xs.map(x => x - 0.2), ys1, 
+               yerr: yerr1,
+               color: black,
+               stroke: none),
+             lq.plot(
+               xs.map(x => x + 0.2), ys2, 
+               yerr: yerr2,
+               color: black,
+               stroke: none)
+           )
 }
 
 #pre-table(pre-results-slimbook, "tab:pre-slimbook", [_Slimbook_: 20 hilos])
@@ -152,16 +147,23 @@ posiblemente porque ambas pertenecen a `SciPy` que utiliza `numpy` por debajo,
 que está escrito en C. La función _max distance_ que está escrita en Python 3
 nativo es la que mejor mejora ve.
 
-#[
-  #set page(columns: 2)
+#figure(
+  grid(
+    columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
+    pre-diagram("simpson"),           pre-diagram("welch"),
+    [Tiempo de ejecución\ _Simpson_], [Tiempo de ejecución\ _Welch_]))
 
-  #pre-diagram("fig:pre-simpson", [Tiempo de ejecución\ _Simpson_], "simpson")
-  #pre-diagram("fig:pre-welch", [Tiempo de ejecución\ _Welch_], "welch")
-  #pre-diagram("fig:pre-psd", [Tiempo de ejecución\ _PSD_], "psd")
-  #pre-diagram("fig:pre-energy", [Tiempo de ejecución\ _Energy_], "energy")
-  #pre-diagram("fig:pre-max-distance", [Tiempo de ejecución\ _Max Distance_], "max_dist")
-  #pre-diagram("fig:pre-subrutina", [Tiempo de ejecución\ *Total*], "all")
-]
+#figure(
+  grid(
+    columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
+    pre-diagram("psd"),            pre-diagram( "energy"),
+    [Tiempo de ejecución\ _PSD_],  [Tiempo de ejecución\ _Energy_]))
+
+#figure(
+  grid(
+    columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
+    pre-diagram("max_dist"),                pre-diagram("all"),
+    [Tiempo de ejecución\ _Max Distance_],  [Tiempo de ejecución\ *Total*]))
 
 === Punto flotante en C++
 #let make-result(language, compiler, checks, real, target, performance) = (
@@ -184,8 +186,8 @@ nativo es la que mejor mejora ve.
   make-result("C++", "Clang 18", false, "float32", "RPi 4 (32 bits)", 470),
   make-result("Ada", "GNAT 10",  false, "float32", "RPi 4 (32 bits)", 286),
   make-result("Ada", "GNAT 10",  true,  "float32", "RPi 4 (32 bits)", 280),
-  make-result("Ada", "GNAT 10",  false, "fixed32", "RPi 4 (32 bits)", 154.2),
-  make-result("Ada", "GNAT 10",  true,  "fixed32", "RPi 4 (32 bits)", 104.5),
+  make-result("Ada", "GNAT 10",  false, "fixed32", "RPi 4 (32 bits)", 154),
+  make-result("Ada", "GNAT 10",  true,  "fixed32", "RPi 4 (32 bits)", 104),
   // Raspberry Pi 3
   make-result("C++", "GCC 12",  false, "float32", "RPi 3 (64 bits)", 217),
   make-result("Ada", "GNAT 12", false, "float32", "RPi 3 (64 bits)", 199),
@@ -194,14 +196,18 @@ nativo es la que mejor mejora ve.
   make-result("Ada", "GNAT 12", true,  "fixed32", "RPi 3 (64 bits)", 127),
   // Slimbook
   make-result("C++",     "Clang 18",   false, "float32", "Slimbook", 3036),
-  make-result("Ada",     "GNAT 10",    false, "float32", "Slimbook", 1725),
-  make-result("Ada",     "GNAT 10",    true,  "float32", "Slimbook", 1433),
+  make-result("Ada",     "GNAT 14",    false, "float32", "Slimbook", 1725),
+  make-result("Ada",     "GNAT 14",    true,  "float32", "Slimbook", 1433),
+  make-result("Ada",     "GNAT 14",    true,  "fixed32", "Slimbook", 2139),
+  make-result("Ada",     "GNAT 14",    false, "fixed32", "Slimbook", 2195),
   make-result("Python3", "python3.10", false, "float32", "Slimbook", 1264),
 )
 
 En la *tarea 4.3* de planificación (@sec:8-planificación) se hizo las pruebas
-en el dispositivo empotrado con C++ y punto flotante. Y se obtuvo los
-siguientes resultados (véase la @tab:cxx-pre-results):
+en el dispositivo empotrado con C++ y punto flotante. Donde _RPi 3_ es la
+_Raspberry Pi 3_, _RPi 4_ es la _Raspberry Pi 4_ y ESP32C3 es un placa con
+procesador RISC-V de Espressif a 160MHz.  Y se obtuvo los siguientes resultados
+(véase la @tab:cxx-pre-results):
 
 #figure(
   caption: [Épocas por segundo con tipo flotante IEEE de 32 bits en C++.\
@@ -260,7 +266,7 @@ comprobaciones en tiempo de ejecución.
   let mx = yss.reduce(calc.max)
   return lq.diagram(
     width: 5cm,
-    ylim: (0, mx * 1.2),
+    ylim: (0, mx * 1.25),
     legend: (position: right + top),
     xaxis: (ticks: ([#target -- #real],).enumerate(), subticks: none),
     lq.bar(xs, (yss.at(0),), offset: -0.4, width: 0.4, label: [C++]),
@@ -344,16 +350,58 @@ de una época por segundo, con $10.36$ épocas por segundo. El tiempo adicional
 permitiría o bien introducir código adicional para autoentrenamiento o bien
 dormir el dispositivo empotrado para disminuir el consumo energético.
 
+#let complex-comparison-diagram(target, legend : none) = {
+  let xs = range(1)
+  let filtered = results.filter((x) => (x.target == target))
+  let yss = (filtered.filter((x) => (x.language == "C++")).at(0).performance,
+             filtered.filter((x) => (x.real == "float32" and x.language == "Ada" and not x.checks)).at(0).performance,
+             filtered.filter((x) => (x.real == "float32" and x.language == "Ada" and x.checks)).at(0).performance,
+             filtered.filter((x) => (x.real == "fixed32" and x.language == "Ada" and not x.checks)).at(0).performance,
+             filtered.filter((x) => (x.real == "fixed32" and x.language == "Ada" and x.checks)).at(0).performance)
+  let mx = yss.reduce(calc.max)
+  return lq.diagram(
+    width: 6.5cm,
+    ylim: (0, mx * 1.25),
+    legend: legend,
+    xaxis: (ticks: ([#target],).enumerate(), subticks: none),
+    lq.bar(xs, (yss.at(0),), offset: -0.8, width: 0.4, label: [C++ ($bb(F)_32$)]),
+    lq.bar(xs, (yss.at(1),), offset: -0.4, width: 0.4, label: [Ada ($bb(F)_32$)]),
+    lq.bar(xs, (yss.at(2),), offset:  0.0, width: 0.4, label: [Ada$\* (bb(F)_32$)]),
+    lq.bar(xs, (yss.at(3),), offset:  0.4, width: 0.4, label: [SPARK ($bb(X)_32$)]),
+    lq.bar(xs, (yss.at(4),), offset:  0.8, width: 0.4, label: [SPARK$\* (bb(X)_32$)]))
+}
+
 Gráficas
+
+#figure(
+  caption: [Comparación final de implementaciones. El eje de ordenadas indica
+            el número de épocas por segundo. El asterisco indica que se ha
+            compilado con comprobaciones en tiempo de ejecución activadas.],
+  grid(
+    columns: 2,
+    complex-comparison-diagram("ESP32C3", legend: (position: left + top)),
+    complex-comparison-diagram("RPi 3 (64 bits)"),
+    complex-comparison-diagram("RPi 4 (32 bits)"),
+    complex-comparison-diagram("Slimbook"),
+  )
+) <fig:final-comparison>
 
 El uso de punto fijo únicamente tiene sentido en dispositivos que no tienen
 FPU (unidad de cómputo de punto flotante). A medida que las características del
-máquina mejoran, en específico las capacidades de punto flotante, disminuye las
-capacidades del punto fijo. Además de tener unidades de cómputo específicas
+máquina mejoran, en específico las capacidades de punto flotante, disminuye el
+rendimiento del punto fijo. Además de tener unidades de cómputo específicas
 para procesar punto flotante, computadores actuales vectorizan fácilmente
 operaciones con punto flotante y no punto fijo.
 
-Gráfica
+Como se ve en la @fig:final-comparison, en la ESP32C3, que no tiene FPU, el
+número de épocas computadas por segundo sextuplica a las implementaciones con
+punto flotante. En la Raspberry Pi 3 los resultados son más parecidos, la
+diferencia entre la versión de #box([C++]) y la de SPARK con punto fijo es
+despreciable. Sin embargo, en la Raspberry Pi 4, la diferencia entre punto
+flotante y fijo es abismal. Curioso es el resultado para el Slimbook, pues
+punto fijo supera a punto flotante en Ada, pero no a #box([C++]); esto se puede
+deber a que las implementaciones no son exactamente iguales y el autor ha ido
+incluyendo optimizaciones.
 
 El uso de punto fijo es complejo y hay que tener mucho cuidado al trabajar con
 él. Para aplicaciones modernas en dispositivos relativamente potentes, es mejor
@@ -367,12 +415,77 @@ que tienen en el rendimiento global. Se ve que a medida que las características
 del computador aumentan el impacto parece disminuir. Posiblemente por la
 complejidad del _hardware_: predictores de saltos, cachés...
 
-Gráfica
+#let select(
+  language    : none,
+  compiler    : none,
+  checks      : none,
+  real        : none,
+  target      : none) = (
 
-Es importante ver cuál es el error de los cómputos. Cómo se ha calculado
-Error
+  results.filter((x) =>
+        (language == none or (x.language == language))
+    and (compiler == none or (x.compiler == compiler))
+    and (checks   == none or (x.checks   == checks))
+    and (real     == none or (x.real     == real))
+    and (target   == none or (x.target   == target)))
+)
+
+
+#let effect-table = ()
+#let effects = ()
+#{
+  for result in select(language: "Ada", checks: false) {
+    let other = select(language: "Ada",
+                       checks:   true,
+                       compiler: result.compiler,
+                       real:     result.real,
+                       target:   result.target).first()
+    let effect = other.performance / result.performance
+    effect = calc.round(effect, digits: 2)
+    effects.push(effect);
+    effect-table.push([#result.target])
+    effect-table.push([#result.real])
+    effect-table.push([#result.compiler])
+    effect-table.push([$times #effect$])
+  }
+}
+
+#let sum = (x, y) => (x + y)
+#let average-effect = effects.reduce(sum) / effects.len()
+#let sd-effect = calc.sqrt(effects.map((x) => calc.pow((x - average-effect), 2))
+                           .reduce(sum) / effects.len())
+
+#figure(
+  caption: [Efecto en el rendimiento de activar las comprobaciones en tiempo
+            de compilación en Ada. $mu = #calc.round(average-effect, digits: 2)$,
+            $sigma = #calc.round(sd-effect, digits: 2)$],
+  table(
+    columns: 4,
+    align: (left, left, left, left),
+    table.header([*Máquina*], [*Tipo*], [*Compilador*], [*Efecto*]),
+    ..effect-table
+  ))
 
 Finalmente y como curiosidad, he aquí las estadísticas del probador del
 teoremas a punto de terminar el proyecto.
 
-Estadísticas de SPARK
+#figure(
+  caption: [Estadísticas del análisis de SPARK],
+  table(
+    columns: 6,
+    align: (left, center, center, center, center, center),
+    table.header([*SPARK Analysis results*], [*Total*], [*Flow*], [*Provers*],
+                 [*Justified*], [*Unproved*]),
+    [Data Dependencies   ], [ 41], [ 41], [       .], [.], [.],
+    [Flow Dependencies   ], [  .], [  .], [       .], [.], [.],
+    [Initialization      ], [ 34], [ 34], [       .], [.], [.],
+    [Non-Aliasing        ], [  3], [  3], [       .], [.], [.],
+    [Run-time Checks     ], [618], [  .], [ 608    ], [4], [6],
+    [Assertions          ], [125], [  .], [ 123    ], [1], [1],
+    [Functional Contracts], [ 68], [  .], [  57    ], [8], [3],
+    [LSP Verification    ], [  .], [  .], [       .], [.], [.],
+    [Termination         ], [ 44], [ 41], [3 (CVC5)], [.], [.],
+    [Concurrency         ], [  .], [  .], [       .], [.], [.],
+    table.hline(stroke: black + 0.25pt),
+    [Total               ], [933], [119 (13%)], [791 (85%)], [13 (1%)], [10 (1%)]
+  ))
