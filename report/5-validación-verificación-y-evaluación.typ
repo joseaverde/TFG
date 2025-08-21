@@ -118,7 +118,7 @@ señal. Véase la @tab:pre-slimbook y la @tab:pre-moa:
 
              xaxis: (
                ticks: ([_Slimbook_], [Servidor])
-                 .map(rotate.with(-45deg, reflow: true))
+                 .map(rotate.with(-25deg, reflow: true))
                  .map(align.with(right))
                  .enumerate()),
              lq.bar(xs, ys1, offset: -0.2, width: 0.4, label: [C++]),
@@ -148,22 +148,25 @@ que está escrito en C. La función _max distance_ que está escrita en Python 3
 nativo es la que mejor mejora ve.
 
 #figure(
+  caption: [Tiempo de ejecución de _Simpson_ y _Welch_],
   grid(
     columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
-    pre-diagram("simpson"),           pre-diagram("welch"),
-    [Tiempo de ejecución\ _Simpson_], [Tiempo de ejecución\ _Welch_]))
+    pre-diagram("simpson"), pre-diagram("welch"),
+    [_Simpson_],            [_Welch_]))
 
 #figure(
+  caption: [Tiempo de ejecución de _PSD_ y _Energy_],
   grid(
     columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
-    pre-diagram("psd"),            pre-diagram( "energy"),
-    [Tiempo de ejecución\ _PSD_],  [Tiempo de ejecución\ _Energy_]))
+    pre-diagram("psd"), pre-diagram( "energy"),
+    [_PSD_],            [_Energy_]))
 
 #figure(
+  caption: [Tiempo de ejecución de _Max Distance_ y total],
   grid(
     columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
-    pre-diagram("max_dist"),                pre-diagram("all"),
-    [Tiempo de ejecución\ _Max Distance_],  [Tiempo de ejecución\ *Total*]))
+    pre-diagram("max_dist"), pre-diagram("all"),
+    [Tiempo de ejecución],   [*Total*]))
 
 === Punto flotante en C++
 #let make-result(language, compiler, checks, real, target, performance) = (
@@ -370,8 +373,6 @@ dormir el dispositivo empotrado para disminuir el consumo energético.
     lq.bar(xs, (yss.at(3),), offset:  0.4, width: 0.4, label: [SPARK ($bb(X)_32$)]),
     lq.bar(xs, (yss.at(4),), offset:  0.8, width: 0.4, label: [SPARK$\* (bb(X)_32$)]))
 }
-
-Gráficas
 
 #figure(
   caption: [Comparación final de implementaciones. El eje de ordenadas indica

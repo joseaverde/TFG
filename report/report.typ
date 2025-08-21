@@ -1,5 +1,11 @@
 #import "layout/lib.typ": conf, azuluc3m
 
+// Glosario
+#import "@preview/glossarium:0.5.8": make-glossary, register-glossary, print-glossary, gls, glspl
+#show: make-glossary
+#import "./glosario.typ": entry-list
+#register-glossary(entry-list)
+
 #show: conf.with(
   title: "Procesamiento de señales de encefalograma para la detección de ataques epilépticos.",
   author: "José Antonio Verde Jiménez",
@@ -46,34 +52,7 @@
   ],
   outlines: (figures: true, tables: true, listings: true),
   appendixes: none,
-  glossary: [
-- algoritmo
-- codificar
-- punto fijo
-- punto flotante
-- sistema empotrado
-- época
-- desbordar
-- subdesbordar
-- indexar
-- teorema
-- lema
-- corolario
-- caché
-- función
-- procedimiento
-- subrutina
-- recursión
-- log
-- front-end
-- O.D.S.
-- retorna
-- Aarch32
-- RISC-V
-- _copyleft_
-- asíncrono
-- toolchain
-],
+  glossary: print-glossary(entry-list, show-all: true),
   abbreviations: none) // TODO
 
 #set text(
@@ -92,6 +71,23 @@
 )
 
 #set list(marker: ([•], [--]), indent: 1em)
+ 
+#show figure: set figure.caption(position: top)
+#show figure.caption: it => [
+  #set text(azuluc3m, weight: "semibold")
+  #set par(first-line-indent: 0em, justify: false)
+  #context smallcaps(it.supplement)
+  #context smallcaps(it.counter.display(it.numbering))
+  #set text(black, weight: "regular")
+  #set align(center)
+  #smallcaps(it.body)
+]
+
+#show table: block.with(stroke: (y: 0.7pt))
+#set table(
+  row-gutter: -0.1em,   // Row separation
+  stroke: (_, y) => if y == 0 { (bottom: 0.2pt) }
+)
 
 #include "1-introducción.typ"
 #pagebreak();
@@ -118,3 +114,4 @@
 #pagebreak();
 #pagebreak();
 #include "9-conclusiones-y-trabajo-futuro.typ"
+#pagebreak();
