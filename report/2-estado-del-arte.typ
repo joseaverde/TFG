@@ -2,7 +2,7 @@
 #import cetz.draw: *
 #import "utility.typ": *
 
-= Estado del Arte
+= Estado del arte <sec:2>
 Este capítulo presenta las distintas tecnologías que guardan una estrecha
 relación con el proyecto en cuestión: desde las técnicas para el procesamiento
 de señales de encefalograma, hasta cuestiones relacionadas con la parte de

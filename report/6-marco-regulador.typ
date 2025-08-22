@@ -1,4 +1,4 @@
-= Marco regulador
+= Marco regulador <sec:6>
 En este capítulo se hace un breve recorrido sobre la legislación aplicable al
 proyecto en la @sec:6.1; se enumera y se describe resumidamente las licencias
 de las dependencias de los componentes del proyecto en la @sec:6.2; y

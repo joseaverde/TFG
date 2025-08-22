@@ -1,4 +1,4 @@
-= Entrono socio-económico y objetivos de desarrollo sostenible
+= Entrono socio-económico y objetivos de desarrollo sostenible <sec:7>
 == Presupuesto
 === Recursos humanos
 El proyecto ha sido desarrollado por un único desarrollador a lo largo de 34

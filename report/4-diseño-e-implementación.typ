@@ -13,7 +13,7 @@
 
 #show math.equation.where(block: false): box
 
-= Diseño e implementación
+= Diseño e implementación <sec:4>
 *TODO*: REFORMULAR
 
 En este capítulo se describen tanto la implementación del algoritmo con todas

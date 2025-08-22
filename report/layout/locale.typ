@@ -20,13 +20,13 @@
   "es": [
     Esta obra se encuentra sujeta a la licencia #link(
       "https://creativecommons.org/licenses/by-nc-nd/4.0/",
-    )[Creative Commons *Reconocimiento -- No Comercial -- Sin Derivadas* 4.0
+    )[Creative Commons\ *Reconocimiento -- No Comercial -- Sin Derivadas* 4.0
       International]
   ],
   "en": [
     This work is licensed under #link(
       "https://creativecommons.org/licenses/by-nc-nd/4.0/",
-    )[Creative Commons *Attribution -- Non Commercial -- No Derivatives* 4.0
+    )[Creative Commons\ *Attribution -- Non Commercial -- No Derivatives* 4.0
       International]
   ],
 )
@@ -38,18 +38,18 @@
 
 #let MONTHS = (
   "es": (
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
   ),
 )
 

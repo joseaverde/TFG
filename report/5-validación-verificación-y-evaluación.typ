@@ -1,8 +1,9 @@
 #import "@preview/lilaq:0.4.0" as lq
 
-= Validación, verificación y evaluación
+= Validación, verificación y evaluación <sec:5>
 *TODO*
 
+// TODO: Usar verificación formal
 == Validación
 *TODO*
 == Verificación
@@ -13,7 +14,7 @@ En esta sección se hace una evaluación del rendimiento del programa y un
 análisis del mismo. Se hace un análisis en orden cronológico y se indica las
 conclusiones a las que se llegó en cada paso.
 
-=== Comparación en la validación
+=== Comparación en la validación <sec:5-validation>
 En un primer lugar como se ve en la @sec:8-planificación en la *tarea 3.3* se
 hicieron pruebas de rendimiento con el algoritmo después de optimizarlo y
 paralelizarlo. Las pruebas se realizan en dos dispositivos:
@@ -168,7 +169,7 @@ nativo es la que mejor mejora ve.
     pre-diagram("max_dist"), pre-diagram("all"),
     [Tiempo de ejecución],   [*Total*]))
 
-=== Punto flotante en C++
+=== Punto flotante en C++ <sec:5-cxx-realtime>
 #let make-result(language, compiler, checks, real, target, performance) = (
   language    : language,
   compiler    : compiler,
@@ -326,7 +327,7 @@ que el 49.2% del tiempo total de ejecución lo pasaba dividiendo números en
 punto fijo. Así que dividir o multiplicar números de 64 bits de punto fijo en
 un procesador de 32 bits es muy costoso.
 
-=== Punto fijo en SPARK
+=== Punto fijo en SPARK <sec:5-spark-realtime>
 Finalmente fue demostrando poco a poco la ausencia de errores de programación
 utilizando SPARK junto a Ada. No dio tiempo a demostrar todas las funciones,
 pero pruebas unitarias y funcionales no llevan a error. Falta por demostrar

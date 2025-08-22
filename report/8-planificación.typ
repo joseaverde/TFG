@@ -1,8 +1,8 @@
 = Planificación <sec:8-planificación>
-En este capítulo se describe la planificación del proyecto, el cual se divide
-en siete tareas distintas, y cada una de estas en otras subtareas. Se puede ver
-en la @gantt un diagrama de Gantt del proyecto con la fecha de inicio y
-finalización de cada una de las tareas.
+En este capítulo se describe la planificación del proyecto, el cual se ha
+reallizado en cascada y se divide en siete tareas distintas, y cada una de
+estas en otras subtareas. Se puede ver en la @gantt un diagrama de Gantt del
+proyecto con la fecha de inicio y finalización de cada una de las tareas.
 
 La planificación no cuenta el tiempo necesario para elaborar la memoria, única
 y exclusivamente de los pasos para realizar el trabajo desde principio a fin.

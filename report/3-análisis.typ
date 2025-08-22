@@ -528,13 +528,13 @@
 
 )
 
-= Análisis
+= Análisis <sec:3>
 En este capítulo se da una descripción general del problema
-(@sec:2-plantemiento), los casos de uso (@sec:2-casos-de-uso),
-los requisitos del mismo (@sec:2-requisitos) y el análisis de los mismos
-(@sec:2-análisis-de-requisitos).
+(@sec:3-plantemiento), los casos de uso (@sec:3-casos-de-uso),
+los requisitos del mismo (@sec:3-requisitos) y el análisis de los mismos
+(@sec:3-análisis-de-requisitos).
 
-== Planteamiento del problema <sec:2-plantemiento>
+== Planteamiento del problema <sec:3-plantemiento>
 El objetivo del proyecto es implementar el algoritmo para la detección de
 ataques epilépticos que utiliza los patrones y las características de una señal
 encefalograma para clasificar segmentos (épocas) de una señal desarrollado en
@@ -564,7 +564,7 @@ el tiempo de entrenamiento de dicha implementación, que comparte la función de
 detección con el dispositivo empotrado, pero este solo la usa para optimizar
 el modelo.
 
-== Casos de uso <sec:2-casos-de-uso>
+== Casos de uso <sec:3-casos-de-uso>
 De acuerdo con Craig Larman, _Unified Process_ define el modelo de casos de uso
 dentro de la disciplina de requisitos e insiste en que los casos de uso son
 documentos textuales, no diagramas, y que el modelado de casos de uso es
@@ -592,10 +592,10 @@ para posteriormente detectar ataques epilépticos.
   caption: [Modelo de casos de uso]
 )
 
-== Requisitos <sec:2-requisitos>
+== Requisitos <sec:3-requisitos>
 En esta sección se provee la lista de requistios que se ha obtenido a partir de
 un análisis exhaustivo de los casos de uso, definidos previamente en la
-@sec:2-casos-de-uso. Los requisitos a continuación se clasifican en dos grandes
+@sec:3-casos-de-uso. Los requisitos a continuación se clasifican en dos grandes
 categorías:
 
 - *Requisitos funcionales*: se dice de aquellos requisitos que prescriben el
@@ -634,7 +634,7 @@ los no funcionales.
     name:      srs.incremental-name-maker("RNF-", first: 1, width: 2),
     breakable: false))
 
-== Análisis de requisitos <sec:2-análisis-de-requisitos>
+== Análisis de requisitos <sec:3-análisis-de-requisitos>
 Finalmente, las siguientes dos matrices de trazabilidad nos permiten ver la
 relación de cada requisito con cada caso de uso para determinar la cobertura y
 el grado de dependencia entre ambos.

@@ -33,3 +33,5 @@
 // _copyleft_
 // asíncrono
 // toolchain
+// biblioteca
+// sistema empotrado
