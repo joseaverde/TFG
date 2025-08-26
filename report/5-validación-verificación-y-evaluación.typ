@@ -1,15 +1,47 @@
 #import "@preview/lilaq:0.4.0" as lq
+#import "./requisitos.typ" : config, srs, reqs, reference
+#import "utility.typ": cxx
 
-= Validación, verificación y evaluación <sec:5>
-*TODO*
+= Verificación, validación y evaluación <sec:5>
+Este capítulo trata sobre la verificación y validación del _software_
+(@sec:5-ver-val) , y finalmente se da una evaluación completa de los resultados
+obtenidos (@sec:5-evaluación).
 
-// TODO: Usar verificación formal
-== Validación
-*TODO*
-== Verificación
-*TODO*
+== Verficiación y validación (_V&V_) <sec:5-ver-val>
+La verificación y validación (_V&V_) es el proceso de determinar si los
+requisitos para un sistema o componente están completos y son correctos, que
+el producto de cada fase de desarrollo cumple los requisitos o condiciones
+impuestas por la fase previa y que el sistema o componente finales se adhiere
+a los requisitos especificados @IEEE24765-2017.
+
+A continuación una lista de tests realizados al proyecto. Estos describen cómo
+se han realizado, cuáles son los resultados y qué requisitos cubren. Al final
+de esta sección se ofrece una matriz de trazabilidad para confirmar que todos
+los requisitos están cubiertos.
+
+Cabe mencionar que muchas de las propiedades del programa se pueden y han sido
+validadas formalmente con SPARK, que utiliza probadores de teoremas por debajo.
+Así que si el programa compila implica que todas las propiedades del programa
+son correctas, aunque eso no significa que los resultados sean correctos, sino
+que es correcto el programa.
+
+Puesto que como se ve en la @sec:3-análisis-de-requisitos, todos los requisitos
+cubren todos los casos de uso. Solo basta con demostrar que todos los
+requisitos están cubiertos para validar y verificar el programa. La @tab:test
+muestra la plantilla que van a seguir los tests. La única prueba que no se
+puede realizar es la relacionada al requisito de la @rnf-f1, pues no hay forma
+de asegurarse de que el modelo que va a la placa tiene esa mínima puntuación.
+
+#srs.show-class(reqs, srs.make-tag("T"),
+  class-formatter: srs.default-class-formatter-maker(
+    id       : "tab:test",
+    breakable: false),
+  item-formatter: srs.default-item-formatter-maker(
+    name:      srs.incremental-name-maker("T-", first: 1, width: 2),
+    breakable: false))
+
 #pagebreak()
-== Evaluación
+== Evaluación <sec:5-evaluación>
 En esta sección se hace una evaluación del rendimiento del programa y un
 análisis del mismo. Se hace un análisis en orden cronológico y se indica las
 conclusiones a las que se llegó en cada paso.
@@ -25,8 +57,8 @@ paralelizarlo. Las pruebas se realizan en dos dispositivos:
   hilos lógicos.
 
 Las comparación se realiza entre la de referencia, que está escrita en _Python
-3_ con alguna parte en #box([C++]) (la función `dtw`, deformación dinámica del
-tiempo); y con la que de este proyecto que está escrita en #box([C++]). Cabe
+3_ con alguna parte en #cxx (la función `dtw`, deformación dinámica del
+tiempo); y con la que de este proyecto que está escrita en #cxx. Cabe
 destacar que ambas implementaciones están paralelizadas, la de Python 3 usa
 `multiprocessing` y la de C++ usa `OpenMP`.
 
@@ -146,28 +178,30 @@ versión de Python bajo las mismas condiciones (paralelismo con el mismo número
 de hilos). El incremento se ve menor en las funciones de _Simpson_ y _Welch_,
 posiblemente porque ambas pertenecen a `SciPy` que utiliza `numpy` por debajo,
 que está escrito en C. La función _max distance_ que está escrita en Python 3
-nativo es la que mejor mejora ve.
+nativo es la que mejor mejora ve como se observa en la
+@fig:original-simpson-welch, en la @fig:original-psd-energy y en la
+@fig:original-max-dist-all.
 
 #figure(
   caption: [Tiempo de ejecución de _Simpson_ y _Welch_],
   grid(
     columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
     pre-diagram("simpson"), pre-diagram("welch"),
-    [_Simpson_],            [_Welch_]))
+    [_Simpson_],            [_Welch_])) <fig:original-simpson-welch>
 
 #figure(
   caption: [Tiempo de ejecución de _PSD_ y _Energy_],
   grid(
     columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
     pre-diagram("psd"), pre-diagram( "energy"),
-    [_PSD_],            [_Energy_]))
+    [_PSD_],            [_Energy_])) <fig:original-psd-energy>
 
 #figure(
   caption: [Tiempo de ejecución de _Max Distance_ y total],
   grid(
     columns: 2, row-gutter: 2mm, column-gutter: 0.75cm,
     pre-diagram("max_dist"), pre-diagram("all"),
-    [Tiempo de ejecución],   [*Total*]))
+    [Tiempo de ejecución],   [*Total*])) <fig:original-max-dist-all>
 
 === Punto flotante en C++ <sec:5-cxx-realtime>
 #let make-result(language, compiler, checks, real, target, performance) = (
@@ -237,7 +271,8 @@ usar punto fijo a punto flotante.
 C++ carece de punto fijo de manera nativa, así que se decidió escribir el
 algoritmo en Ada, que sí lo tiene. Aquí se analiza los resultados de las tareas
 *5.3*, *5.4* y *6.3* (@sec:8-planificación). Después de haberlo implementado en
-Ada, se obtuvieron los siguientes resultados:
+Ada, se obtuvieron los siguientes resultados que se muestran en la
+@tab:ada-pre-results-float.
 
 #figure(
   caption: [Épocas por segundo con tipo flotante IEEE de 32 bits en Ada.\ Peor
@@ -257,7 +292,7 @@ Ada, se obtuvieron los siguientes resultados:
 )) <tab:ada-pre-results-float>
 
 Se ve que no da en tiempo real por poco en la ESP32C3, y que procesa la mitad
-de épocas por segundo que #box([C++]) como se puede ver en la
+de épocas por segundo que #cxx como se puede ver en la
 @tab:float-ada-cxx-comparison. _Checks_ indica si están activados o no las
 comprobaciones en tiempo de ejecución.
 
@@ -279,7 +314,7 @@ comprobaciones en tiempo de ejecución.
 }
 
 #figure(
-  caption: [Número de épocas procesadas por segundo en #box([C++]), Ada y en
+  caption: [Número de épocas procesadas por segundo en #cxx, Ada y en
             Ada con comprobaciones en tiempo de ejecución activadas
             (#box([Ada$\*$]))],
   grid(
@@ -297,7 +332,8 @@ No se escribió en Ada porque se pensara que fuera a ir más rápido, sino para
 comprobar su viabilidad con punto fijo. Se probó con dos tipos de punto fijo,
 uno de 32 bits y otro de 64 bits, que pertenecen a $bb(X)_(32,-8)$ y
 $bb(X)_(64,-16)$ respectivamente (véase la @sec:4-convenciones).
-Las pruebas se hicieron para la ESP32C3 y se compiló con GNAT 14.
+Las pruebas se hicieron para la ESP32C3 y se compiló con GNAT 14 se resumen
+en la @tab:pruebas-preliminares-de-rendimiento-de-punto-fijo-en-ada.
 
 #figure(
   caption: [Prueba preliminares de rendimiento de punto fijo en Ada.],
@@ -309,7 +345,7 @@ Las pruebas se hicieron para la ESP32C3 y se compiló con GNAT 14.
     [Activados], [$bb(X)_(64,-16)$], [$1.08$],
     [Desactivados], [$bb(X)_(32,-8)$],  [*$21.04$*],
     [Desactivados], [$bb(X)_(64,-16)$], [$1.12$],
-  ))
+  ))<tab:pruebas-preliminares-de-rendimiento-de-punto-fijo-en-ada>
 
 Con 64 bits el resultado es correcto, pero rinde peor que la versión de punto
 flotante de C++. Con pruebas activadas, la implementación con punto fijo de 32
@@ -332,7 +368,7 @@ Finalmente fue demostrando poco a poco la ausencia de errores de programación
 utilizando SPARK junto a Ada. No dio tiempo a demostrar todas las funciones,
 pero pruebas unitarias y funcionales no llevan a error. Falta por demostrar
 formalmente `FFT` (_Fast Fourier Transform_) y `Welch`.  Aun así, los
-resultados son los siguientes:
+resultados se pueden ver en la @tab:pruebas-finales-ada.
 
 #figure(
   caption: [Pruebas finales de rendimiento de punto fijo en SPARK + Ada.],
@@ -347,7 +383,7 @@ resultados son los siguientes:
              [#x.target],
              [$#x.performance$]))
            .flatten())
-  ))
+  )) <tab:pruebas-finales-ada>
 
 Se observa que para la ESP32C3 supera con creces el requisito de tiempo real
 de una época por segundo, con $10.36$ épocas por segundo. El tiempo adicional
@@ -398,10 +434,10 @@ operaciones con punto flotante y no punto fijo.
 Como se ve en la @fig:final-comparison, en la ESP32C3, que no tiene FPU, el
 número de épocas computadas por segundo sextuplica a las implementaciones con
 punto flotante. En la Raspberry Pi 3 los resultados son más parecidos, la
-diferencia entre la versión de #box([C++]) y la de SPARK con punto fijo es
+diferencia entre la versión de #cxx y la de SPARK con punto fijo es
 despreciable. Sin embargo, en la Raspberry Pi 4, la diferencia entre punto
 flotante y fijo es abismal. Curioso es el resultado para el Slimbook, pues
-punto fijo supera a punto flotante en Ada, pero no a #box([C++]); esto se puede
+punto fijo supera a punto flotante en Ada, pero no a #cxx; esto se puede
 deber a que las implementaciones no son exactamente iguales y el autor ha ido
 incluyendo optimizaciones.
 
@@ -415,7 +451,8 @@ Otra conclusión pertinente que se puede sacar es el efecto de las
 comprobaciones en tiempo de ejecución, que hace en este caso Ada, y el impacto
 que tienen en el rendimiento global. Se ve que a medida que las características
 del computador aumentan el impacto parece disminuir. Posiblemente por la
-complejidad del _hardware_: predictores de saltos, cachés...
+complejidad del _hardware_: predictores de saltos, cachés... Como se puede ver
+en la @tab:perf-effect.
 
 #let select(
   language    : none,
@@ -466,7 +503,7 @@ complejidad del _hardware_: predictores de saltos, cachés...
     align: (left, left, left, left),
     table.header([*Máquina*], [*Tipo*], [*Compilador*], [*Efecto*]),
     ..effect-table
-  ))
+  )) <tab:perf-effect>
 
 Finalmente y como curiosidad, he aquí las estadísticas del probador del
 teoremas a punto de terminar el proyecto.

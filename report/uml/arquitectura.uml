@@ -1,0 +1,25 @@
+@startuml
+
+component [Detector] as detector
+component [Lector] as lector
+interface Señal as señal
+interface Batch as batch
+interface Detección as detección
+
+package Entrenamiento {
+   component [Validador] as validador
+   component [Entrenador] as entrenador
+   validador <- entrenador : utiliza
+}
+
+validador -( detección : utiliza
+
+detección - detector : genera
+detector -( señal    : lee
+detector --( batch   : requiere
+
+señal -- lector      : muestrea
+
+entrenador - batch  : entrena
+
+@enduml

@@ -55,23 +55,32 @@ C. Guía de Uso
 
 # ORGANIZACIÓN
 
-* Paralelo
- - (2) Estado del Arte
- - (5) Implementación
+Queda:
 
-* Siguiente
- - (3) Análisis
- - (4) Diseño
- - (6) Validación y verificación
+## Pasado
+Resumen
+Abstract
+4. Algoritmos
+Glosario
 
-* Último
- - (7) Planificación y análisis de costes
- - (8) Marco regulatorio
- - (10) Marco socio económico y objetivos de desarrollo sostenible
+## Mañana
+1. **Motivación**
+2. Estado del arte
+ 1. **Detección de ataques epilépticos**
+ 2. **Representación**
+ 3. Demostración
+   2. **Lean**
+1. Contratos
+ 1. Ada
+ 2. Eiffel
+2. Rangos
+ 1. C++
+ 2. APL
+3. Paralelismo
+ 2. OpenMP
 
-* Último
- - (1) Introducción
- - (9) Conclusiones y trabajo futuro
- - (A) Glosario
- - (B) Acrónimos
- - (C) Guía de Uso
+
+<!-- ESPERAR -->
+Matriz de trazabilidad para el 3 y el 5
+Revisar conclusiones
+Aplicar faltas de ortografía

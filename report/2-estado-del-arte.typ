@@ -18,13 +18,6 @@ anormal que resulta en episodios recurrentes de convulsiones
 Existen distintas técnicas para la detección de ataques epilépticos por
 computador. @PaFESD
 
-
-/* ==== Arquitecturas ====================================================== */
-== Arquitecturas
-=== x86-64
-=== RISC-V
-=== ARM
-
 /* ==== Representación de valores numéricos en un computador =============== */
 == Representación de valores numéricos en un computador
 Existen diversas técnicas para representar o codificar valores númericos en
@@ -79,7 +72,7 @@ Solo se analizan las
 /* ==== Probadores de teoremas ============================================= */
 == Demostración interactiva de teoremas
 === _Rocq_
-_Rocq_, hasta marzo de 2025 conocido como _Coq_ @Coq2Rocq, es un programa para
+_Rocq_ conocido hasta marzo de 2025 como _Coq_ @Coq2Rocq, es un programa para
 la demostración interactiva de teoremas matemáticos desarrollado por el
 instituto francés de investigación en informática y automática (INRIA).
 Fue diseñado para desarrollar demostraciones matemáticas y para escribir
@@ -106,23 +99,24 @@ SPARK 2014 está basado en un subconjunto del lenguaje de programación Ada. Ada
 es particularmente apto para la verificación formal pues fue diseñado para
 desarrollo de _software_ crítico, el cual usa de base. Ada 2012 introdujo el
 uso de aspectos que se pueden utilizar para denotar contratos en subrutinas.
-Y SPARK 2014 también añade sus propios aspectos para extender la capacidad de
-análisis estático @learnSPARK.
+Además SPARK 2014 también añade sus propios aspectos para extender la capacidad
+de análisis estático @learnSPARK, como se muestra en la @fig:vennspark
 
 #figure(
   image("img/01_spark_ada.png", width: 60%),
   caption: [Diagrama de Venn que muestra la relación entre SPARK y Ada @learnSPARK])
+  <fig:vennspark>
 
-El juego de herramientes de GNATprove está basado en la colección de
+El juego de herramientes de _GNATprove_ está basado en la colección de
 compiladores de GCC y utiliza por debajo distintos probadores de teoremas como:
-Alt-Ergo, Colibri, cvc5 y Z3 por defecto. También puede utilizar Coq 8.11
-(actualmente conocido como Rocq a partir de la versión 9) para realizar
-demostraciones interactivas de teoremas @SPARKaltprovers.
+_Alt-Ergo_, _Colibri_, _cvc5_ y _Z3_ por defecto. También puede utilizar
+_Coq_ 8.11 (actualmente conocido como Rocq a partir de la versión 9) para
+realizar demostraciones interactivas de teoremas @SPARKaltprovers.
 
-Por ejemplo, el siguiente programa en SPARK, que también es compatible con
-Ada y puede compilarse utilizando un compilador de Ada, tiene varios problemas:
-que las funciones `Get` y `Put` pueden lanzar excepciones inesperadas y que
-`X + Y` puede desbordar. Y SPARK es capaz de reconocerlos.
+Por ejemplo, el siguiente programa en SPARK (@lst:2-example-1), que también es
+compatible con Ada y puede compilarse utilizando un compilador de Ada, tiene
+varios problemas: que las funciones `Get` y `Put` pueden lanzar excepciones
+inesperadas y que `X + Y` puede desbordar. Y SPARK es capaz de reconocerlos.
 
 #code(
   caption: [Ejemplo de programa válido en Ada y SPARK, pero en el que pueden
@@ -155,12 +149,14 @@ cualquier valor. Una opción es utilizar un tipo más grande para almacenar el
 resultado; otra opción sería utilizar un subrango de valores válidos para `X`
 e `Y`; y otra opción podría ser identificar el desbordamiento o
 subdesbordamiento antes de que ocurra e imprimir un mensaje de error. Por
-ejemplo, el primer caso (utilizar un tipo más grande).
+ejemplo, el primer caso (utilizar un tipo más grande) se muestra en el
+@lst:2-spark-sol.
 
 #code(
   caption: [Posible solución para eliminar las excepciones del
   @lst:2-example-1. El `when others` solo captura las excepciones de entrada y
   salida, ninguna de tipo numérico],
+  tag: "lst:2-spark-sol",
 )[```adb
 with Ada.Text_IO, Ada.Integer_Text_IO, Ada.Long_Integer_Text_IO;
 use Ada.Text_IO, Ada.Integer_Text_IO, Ada.Long_Integer_Text_IO;
@@ -186,7 +182,7 @@ exception
 end Program;
 ```]
 
-De esta manera, uno se puede asegurar de que no va a surgir una excepción
+Así se puede garantizar que no va a surgir una excepción
 inesperada. No se trata de evitar que el programa no tenga errores, se trata de
 identificar los casos en los que pueda fallar y tratarlos adecuadamente.
 
@@ -194,20 +190,22 @@ Por ejemplo, la función división `"/"` en Ada
 se define implícitamente para el tipo entero (`Integer`). Sin embargo, hay uno o
 dos posibles puntos de fallo: el primero, y más obvio, es que la división entre
 cero no está definida; el segundo, y solamente en ciertos computadores que por
-ejemplo codifican los valores enteros en complemento a dos, es la división
+ejemplo codifican los valores enteros en complemento a dos, es que la división
 entre $-1$ deborda no está definida cuando el numerador es $-2^(n-1)$ en un
 entero de $n$ bits, pues $(-2^(n-1))/(-1) = 2^(n-1)$ no se puede codificar en un
-entero de $n$ bits. En SPARK y en Ada se puede definir dicha propiedad como:
+entero de $n$ bits. En SPARK y en Ada se puede definir dicha propiedad como
+se muestra en el @lst:spark-div-pre.
 
 #code(
-  caption: [Precondiciones implícitas de la función división entera `"/"`.]
+  caption: [Precondiciones implícitas de la función división entera `"/"`.],
+  tag: "lst:spark-div-pre",
 )[```adb
 function "/" (Left, Right : in Integer) return Integer with
    Pre => (Right /= 0 and then
       (if Integer'First < -Integer'Last 
          and then Left = Integer'First then Right /= -1))
       or else raise Constraint_Error;
-```]
+```] 
 
 Al predicado que se debe cumplir antes de poder llamar una subrutina se llama
 precondición y es el que llama la función el que debe comprobarlo. La
@@ -252,6 +250,24 @@ aplicaciones de cuatro maneras distintas:
    el paralelismo entre tareas fuertemente desacopladas especificadas por el
    programador o el sistema operativo @ComputerArchitecture.
 
+El concepto de concurrencia y de paralelismo están relacionados, pero existe un
+matiz que los diferencia. La concurrencia signfica que varias acciones están
+ocurriendo en el mismo intervalo de tiempo, mientras que paralelo indica que
+están ocurriendo a la vez @proTBB.
+
+La ley de Ambdahl, formulada por Gene Amdahl, habla sobre la máxima mejora en
+el rendimiento que puede obtener un programa si una porción del sistema es
+mejorada. Por ejemplo, si se mejora todo el programa para que vaya el doble de
+rápido, el programa resultante irá el doble de rápido. Pero si solo duplicamos
+la velocidad del programa en dos quintas partes, el sistema mejora por $1.25$.
+Viene dado por la fórmula:
+
+$ f = (1 / ((1 - t) + (t / m))) $
+
+Donde $t$ es el la fracción del total del tiempo que tarda el sistema a
+mejorar, $m$ es el factor con que se ha mejorado dicha parte y $f$ es el factor
+de mejora máximo del sistema final @proTBB.
+
 ==== Paralelismo y concurrencia en lenguajes de programación
 ===== En C++
 En C++ existen las clases `std::thread` y su versión mejorada `std::jthread`
@@ -259,7 +275,8 @@ que dan soporte para hilos en dicho lenguaje. `std::jthread` tiene el mismo
 comportamiento que `std::thread`, pero cuando se destruye el objeto además hace
 _join_ (espera a que el hilo termine de ejecutar @cppreferenceJoin) y puede ser
 cancelado o parado en ciertas condiciones @cppreferenceJthread. El siguiente
-programa computa la suma de los elementos de un vector de manera paralela.
+programa del @lst:2-cpp-thread computa la suma de los elementos de un vector de
+manera paralela.
 
 #code(
   caption: [Suma de los elementos de un vector de manera paralela en C++,
@@ -298,11 +315,13 @@ T accumulate (InputIt first, InputIt last, T init, std::size_t thread_count) {
 
 Sin embargo, desde C++17 se puede utilizar las políticas de ejecución
 (_execution policy_), que permite ejecutar algoritmos de manera paralela
-@cppreferenceExecutionPolicy.
+@cppreferenceExecutionPolicy, como se muestra en el
+@lst:cpp-execution-policy-short y en el @lst:cpp-foreach-execution-policy.
 
 #code(
   caption: [Reimplementación del @lst:2-cpp-thread, pero utilizando la política
-            de ejecución paralela de C++17.]
+            de ejecución paralela de C++17.],
+  tag: "lst:cpp-execution-policy-short"
 )[```cpp
 #include <execution>
 #include <numeric>
@@ -316,7 +335,8 @@ T accumulate (InputIt first, InputIt last, T init) {
 
 #code(
   caption: [Bucle `for each` en C++, utilizando política de ejecución
-  paralela @cppreferenceExecutionPolicy.]
+  paralela @cppreferenceExecutionPolicy.],
+  tag : "lst:cpp-foreach-execution-policy",
 )[```cpp
 int x = 0;
 std::mutex m;
@@ -329,14 +349,13 @@ std::for_each(std::execution::par, std::begin(a), std::end(a), [&](int)
 ```]
 
 ===== En Ada
-
 La ejecución de un programa en Ada consiste en la ejecución de una o más
 tareas. Cada tarea representa una actividad separable que procede
 independientemente y concurrentemente entre puntos en los que interactúa con
 otras tareas. Una única tarea, en el contexto de una construcción paralela,
 puede representar múltiples hilos lógicos de control que pueden proceder en
 paralelo; en otros contextos, cada tarea representa un hilo lógico de control
-@ISOAda2022.
+@ISOAda2022. Véase el @lst:2-ada-task.
 
 #code(
   caption: [Implementación de la suma paralela de los elementos de un vector
@@ -421,9 +440,9 @@ ningún compilador de Ada ha implementado esta parte del estándar. Por ejemplo,
 el equipo que más contribuye al _front-end_ de GCC de Ada (GNAT) dice que de
 momento van a pausar el desarrollo para dar soporte al paralelismo en GNAT,
 pues hay que tener en cuenta gran variedad de tecnologías actuales y habría que
-hacer cambios profundos la interfaz del lenguaje @Ada202xSupport. Sin embargo,
-en el @lst:2-ada-parallel_reduce y el @lst:2-ada-parallel se puede ver ejemplos
-de cómo sería.
+hacer cambios profundos la interfaz del lenguaje @Ada202xSupport.
+En el @lst:2-ada-parallel_reduce y el @lst:2-ada-parallel se muestran ejemplos
+de cómo se codificaría.
 
 #code(
   caption: [Implementación del @lst:2-ada-task de sumar los elementos de un vector,
@@ -474,9 +493,81 @@ end Program;
 ```]
 
 ===== Python3
+En Python3 existen dos módulos para trabajar con concurrencia, el primero es
+`threading` que es similiar a `std::thread` en #cxx y a las `task` de
+Ada @Python3Threading @Python3Versions; y otro específico para construcciones
+paralelas llamado `multiprocessing` que utiliza procesos para paralelizar
+algoritmos @Python3Multiprocessing. Obsérve el @lst:2-python3-parallel.
+
+#code(
+  caption: [Ejemplo de paralelismo en Python 3 con `multiprocessing`.
+            Implementación de la suma paralela de los elementos de un vector
+            como @lst:2-cpp-thread],
+  tag: "lst:2-python3-parallel"
+)[```python
+import multiprocessing
+from typing import Final
+
+def split[T] (lst : list[T], cores : int) -> list[list[T]]:
+  result : list[list[T]] = []
+  length : Final[int]    = len(lst)
+  chunk  : Final[int]    = length // cores
+  rem    : Final[int]    = length % cores
+  for i in range(cores):
+    slice = lst[i * chunk + min(i, rem): (i+1) * chunk + min(i+1, rem)]
+    result.append((slice,))
+  return result
+
+def parallel_sum[T] (lst : list[T], cores : int) -> int:
+  with multiprocessing.Pool(cores) as p:
+    return sum(p.starmap(sum, split(lst, cores), cores))
+```]
 
 ==== OpenMP
-Otro método para conseguir
+OpenMP
+
+#code(
+  caption: [Implementación del @lst:2-cpp-thread con OpenMP en C++.],
+  tag: "lst:2-openmp"
+)[```cpp
+#include <omp.h>
+
+template <class InputIt, typename T>
+T accumulate (InputIt first, InputIt last, T init) {
+  #pragma omp parallel for reduction(+:init)
+  for (auto it = first; it != last; ++it) { init += *it; }
+  return init;
+}
+```]
 
 ==== oneTBB
-Otro método para conseguir
+_Intel® oneAPI Threading Building Blocks_, o también conocido como opeTBB, es
+una biblioteca flexible para mejorar el rendimiento que facilita añadir
+paralelismo a aplicaciones complejas en multitud de arquitecturas aceleradas
+@IntelOneTBB.
+
+TBB (_Threading Building Blocks_) es una solución para escribir programas
+paralelos en #cxx. TBB fue introducido en 2006, así que tiene soporte para
+compiladores previos a #cxx 11, aunque características que se encuentran a
+partir de #cxx 11 como soporte para funciones lambda hace TBB mucho más fácil
+de comprender y utilizar @proTBB.
+
+#code(
+  caption: [Implementación del @lst:2-cpp-thread con oneTBB en C++.],
+  tag: "lst:2-onetbb"
+)[```cpp
+#include <functional>
+#include <oneapi/tbb.h>
+
+template <class InputIt, typename T>
+T accumulate (InputIt first, InputIt last, T init) {
+  return tbb::parallel_reduce(
+    tbb::blocked_range(range.begin(), range.end()),
+    init,
+    [&] (auto const & r, T acc) -> T {
+      for (auto x : r) { acc += x; }
+      return acc;
+    },
+    std::plus<T>{});
+}
+```]

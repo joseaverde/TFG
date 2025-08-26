@@ -9,22 +9,40 @@ _junior_ en una universidad de España suele comenzar en los $20000$€ anuales
 unas 4 semanas) son de vacaciones en España. Se aproxima el salario por hora
 como:
 
+#let euros(x) = {
+  let y = str(calc.round(x, digits: 2))
+  if regex("[.]\d$") in y {
+    y = y + "0"
+  } else if regex("^\d+$") in y {
+    y = y + ".00"
+  }
+  return y
+}
+
+#let semanas = 34
+#let meses = 9
+#let horas-diarias = 3
+#let coste-hora = 10.42
+#let total-horas = horas-diarias * semanas * 7
+#let personal = total-horas * coste-hora
+
   $ 20000"€"/"año"
     dot.c (1 "año")/((52 - 4) "semanas laborales")
     dot.c (1 "semana laboral")/(5 "días laboral")
     dot.c (1 "día laboral")/(8 "horas laborales") $
   $ approx 10.42 "€"/"hora laboral" $
 
-Luego de $34$ semanas, trabajando $15$ horas cada día, da un total de $660$
-horas. Lo que da un total de $6877.20$ € (CINCO MIL TRESCIENTOS CATORCE EUROS
-CON VEINTE CÉNTIMOS) como se ve en la @tab:7-costes-humanos.
+Luego de $#semanas$ semanas, trabajando $#horas-diarias$ horas cada día, da un
+total de $#total-horas$ horas. Lo que da un total de $#euros(personal)$ € como
+se ve en la @tab:7-costes-humanos.
 
 #figure(
   caption: [Costes humanos],
   table(
     columns: (auto, auto, auto),
     table.header([Horas totales], [€/Hora], [Coste total (€)]),
-    [$510$], [$10.42$], [$5314.20$])) <tab:7-costes-humanos>
+    [$#total-horas$], [$#coste-hora$], [*$#euros(personal)$*]))
+    <tab:7-costes-humanos>
 
 === Recursos materiales
 En este caso solo se cuentan los recursos físicos como el _hardware_, todas las
@@ -32,9 +50,14 @@ licencias que se usaron fueron de código abierto y gratuitas. Se utilizó: un
 portátil para hacer el entrenamiento y programar el código; y distintos tipos
 de dispositivos empotrados para hacer pruebas de rendimiento.
 
-Espressif está comprometido con que sus productos tengan una longevidad mínima
-de 12 años desde que se empezaron a fabricar @EspressifLogevity. Los
-dispositivos empotrados en cuestión son los modelos ESP32C3, ESP32S3 y ESP32C6.
+#let gastos = (
+  (name: [ESP32C3 (x3)],   cost:   15.99, life: 30, used:  9),
+  (name: [ESP32S3],        cost:   13.59, life: 30, used:  9),
+  (name: [ESP32C6],        cost:   15.99, life: 30, used:  9),
+  (name: [Raspberry Pi 4], cost:   99.90, life: 36, used:  8),
+  (name: [Portátil],       cost: 1600.00, life: 48, used: 10))
+
+#let total-material = gastos.map((x) => x.cost / x.life * x.used).reduce((a, b) => a + b)
 
 #{
   show table.cell.where(y: 0): set par(justify: false)
@@ -42,42 +65,79 @@ dispositivos empotrados en cuestión son los modelos ESP32C3, ESP32S3 y ESP32C6.
     caption: [Costes materiales],
     table(
       columns: (10em, auto, auto, auto, auto, auto),
-      align: (left+horizon, horizon, horizon, horizon, horizon, horizon),
+      align: (left+horizon, right, horizon, horizon, right, right),
       table.header([Producto], [Coste], [Vida útil], [Tiempo de uso],
                    [Coste mensual], [Coste amortizado]),
 
-      [ESP32C3 (x3)],   [$  15.99$€], [$108$ meses], [$12$ meses], [$ 0.15$€], [$  1.78$€],
-      [ESP32S3],        [$  13.59$€], [$108$ meses], [$12$ meses], [$ 0.13$€], [$  1.51$€],
-      [ESP32C6],        [$  15.99$€], [$132$ meses], [$12$ meses], [$ 0.12$€], [$  1.45$€],
-      [Raspberry Pi 4], [$  99.90$€], [$ 96$ meses], [$31$ meses], [$ 1.04$€], [$ 32.26$€],
-      [Portátil],       [$1100.00$€], [$ 60$ meses], [$23$ meses], [$18.33$€], [$421.67$€],
+      ..(gastos.map((x) =>
+        (x.name, [$#euros(x.cost)$€], [$#x.life$ meses], [$#x.used$ meses],
+          [$#euros(x.cost / x.life)$€],
+          [$#euros(x.cost / x.life * x.used)$€])).flatten()),
       table.hline(stroke: 0.3pt + black),
-      [*Total*], table.cell(colspan: 5, align: left)[*$458.67$€*],
+      [*Total*], [], [], [], [], [*$#euros(total-material)$€*],
     ))}
 
 === Costes indirectos
+Los costes indirectos son aquellos que no pueden asociarte directamente a un
+producto o servicio en particular, pero que son necesarios para la operación
+general de la empresa @CostesIndirectos. Son costes indirectos: el alquier,
+la luz, el agua, el Internet etcétera. Véase la @tab:7-costes-indirectos.
+
+#let indirectos = (
+  (name: [Luz],      cost: 60),
+  (name: [Internet], cost: 50),
+  (name: [Agua],     cost: 15),
+  (name: [Alquiler], cost: 450))
+
+#let total-indirectos = indirectos.map((x) => x.cost * meses).reduce((a,b)=>a+b)
+
+#figure(
+  caption: [Costes indirectos, para #meses meses],
+  table(
+    columns: (10em, auto, auto),
+    align: (left, right, right),
+    table.header([Concepto], [Coste], [Total]),
+    ..(indirectos.map((x) => (x.name, [$#x.cost$€], [$#(x.cost * meses)$€]))
+       .flatten()),
+    table.hline(stroke: 0.3pt + black),
+    [*Total*], [], [*$#euros(total-indirectos)$€*],
+  )
+) <tab:7-costes-indirectos>
 
 === Coste total
-El coste total se considera la suma de todos los costes, como se ve en la
-@tab:7-coste-total, el coste total asciende a los ¿? € ().
+#let beneficio = 16
+#let iva = 21
+#let partial = total-indirectos + personal + total-material
+#let total = partial * (beneficio + 100) / 100 * (iva + 100) / 100
+
+El coste del proyecto se considera la suma de todos los costes. El importe
+final es el coste del proyecto más el beneficio industrial, que será del
+#beneficio%, y el I.V.A. aplicable del #iva%. Como se ve en la
+@tab:7-coste-total, el coste del proyecto asciende a los $#euros(partial)$€
+y el importe total será de $#euros(total)$€.
 
 #figure(
   caption: [Coste total],
   table(
     columns: (auto, auto),
     align: (left+horizon, right+horizon),
-    table.header([Concepto], [Coste]),
+    table.header([*Concepto*], [*Coste*]),
 
-    [Recursos humanos],    [$6877.20$ €],
-    [Recursos materiales], [$458.67$ €],
-    [Costes indirectos],   [¿? €],
+    [Recursos humanos],    [$#euros(personal)$ €],
+    [Recursos materiales], [$#euros(total-material)$ €],
+    [Costes indirectos],   [$#euros(total-indirectos)$ €],
     table.hline(stroke: 0.3pt + black),
-    [*Total*],             [¿? €]
+    [*Total del proyecto*],[*$#euros(partial)$ €*],
+    table.hline(stroke: 0.3pt + black),
+    [Beneficio industrial (#beneficio%)], [$#euros(partial * beneficio/100)$€],
+    [IVA (#iva%)], [$#euros(partial * iva/100)$€],
+    table.hline(stroke: 0.3pt + black),
+    [*Importe final*],     [*$#euros(total)$ €*]
   )) <tab:7-coste-total>
 
 == Impacto socio-económico
 El objetivo del proyecto no era crear un algoritmo de detección de ataques
-epilépticos de cero, sino utilizar uno ya existente, estudiarlo y optimizarlo.
+epilépticos original, sino utilizar uno ya existente, estudiarlo y optimizarlo.
 De hecho, el algoritmo utilizado es de clasificación, es decir, decide si está
 o no en un ataque epiléptico.
 

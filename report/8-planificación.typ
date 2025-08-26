@@ -8,7 +8,6 @@ La planificación no cuenta el tiempo necesario para elaborar la memoria, única
 y exclusivamente de los pasos para realizar el trabajo desde principio a fin.
 En total fueron 34 semanas.
 
-// TODO: Referenciar en la parte de diseño a qué se refiere
 - *Tarea 1*: _Configuración y familiarización con el código original._ \
   Esta tarea consiste en preparar el computador para el desarrollo del
   programa. Como este utiliza como base un trabajo preexistente, es necesario

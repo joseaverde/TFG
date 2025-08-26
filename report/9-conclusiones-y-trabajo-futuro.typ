@@ -1,3 +1,5 @@
+#import "utility.typ": cxx
+
 = Conclusiones y trabajo futuro <sec:9>
 En este capítulo se enuncian en primer lugar las conclusiones del proyecto
 (@sec:9-proyecto), en segundo lugar las (@sec:9-personal) y finalmente qué
@@ -7,7 +9,7 @@ resta para el futuro (@sec:9-futuro).
 Se han completado todos los objetivos, aunque el tercer objetivo parcialmente.
 Los objetivos se describieron en la @sec:1-objetivos.
 
-- *O1*: Se pudo implementar dicho módulo de Python 3 en #box([C++]) y como se
+- *O1*: Se pudo implementar dicho módulo de Python 3 en #cxx y como se
   observa en la @sec:5-validation los resultados son geniales. En un portátil
   se ha mejorado el tiempo $56.7$ veces y en un servidor, que es donde va a
   acabar corriendo el entrenamiento, va $85.9$ veces más rápido que la
@@ -21,7 +23,7 @@ Los objetivos se describieron en la @sec:1-objetivos.
   resultados son generiales y mejores de lo esperado. Así que, este primer
   objetivo se da por finalizado.
 
-- *O2*: Se pudo hacer compilación cruzada de #box([C++]) a dispositivos
+- *O2*: Se pudo hacer compilación cruzada de #cxx a dispositivos
   empotrados de bajo consumo como la ESP32C3, ESP32C6 y ESP32S3 de Espressif,
   además de otras máquinas como la Raspberry Pi 3 y la Raspberry Pi 4. El
   programa ejecutaba en tiempo real como se puede ver en los resultados de la
@@ -50,7 +52,7 @@ Los objetivos se describieron en la @sec:1-objetivos.
 
 Así pues, el trabajo se da por terminado.
 
-Se concluye que #box([C++]) es _de facto_ más rápido que Python 3 o Ada, y que
+Se concluye que #cxx es _de facto_ más rápido que Python 3 o Ada, y que
 es preferible para desarrollar sistemas en los que el rendimiento es
 indispensable. Además, hoy en día es preferible utilizar punto flontante en vez
 de punto fijo, excepto cuando se esté trabajando para dispositivos empotrados
@@ -62,21 +64,21 @@ que trabajar con SPARK es tedioso y costoso no está indicado para cualquier
 proyecto, únicamente para aquellos en los que el fallo sea la diferencia entre
 la vida y la muerte. Es preferible utilizarlo para punto específicos del
 programa más sensibles a fallos.  Ada sigue siendo un gran lenguaje de
-programación, pese a no ser tan rápido como C++. Permite describir propiedades
-del programa mediante contratos.
+programación, pese a no ser tan rápido como #cxx, ya que permite describir
+propiedades del programa mediante contratos.
 
 
 == Conclusiones personales <sec:9-personal>
 Este ha sido un proyecto que me ha permitido utilizar gran variedad de
-tecnologías y juntarlas entre sí para descubrir qué es lo que funciona y qué
+tecnologías y combinarlas entre sí para descubrir qué es lo que funciona y qué
 no. He podido utilizar lenguajes de programación con los que estaba
-familiarizado como #box([C++]), Python 3 y Ada.
+familiarizado como #cxx, Python 3 y Ada.
 
 He aprendido mucho sobre compilación cruzada y he descubierto sobre todos los
 rinconcitos que tiene cada arquitectura y sobre cómo exprimirlos al máximo. He
 aplicado gran variedad de técnicas desde paralelismo, pasando por vectorización
 hasta metaprogramación y uso de la excelente bibliotecas de rangos de
-#box([C++]). 
+#cxx. 
 
 Previamente he utilizado SPARK, pero esta es la primera vez que lo utilizo para
 un proyecto serio. He aplicado todo lo aprendido en lógica y matemáticas para
@@ -94,6 +96,6 @@ implementado).
 Después de discutirlo con los investigadores de la Universidad de Málaga, como
 trabajo futuro queda: por su parte investigar cómo predecir en vez de
 clasificar ataques epilépticos, por nuestra parte quedaría permitir que el
-modelo se reentrene en tiempo real. Para ello era necesario rascar hasta el
+modelo se reentrene en tiempo real. Para ello era necesario conseguir hasta el
 milisegundo y por eso este trabajo se ha centrado tanto en la parte de
 optimización del algoritmo.

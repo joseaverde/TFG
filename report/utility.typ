@@ -30,3 +30,5 @@
     caption: caption)
     #label(tag)
   ]
+
+#let cxx = box([C++])

@@ -104,20 +104,23 @@
     }
 
     // check if it's a valid origin class
+    let found = false;
     for class_origin_tag in class_origins.tags {
       let item_origin_tag = origin_tag.slice(0, count: origin_tag.len() - 1)
-
-      if not item_origin_tag == class_origin_tag {
-        return (
-          false,
-          "Invalid origin. Class '"
-            + origin_tag.slice(0, count: origin_tag.len() - 1).join("-")
-            + "' is not a valid origin class (valid classes are '"
-            + class_origins.tags.map(t => t.join("-")).join(", '")
-            + "')",
-        )
-      }
+      found = found or item_origin_tag == class_origin_tag
     }
+
+    if not found {
+      return (
+        false,
+        "Invalid origin. Class '"
+          + item_origin_tag.join("-")
+          + "' is not a valid origin class (valid classes are '"
+          + class_origins.tags.map(t => t.join("-")).join(", '")
+          + "')",
+      )
+    }
+
 
     // traverse the tree to see if that origin item exists
     let current = tree

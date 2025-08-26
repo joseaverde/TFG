@@ -1,3 +1,5 @@
+#import "utility.typ": *
+
 = Introducción <sec:1>
 Este capítulo describe brevemente la motivación detrás del proyecto
 (@sec:1-motivación), los objetivos principales del mismo (@sec:1-objetivos) y
@@ -11,7 +13,7 @@ se dan pequeñas pinceladas sobre el contenido de cada uno de los capítulos
 El objetivo principal del proyecto es hacer un estudio de distintas técnicas y
 algoritmos para la optimización de programas. Se ha utilizado un artículo
 redactado por investigadores de la universidad de Málaga @PaFESD como base para
-explorar en qué formas se puede mejorar.
+explorar en qué formas se puede mejorar el rendimiento del mismo.
 
 Se ha trabajado en compañía de dicho equipo para intentar mejorar los tiempos
 de entrenamiento y para confirmar la viabilidad de ejecutar el algoritmo de
@@ -26,14 +28,14 @@ casos de desbordamiento en operaciones de punto fijo. Para ello se usó el
 lenguaje de programación Ada junto a SPARK, que usa probadores de teoremas por
 debajo, para verificar formalmente el trabajo.
 
-- *O1*: Implementar un módulo de Python3 en #box([C++]) que disminuya el tiempo
+- *O1*: Implementar un módulo de Python3 en #cxx que disminuya el tiempo
   de entrenamiento del modelo para la detección de ataques epilépticos de la
   implementación de referencia @PPMC-DAC.
 - *O2*: Implementar un sistema de tiempo real en un dispositivo empotrado de
   bajo consumo que utilice el modelo generado para clasificar épocas de señal
   en «ataques epiléticos» y en «libres de ataques epilépticos».
 - *O3*: Verificar formalmente utilizando un probador de teoremas interactivo
-  que el programa se comporta como debe y no hay puede terminar de manera
+  que el programa se comporta como debe y no puede terminar de manera
   abrupta.
 
 == Estructura del documento <sec:1-estructura>
@@ -51,16 +53,16 @@ El documento contiene los siguientes capítulos:
 
 - Capítulo 3 -- #link(label("sec:3"), [_Análisis_]), estudia y analiza los
   casos de uso del sistema, a partir de los cuales enumera y examina los
-  requisitos funcionales y no funcionales del mismo.
+  requisitos funcionales y no funcionales del mismo. Finalmente se da el
+  diagrama con la arquitectura del sistema.
 
-- Capítulo 4 -- #link(label("sec:4"), [_Diseño e implementación_]), define
-  matemáticamente el problema, a base de la cuál se justifican las decisiones 
-  de diseño del problema. Finalmente se muestra un diagrama con la arquitectura
-  del sistema implementado en global.
+- Capítulo 4 -- #link(label("sec:4"), [_Diseño e implementación_]), contiene
+  el estudio de la solución final: define matemáticamente el problema, a base
+  de la cuál se justifican las decisiones de diseño del problema.
 
 - Capítulo 5 -- #link(label("sec:5"), [_Validación, verificación y
-  evaluación_]), efectua una validación y una verificación del programa final.
-  Y hace una evaluación del rendimiento del mismo.
+  evaluación_]), efectua una validación y una verificación del programa final,
+  y hace una evaluación del rendimiento del mismo.
 
 - Capítulo 6 -- #link(label("sec:6"), [_Marco regulador_]), estudia la
   legislación aplicable sobre el mismo y las licencias de las herramientas

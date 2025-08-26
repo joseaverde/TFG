@@ -1,6 +1,8 @@
+#import "utility.typ": cxx
+
 = Marco regulador <sec:6>
 En este capítulo se hace un breve recorrido sobre la legislación aplicable al
-proyecto en la @sec:6.1; se enumera y se describe resumidamente las licencias
+proyecto. En la @sec:6.1; se enumera y se describe resumidamente las licencias
 de las dependencias de los componentes del proyecto en la @sec:6.2; y
 finalmente se comenta qué estándares técnicos más importantes se han utilizado
 a lo largo del desarrollo del propio proyecto en la @sec:6.3.
@@ -13,7 +15,7 @@ abierto y son compatibles con la
 licencia que le ha puesto el autor a este proyecto: la *EUPL-1.2*.
 
 == Licencias de _software_ <sec:6.2>
-Dado que el programa depende de bastantes bibliotecas externas, es preciso
+Dado que el programa depende de bibliotecas externas, es preciso
 definir primero las licencias y luego cómo depende cada _software_ de otros.
 Se ofrece una breve descripción de cada una de ellas. Sin embargo, es
 preferible que el lector lea el texto oficial.
@@ -33,13 +35,13 @@ preferible que el lector lea el texto oficial.
   atribuir, que obras derivadas o distribución de la misma tenga una licencia
   de _copyleft_ entre otras.
 
-- *MIT*: Es la licencia libre de código abierto del Instituto Tecnológico de
+- *MIT* @MIT: Es la licencia libre de código abierto del Instituto Tecnológico de
   Massachussetts. El _software_ licenciado con la misma viene in garantía, pero
   no tiene restricciones en cuanto a: copiar, modificar, fusionar, publicar,
   distribuir, sublicenciar ni vender copias del mismo; siempre y cuando incluya
-  copias de la propia licencia @MIT.
+  copias de la propia licencia.
 
-- *BSD-3-Clause*: La licencia BSD (_Berkeley Software Distribution_) modificada
+- *BSD-3-Clause* @BSD-3-Clause: La licencia BSD (_Berkeley Software Distribution_) modificada
   de 3 cláusuras es una licencia libre de código abierto, que como su nombre
   indica, contiene tres cláusuras:
   1. La redistribución del código fuente debe mantener el aviso de _copyright_
@@ -48,32 +50,32 @@ preferible que el lector lea el texto oficial.
      _copyright_ y el descargo de responabilidad en la documentación; y además
      otros materiales suministrados con la distribución.
   3. No se puede utilizar el nombre de los titulares de los derechos de autor
-     para promocionar productos derivados sin su consentimiento @BSD-3-Clause.
+     para promocionar productos derivados sin su consentimiento.
 
-- *Apache License v2.0*: Es una licencia permisiva que requiere que se mantenga
+- *Apache License v2.0* @Apache2: Es una licencia permisiva que requiere que se mantenga
   el aviso de _copyright_ y la licencia. Contribuidores ceden automáticamente
   los derechos de la patente en sus contibuciones. Trabajos licenciados y
-  modificaciones se pueden distribuir bajo otras condiciones @Apache2.
+  modificaciones se pueden distribuir bajo otras condiciones.
 
-- *BSL-1.0*: _Boost Software License -- Version 1.0_ es una licencia permisiva
+- *BSL-1.0* @BSL-1-0: _Boost Software License -- Version 1.0_ es una licencia permisiva
   que únicamente requiere que se mantenga el aviso de _copyright_ y la licencia
   para la distribución del código fuente (no del binario). Se puede distribuir
-  bajo otros términos modificaciones y trabajos licenciados @BSL-1-0.
+  bajo otros términos modificaciones y trabajos licenciados.
 
-- *GPLv3*: _GNU Public License -- Version 3 _ es una licencia de _copyleft_
+- *GPLv3* @GPLv3: _GNU Public License -- Version 3 _ es una licencia de _copyleft_
   para _software_ libre y de código abierto, que requiere a los usuarios de
   _software_ licenciado bajo esta licencia a hacer disponible el código fuente
   completo bajo la misma licencia: la *GPLv3*. Se debe mantenere el aviso de
   _copyright_ y la licencia. Además los contribuidores ceden los derechos sobre
-  sus contribuciones automáticamente @GPLv3.
+  sus contribuciones automáticamente.
 
-- *GPLv3 Runtime Library Exception*: Tiene las mismas condiciones que la
+- *GPLv3 Runtime Library Exception* @GPLv3RLE: Tiene las mismas condiciones que la
   *GPLv3*, pero añade una excepción a _software_ que enlace con la biblioteca,
   es decir, el _software_ que se ha enlazado no con dicha biblioteca no tiene
-  por qué cambiar su licencia @GPLv3RLE.
+  por qué cambiar su licencia.
 
 
-El programa de referencia que se encuentra en GitHub
+El programa de referencia que se encuentra alojado en
 #link("https://github.com/PPMC-DAC/PaFESD-Epileptic-Seizure-Detection") tiene
 como licencia *MIT*.
 
@@ -116,7 +118,7 @@ proyecto son las siguientes:
       el código fuente en los dispositivos empotrados de Espressif (ESP32C3,
       ESP32C6, ESP32S3) y tiene la licencia *BSD* @EspressifLicense.
     - `ms-gsl/4.0.0`: Tiene la licencia *MIT* @License-ms-gsl. Se utiliza para
-      dar soporte a las _#box([C++]) Core Guidelines_.
+      dar soporte a las _#cxx Core Guidelines_.
     - `rapidcsv/8.80`: Tiene la licencia *BSD-3-Clause* @License-rapidcsv. Se
       utiliza para abrir archivos C.S.V.
     - `range-v3/0.12.0`: Tiene la licencia *BSL-1.0* @License-range-v3. Se
@@ -163,7 +165,7 @@ proyecto son las siguientes:
 
 == Estándares técnicos <sec:6.3>
 === C++23 (ISO/IEC 14882:2024)
-#box([C++]) es un lenguaje de programación estandarizado por ISO (_International
+#cxx es un lenguaje de programación estandarizado por ISO (_International
 Organization of Standarization_) y en el que está escrita la mayor parte del
 código fuente del proyecto. Una revisión del estándar se hace cada tres años,
 y recibe un nombre desde #box([C++11]) (primera revisión del que se considera

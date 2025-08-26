@@ -40,11 +40,11 @@ herramientas, de cara a un análisis en el impacto energético y de seguridad
 del programa.
 
 Que la implementación original estuviera escrita en Python dificulta bastante
-la compilación cruzada. Especialmente para dispositivos empotrados como la
-ESP32-C3, que tiene pocos megabytes de memoria disponibles para almacenar el
+la compilación cruzada. Esto es especialmente difícil para dispositivos empotrados como la
+ESP32-C3, /* TODO: Referenciar */  que tiene pocos megabytes de memoria disponibles para almacenar el
 ejecutable, pues el tamaño de la suma de todas las dependencias superaba los
 cientos de megabytes. Además uno de los requisitos fundamentales del proyecto
-es que corriera en tiempo real. Por razones técnicas se ha optado por utilizar
+es que corriera en tiempo real. Por estas razones técnicas se ha optado por utilizar
 otros lenguajes de programación.
 
 Los lenguajes usados y representación de valores numéricos utilizadas son los
@@ -60,7 +60,7 @@ segundos de la señal que contienen artefactos (pestañeos, errores de medición
 etcétera).
 
 
-=== Convenciones matemáticas <sec:4-convenciones>
+== Convenciones matemáticas <sec:4-convenciones>
 Las siguientes convenciones matemáticas solo se utilizan en este capítulo y
 permiten desambiguar algunos conjuntos como $bb(N)$. Los conjuntos clásicos
 se denotan de la siguiente manera:
@@ -103,7 +103,7 @@ el último. No están definidos los elementos $v(k), k <= 0 or k > n$.
   $ S^1 = S $
   $ S^n = S^(n-1) times S $
 
-Además la notación $S^+$, inspirada por la clausura de Kleene, denota:
+Además la notación $S^+$, inspirada por la clausura de Kleene /*TODO: Citar*/, denota:
 
   $ S^+ = union.big_(i in bb(N)^+) S^i $
 
@@ -117,7 +117,8 @@ asocia para un sensor cualquiera $r$ en un instante de tiempo $t$ una muestra.
 
 Un sensor $r$ lee a una razón de $s in bb(N)^+$ muestras por segundo, a esa
 constante se denomina _stride_. Así que en vez de trabajar sobre una señal
-continua, se trabaja sobre una señal discreta.
+continua, se trabaja sobre una señal discreta como se muestra en la
+@fig:signal.
 
 /* *** SIGNAL IMAGE *** */
 
@@ -156,7 +157,7 @@ continua, se trabaja sobre una señal discreta.
     line("mid", "sample")
   }),
   caption: [Señales, _strides_, y muestras]
-)
+)<fig:signal>
 
 A la hora de hacer el análisis se trabaja por épocas (_epochs_) en vez de
 _strides_. Si _stride_ es una secuencia contigua de muestras, una época es una
@@ -247,7 +248,7 @@ mencionadas anteriormente:
 `max_distance` es sin duda uno de los algoritmos más sencillos. Retorna la
 diferencia entre el valor máximo y el valor mínimo de una época.
 Sea $e in bb(R)^m$ una época de $m$ elementos, la entrada del algoritmo.
-Obsérvese el diagrama de flujo siguiente: /* TODO: Referenciar */
+Obsérvese el diagrama de flujo siguiente (@fig:flujo-max-distance).
 
 #figure(
   diagram(
@@ -279,7 +280,7 @@ Obsérvese el diagrama de flujo siguiente: /* TODO: Referenciar */
     node((1, v-sep*3), align(center)[*7*: Fin], shape: shapes.pill)
   }),
   caption: [Algoritmo `max_distance`]
-)
+)<fig:flujo-max-distance>
 
 ==== Problemas  <algorithm-max-distance-problems>
 Los puntos de fallo suelen ser cuando se indexa o cuando se opera. Indexar
@@ -624,7 +625,8 @@ de $v'(i)$ están acotados. Es decir,
 
 En SPARK se utilizan lo que se llaman funciones fantasma (_Ghost_), que son
 subrutinas que no generan código y que solamente son utilizadas por el probador
-de teoremas interno. En este caso se define la función `Generic_Accumulation`:
+de teoremas interno. En este caso se define la función `Generic_Accumulation`
+se declararía como dice el @lst:generic-accumulation-spec.
 
 #code(
   caption: [Especificación de la función fantasma `Generic_Accumulation`],
@@ -673,7 +675,7 @@ Finalmente la postcondición dice que:
 - Todos los elementos están acotados como se veía al principio en la
   @subsubsec:acc-spark.
 
-Y su implementación es:
+Y se implementaría como se muestra en @lst:generic-accumulation-body.
 
 #code(
   caption: [Implementación de la función fantasma `Generic_Accumulation`],
@@ -727,7 +729,7 @@ la que haga uso de ella para definir dichos rangos. Suponiendo que hay un
 tipo de punto fijo `Input_Type` ($bb(X)_(b,f)$), un tipo para indexar
 `Index_Type` ($bb(I)_B$), un tipo de resultado `Result_Type`
 ($bb(X)_(b+B-1,f)$) y un tipo vector de elementos de tipo `Input_Type` que
-indexa con `Index_Type >= 1`:
+indexa con `Index_Type >= 1` (véase el @lst:generic-accumulation-example).
 
 #code(
   caption: [Ejemplo de uso de la función fantasma `Generic_Accumulation`],
@@ -771,7 +773,7 @@ entre el número de elementos:
 
   $ mu (v,m) = sum_(i=1)^m v(i)/m $
 
-O en diagrama de flujo:
+O en diagrama de flujo de la @fig:flujo-media.
 
 #figure(
   diagram(
@@ -802,7 +804,7 @@ O en diagrama de flujo:
     node((1, v-sep*3), align(center)[*7*: Fin], shape: shapes.pill)
   }),
   caption: [Algoritmo de la media]
-)
+) <fig:flujo-media>
 
 ==== Problemas <algorithm-mean-problems>
 
@@ -991,7 +993,7 @@ bits:
   por tanto: $x *_(b'') y in bb(U)_(b'')$.
 ]
 
-=== Uniformización un vector $bb(X)_(b,f)^n, n in bb(N)^+$
+=== Uniformización de un vector $bb(X)_(b,f)^n, n in bb(N)^+$
 Antes de definir en qué consiste uniformizar un vector. Es necesario definir
 la división para el punto fijo. La definición se hace de manera incremental,
 para dar distintas propiedades. La definición general (similar a la del
@@ -1012,7 +1014,8 @@ La varianza se define como:
   $ "Var"(v, m) = sum_(i=1)^m (x - mu (v, m))^2 $
 
 donde $v in bb(R)^m$. Se parece mucho a la media, es una acumulación, su
-diagrama de flujo sigue siendo parecido:
+diagrama de flujo sigue siendo parecido como se puede ver en
+@fig:flujo-varianza.
 
 #figure(
   diagram(
@@ -1040,7 +1043,7 @@ diagrama de flujo sigue siendo parecido:
     node((1, v-sep*2), name: <end>, align(center)[*6*: Fin], shape: shapes.pill)
   }),
   caption: [Algoritmo de la varianza]
-)
+) <fig:flujo-varianza>
 
 ==== Problemas
 Para punto flotante sigue habiendo los mismos problemas que para la acumulación
@@ -1094,6 +1097,8 @@ resultado y se obtiene el valor que se espera de la varianza.
 *TODO: MOSTRAR EL ALGORITMO MODIFICADO CON LA UNIFORMALIZACIÓN Y DESUNIFORMALIZACIÓN*
 
 === _Energy_
+==== Problemas
+==== Análisis de punto fijo
 === Transformada de Fourier (FFT)
 ==== Recursivo a iterativa
 ==== _Caché_ y $omega^k_n$
@@ -1102,6 +1107,3 @@ resultado y se obtiene el valor que se espera de la varianza.
 === _Welch_
 === Deformación dinámica del tiempo
 === Densidad espectral de potencia
-
-== Arquitectura
-*TODO*
