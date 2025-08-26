@@ -555,13 +555,17 @@ dos primeros problemas @algorithm-max-distance-problems:
 
 ==== Análisis de punto fijo
 Existen varias alternativas para solucionar este problema, la más sencilla es
-sin duda utilizar un tipo de punto fijo más grande para el resultado.
-Suponiendo que $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$,
-entonces el resultado debe estar en $bb(X)_(b+B-1,f)$.
+sin duda utilizar un tipo de punto fijo más grande para el resultado,
+consecuencia del @thm:accumulation.
 
 #lemma[
   Si $a >= 2$ y $b >= 2$, entonces $a b >= a + b$
 ] <lem:product-greater-than-sum>
+
+#theorem[
+  Dados $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$,
+  entonces el resultado debe estar en $bb(X)_(b+B-1,f)$.
+] <thm:accumulation>
 
 #proof[
   Si $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$. Sea la
@@ -995,17 +999,201 @@ bits:
 
 === Uniformización de un vector $bb(X)_(b,f)^n, n in bb(N)^+$
 Antes de definir en qué consiste uniformizar un vector. Es necesario definir
-la división para el punto fijo. La definición se hace de manera incremental,
-para dar distintas propiedades. La definición general (similar a la del
-producto):
+la división para el punto fijo. La división de dos números racionales:
+$x = a/b$ e $y = p/q$, $x, y in bb(Q)$ y $a,b,p,q in bb(Q)$, es otro número
+racional:
 
-#definition(title: [Conversión del cociente])[
-  Dados $x in bb(X)_(b,f)$ e $y in bb(X)_(b',f')$ se define:
+  $ x/y = (a/b)/(p/q) = (a q)/(b p) in bb(Q) $
 
-    $ z = x div_(b'',f'') y = "conv"_(b'',f'') (x / y) $
+Trabajando con números en punto fijo sigue siendo similar, dados dos números
+en punto fijo $x = p 2^f, x in bb(X)_(b,f)$ e $y = q 2^(f') in bb(X)_(b',f')$.
+Su cociente también es un número en punto fijo:
+
+  $ x / y = (p 2^f) / (q 2^(f')) = p/q 2^(f-f') $
+
+Sigue pareciendo un número en punto fijo multiplicado por $2^(f-f')$, la única
+diferencia es que $p/q in.not bb(Z), forall p, q$, lo cual complica bastante
+tratarlo como un punto fijo.
+
+#definition(title: [División de punto fijo])[
+  Dados dos números en punto fijo $x = p 2^f in bb(X)_(b,f)$ e
+  $y = q 2^(f') in bb(X)_(b,f')$ con *$y != 0$*, se define la división de punto
+  fijo de $x$ entre $y$ y se denota como $x div y$ a:
+
+    $ x div y = cases(floor(p/q) 2^(f-f') & ", si " p/q >= 0,
+                      ceil(p/q) 2^(f-f') & ", si " p/q < 0) in bb(Q) $
+]<def:fixed-division>
+
+#theorem[
+  Dados dos números en punto fijo $x = p 2^f in bb(X)_(b,f)$ e
+  $y = q 2^(f') in bb(X)_(b,f')$, entonces:
+  
+  $ x div y in cases(bb(X)_(b,(f-f')) & ", si " x != (2^(b-1) - 1)delta_(b,f)
+                                           " e " y != -delta_(b',f'),
+                     bb(X)_(b+1,(f-f')) & ", si no") $
+] <thm:fixed-division-set>
+
+#proof[
+  Sean $x = p 2^f in bb(X)_(b,f)$ e $y = q 2^(f') in bb(X)_(b',f')$ con
+  $y != 0$, por definición $p in bb(I)_b$ y $q in bb(I)_(b')$.
+  Sea $z = x div y$.
+
+  - Si $p/q$ = 0, entonces $x div y = floor(p/q) 2^(f-f') = 0$.
+  - Si $p/q > 0$, entonces $x div y = floor(p/q) 2^(f-f')$. Es preciso ver que
+    $abs(a/b) < abs(a)/(abs(b)+1), forall abs(b) > 0, forall a$, es decir,
+    cuando aumenta el denominador en valor absoluto, el valor absoluto del
+    cociente es menor. Lo que nos indica que la función $abs(a/b)$ se maximiza
+    cuando $abs(b) = 1$ y decrece monótonamente a medida de que $abs(b)$
+    aumenta.
+
+    - Si $0 < q <= 2^(b'-1) - 1$ implica que $0 < p <= 2^(b-1) - 1$. Luego,
+      cuando $q = 1$, el cociente $floor(p/q) = floor(p/1) = p$, lo que da el
+      primer límite superior $2^(b-1)-1$. Pues cuando $q$ crece, el cociente
+      decrece monótonamente.
+
+    - Si $-2^(b'-1) <= q < 0$ implica que $-2^(b-1) <= p < 0$. Cuando $q = -1$,
+      el cociente $floor(p/q) = floor(-p) = -p$ , es decir, igual que el caso
+      anterior obtenemos un nuevo límite superior $2^(b-1)$.  Sin embargo, si
+      $q != -1 and p != -2^(b-1)$, el límite superior es
+      distinto pues:
+
+      - Si $q = -2$ y $p = -2^(b-1)$, $floor(p/q) = floor((-2^(b-1))/(-2)) =
+        floor(2^(b-2)) = 2^(b-2) <= 2^(b-1)-1$. Que maximiza la función.
+      - Si $q = -1$ y $p = -2^(b-1)+1$, $floor(p/q) = 2^(b-1) - 1 <= 2^(b-1)
+        -1 $. Que maximiza la función.
+
+      Luego si $q = -1$ y $p = -2^(b-1)$ el límite superior es $2^(b-1)$, si
+      no, el límite superior es $2^(b-1)-1$.
+
+    Por lo que se concluye que si $q = -1$ y $p = -2^(b-1)$ entonces
+    $x div y <= 2^(b-1)$, si no $x div y <= 2^(b-1) - 1$.
+
+  - Si $p/q < 0$, entonces $x div y = floor(p / q) 2^(f-f')$, se sigue
+    cumpliendo que $abs(a/b) < abs(a)/(abs(b)+1), forall abs(b) > 0, forall a$.
+
+    - Si $-2^(b'-1) <= q < 0$ implica que $0 < p <= 2^(b-1) - 1$. La función
+      $p/q$ se minimiza cuando $q = -1$ y $p = 2^(b-1)-1$, porque
+      $ceil(p/q)=ceil((2^(b-1)-1)/(-1)) = -2^(b-1)+1$, que es el primer límite
+      inferior.
+
+    - Si $0 < q <= 2^(b'-1) - 1$ implica que $-2^(b-1) <= p < 0$. La función
+      $p/q$ se minimiza cuando $q = 1$ y $p = -2^(b-1)$, porque
+      $ceil(p/q)=ceil((-2^(b-1))/1) = -2^(b-1)$, que nos da el segundo límite
+      inferior.
+
+  De esto se concluye que si $p != -2^(b-1)$ y $q != -1$, entonces
+  $floor(p / q) in bb(I)_b, p/q>=0$ y $ceil(p / q) in bb(I)_b, p/q<0$.
+  Y si $p = -2^(b-1)$ y $q = -1$, entonces
+  $floor(p/q) in bb(I)_b union {2^(b-1)} subset.eq bb(I)_(b+1), p/q >= 0$ y
+  que $ceil(p / q) in bb(I)_b, p/q<0$.
+
+  Luego $x div y in bb(X)_(b,(f-f'))$ si $x != (2^(b-1) - 1)delta_(b,f) $ e
+  $y != -delta_(b',f')$, si no $x div y in bb(X)_(b+1,(f-f'))$.
 ]
 
-*TODO: TERMINAR DE DEFINIR ESTO*
+Como consecuencia de la @def:fixed-division siempre se pierde información
+cuando se divide por el redondeo dado por la función techo y la función suelo.
+Una forma de minimizar dicho impacto es multiplicar primero el numerador y
+luego dividir.
+
+La idea es poder trabajar con valores escalados en un conjunto uniforme
+$bb(U)_b$ sin perder precisión, a este proceso le vamos a denominar
+uniformización. En primer lugar, la de un valor:
+
+#definition(title: [Uniformización de un valor])[
+  La uniformización de un vector convierte un valor en punto fijo
+  $x = p 2^f in bb(X)_(b,f) without {-2^(b-1) 2^f}$ a otro conjunto uniforme
+  $bb(U)_b$ sin perder precisión, es decir el numerador es el mismo, el
+  denominador cambia para que sea uniforme. Se denota como $u = "unif"(x)$ y se
+  define como:
+
+    $ "unif"_(b,f): bb(X)_(b,f) -> bb(U)_b $
+    $ "unif"_(b,f) (x) = p 2^(1-b) = x / (2^(f+b-1)) $
+]
+
+#definition(title: [Uniformización de un vector])[
+  La uniformización de un vector convierte un vector $v in bb(X)_(b,f)^n$ a
+  otro vector escalado $v' in bb(U)_b^n$ y se expande la definición de la
+  función $"unif"$ para vectores:
+
+  $ "unif"_(b,f): bb(X)_(b,f)^n -> bb(U)_b^n $
+  $ v' = "unif"_(b,f) (v) $
+  $ v'(i) = "unif"_(b,f) (v(i)), forall i = 1, 2, ... n $
+] <def:unif-vector>
+
+#theorem(title: [Uniformización es biyectiva])[
+  La uniformización es inyectiva porque. Por contradicción, supongamos que no
+  es inyectiva y que
+  $exists x = p 2^f in bb(X)_(b,f) without {-2^(b-1) 2^f},
+   exists y = q 2^f in bb(X)_(b,f) without {-2^(b-1) 2^f}$ con
+  $x != y$, tales que:
+
+  $   && "unif"_(b,f) (x)      &&=& "unif"_(b,f) (y)      \
+   => && "unif"_(b,f) (p 2^f)  &&=& "unif"_(b,f) (q 2^f)  \
+   => && p 2^(1-b)             &&=& q 2^(1-b)             \
+   => && p                     &&=& q $
+
+  Llegamos a una contradicción, así que es *inyectiva*.
+
+  Finalmente es suprayectiva porque el codominio es el conjunto:
+
+  $ =& {"unif"_(b,f) (x) : x in bb(X)_(b,f) without {-2^(b-1) 2^f}} & \
+    =& {"unif"_(b,f) (p 2^f) : x in bb(I)_(b) without {-2^(b-1)}} &
+      #text([[por definición]]) \
+    =& {p 2^(1-b) : x in bb(I)_(b) without {-2^(b-1)}} & \
+    =& {p 2^(1-b) : x in bb(I)_(b)} without {-2^(b-1) 2^(1-b)} & \
+    =& {p 2^(1-b) : x in bb(I)_(b)} without {-1} & \
+    =& bb(U)_b & #text([[por definición]])
+  $
+
+  Que cubre todo el conjunto $bb(U)_b$, así que la función es *suprayectiva*.
+
+  Como la función es a la vez inyectiva y suprayectiva, se dice que la función
+  es *biyectiva*.
+
+]<thm:unif-biyectiva>
+
+#corollary[
+  Como la función $"unif"_(b,f)$ es biyectiva (@thm:unif-biyectiva), existe una
+  función inversa $"unif"_(b,f)^(-1)$ que también es biyectiva.
+] <cor:unif-inverse>
+
+#definition(title: [Desuniformización de un valor])[
+  La desuniformización es el proceso inverso a la uniformización del vector,
+  pues la función uniformización es biyectiva (@thm:unif-biyectiva) y existe
+  una función inversa que también es biyectiva (@cor:unif-inverse). Dado
+  $u = p / 2^(1-b) in bb(U)_b$, se denota la desuniformización como
+  $x = "unif"_(b,f)^(-1) (u)$ y se define como:
+
+  $ "unif"_(b,f)^(-1) : bb(U)_b -> bb(X)_(b,f) $
+  $ "unif"_(b,f) (u) = p 2^f = u 2^(f-b+1) $
+]
+
+#definition(title: [Desuniformización de un vector])[
+  Se exitiende la definición de la desuniformización a vectores pues por
+  razones similares al @thm:unif-biyectiva, la uniformización de un vector
+  también es biyectiva y existe una función inversa. Dado un vector
+  $v in bb(U)_b^n$ se denota la desuniformización como
+  $v' = "unif"_(b,f)^(-1) (v)$ y se define como:
+
+  $ "unif"_(b,f)^(-1) (v) : bb(U)_b^n -> bb(X)_(b,f)^n $
+  $ v' = "unif"_(b,f)^(-1) (v) $
+  $ v'(i) = "unif"_(b,f)^(-1) (v(i)), forall i = 1, 2, ..., n $
+]
+
+Un caso específico de división que se ha utilizado a lo largo del proyecto es
+la división entre un número entero, cabe recordar que $bb(X)_(b,0) = bb(I)_b$
+(@sec:4-convenciones). Luego se obtiene el @cor:fixed-whole-division.
+
+#corollary[
+  Del @thm:fixed-division-set se deduce que dados $x = p 2^f in bb(X)_(b,f)$ y
+  $n in bb(I)_(b') = bb(X)_(b',0)$, la división de un número en punto fijo
+  entre un número entero está en el mismo conjunto excepto el cuando
+  $n = -1$ y $x = -2^(b-1) 2^f$:
+
+  $ x div n in bb(X)_(b,f) ", si " x != -2^(b-1) 2^f " y " n != -1 $
+
+] <cor:fixed-whole-division>
 
 
 === Varianza
@@ -1085,16 +1273,60 @@ Y entonces:
 Para solucionarlo, antes de restar se dividen entre dos ambos operandos, para
 que:
 
-  $ v(i) div_b 2 - mu' div_b 2 in (-1, 1) $
+  $ v(i) div 2 - mu' div 2 in (-1, 1) $
 
 Y por tanto:
 
-  $ (v(i) div_b 2 - mu' div_b 2)^2 in (-1, 1) $
+  $ (v(i) div 2 - mu' div 2)^2 in (-1, 1) $
 
 Luego, al final del algoritmo, se multiplica por $4$ y se desuniformiza el
-resultado y se obtiene el valor que se espera de la varianza.
+resultado y se obtiene el valor que se espera de la varianza, como se puede
+ver en la @fig:flujo-varianza-final, del cual las variables son:
 
-*TODO: MOSTRAR EL ALGORITMO MODIFICADO CON LA UNIFORMALIZACIÓN Y DESUNIFORMALIZACIÓN*
+- $i in bb(I)_k$
+- $v in bb(X)_(b,f)^n$
+- $v' in bb(U)_b^n$ (Por @def:unif-vector).
+- $"res" in bb(U)_(b+k-1)$ (Por el @thm:accumulation)
+
+La variable $"res"$ almacena lo que es el cuarto de la varianza. En el sexto
+paso del algoritmo se desuniformiza y se multiplica por 4 para obtener el
+verdadero resultado de la varianza.
+
+ $ "res" in bb(U)_(b+k-1), "res" in [] $
+ $ "unif"_(b+k-1,f)^(-1)("res") $
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((0,v-sep), align(center)[*2*:
+      $v' = "unif"(v)$ \
+      $"res" <- v'(1)$ \
+      $i <- 2$ \
+      $mu' <- mu (v', m)$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((0,v-sep*3), align(center)[
+      *4*:
+      $"res" <- "res" + (v(i) div 2 - mu' div 2)^2$],
+      shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
+    edge("l,u,u,r", "-|>")
+    edge(<loop.east>, <sol.west>, "-|>", [No])
+    node((1, v-sep*2), name: <sol>, align(center)[*6*:
+      $"result" <- 4 *_(b',f') "unif"_(b+k-1,f)^(-1)("res" div n)$
+      ], shape: shapes.pill)
+    edge("-|>")
+    node((1, v-sep*3), name: <end>, align(center)[*7*: Fin], shape: shapes.pill)
+  }),
+  caption: [Algoritmo de la varianza]
+) <fig:flujo-varianza-final>
 
 === _Energy_
 ==== Problemas
