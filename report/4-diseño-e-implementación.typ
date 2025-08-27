@@ -70,7 +70,7 @@ se denotan de la siguiente manera:
 
 Los conjuntos clásicos se denotan como:
 
-- $bb(B) = {bfalse, btrue}$ es el conjunto de los valores lógicos: falso
+
   ($bfalse$) y verdadero ($btrue$).
 - $bb(Z) = {0, 1, -1, 2, -2, ...}$ es el conjunto de los números enteros.
 - $bb(N) = {0, 1, 2, ...}$ es el conjunto de los números enteros no negativos.
@@ -165,151 +165,7 @@ secuencia contigua de _strides_. Como referencia, se ha utilizado un _stride_
 de $s = 256 "muestras/s"$, épocas de 5 segundos (1280 muestras) y los valores
 de las muestras suelen estar en el rango $-10000$ a $10000$.
 
-=== Algoritmo
-El algoritmo a implementar es el algoritmo 4 (_validation phase_) del artículo
-en que se basa el proyecto @PaFESD. Para determinar si una época pertenece o no
-a un ataque epiléptico se computan lo que el artículo llama _features_ (o
-características) que son cinco funciones matemáticas: `max_distance`, `energy`,
-`psd_1`, `psd_2` y `psd_3`. Si las características de una época están en
-ciertos rangos determinados por el modelo, a época no es un artefacto y la
-distancia utilizando el algoritmo de deformación dinámica del tiempo es lo
-suficientemente pequeña para alguno de los patrones: el modelo dice que la
-época puede tratarse de un ataque epiléptico.
-
-El modelo (al que el artículo llama _batch_) es una 7-tupla:
-
-  $ B = (B_M, B_E, B_P_1, B_P_2, B_P_3, B_D, B_Q), B in cal(B) $
-
-  $ B_M, B_E, B_P_1, B_P_2, B_P_3 in bb(R) times bb(R) $
-  $ B_D in bb(R) $
-  $ B_Q = { S_q : bb(R) -> bb(R) } $
-
-- $B_M$, $B_E$, $B_P_1$, $B_P_2$, $B_P_3$ son 2-tuplas de dos números reales
-  $B_x = (B_x_l, B_x_h), B_x_l <= B_x_h$ que indican el rango válido de los
-  resultados de evaluar las funciones `max_distance`, `energy`, `psd_1`,
-  `psd_2` y `psd_3` respectivamente. Además, como se verá más adelante, los
-  valores no negativos: $B_M, B_E, B_P_1, B_P_2, B_P_3 >= 0$.
-- $B_D$ es el valor máximo del resultado del algoritmo de deformación dinámica
-  del tiempo que determina si una época puede ser una ataque epiléptico. Nótese
-  que la función solo retorna números no negativos. Se puede decir que
-  $B_D >= 0$.
-- $B_Q$ es un conjunto de señales finitas que contienen los patrones a
-  contrastar.
-
-Así, se dice que una época tiene un ataque si cumple todas las condiciones
-mencionadas anteriormente:
-
-  $ "¿ataque?"(e, b) &=& not "¿artefacto?"(e)                 \
-                    &and& b_M_l <= "max_distance"(e) <= b_M_h \
-                    &and& b_E_l <= "energy"(e) <= b_M_h       \
-                    &and& b_P_1_l <= "psd_1"(e) <= b_M_1_h    \
-                    &and& b_P_2_l <= "psd_2"(e) <= b_M_2_h    \
-                    &and& b_P_3_l <= "psd_3"(e) <= b_M_3_h    \
-                    &and& exists q in b_Q: "dtw"(e, q) <= b_M dot.op d_("th")
-  $
-  $ "¿ataque?": (bb(R) -> bb(R)) -> cal(B) -> bb(B) $
-
-== Algoritmos
-
-/*
-#algorithm({
-  import algorithmic: *
-  Function(
-    "Max-Distance",
-    ("S"),
-    {
-      Comment[Computa la diferencia entre el valor máximo y mínimo de la época]
-      Assign[min][$S(S'"First")$]
-      Assign[max][$S(S'"First")$]
-      For(
-        $i in S'"First" + 1 .. S'"Last"$,
-        {
-          If(
-            $S(i)<"min"$,
-            {
-              Assign[min][$S(i)$]
-            }
-          )
-          If(
-            $S(i)>"max"$,
-            {
-              Assign[max][$S(i)$]
-            }
-          )
-        },
-      )
-      Return[$"max"-"min"$]
-    },
-  )
-})
-*/
-
-=== `max distance` <algorithm-max-distance>
-`max_distance` es sin duda uno de los algoritmos más sencillos. Retorna la
-diferencia entre el valor máximo y el valor mínimo de una época.
-Sea $e in bb(R)^m$ una época de $m$ elementos, la entrada del algoritmo.
-Obsérvese el diagrama de flujo siguiente (@fig:flujo-max-distance).
-
-#figure(
-  diagram(
-    node-stroke: 1pt, {
-    let v-sep = 1
-
-    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
-    edge("-|>")
-    node((0,v-sep), align(center)[*2*:
-      $"mín"_v <- e(1)$\
-      $"máx"_v <- e(1)$\ $i <- 2$
-      ], shape: shapes.rect)
-    edge("-|>")
-    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
-    edge("-|>", [Sí])
-    node((0,v-sep*3), align(center)[
-      *4*:
-      $"mín"_v <- "mín"("mín"_v, e(i))$\
-      $"máx"_v <- "máx"("máx"_v, e(i))$)],
-      shape: shapes.rect)
-    edge("-|>")
-    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
-    edge("l,u,u,r", "-|>")
-    node((1, v-sep*2), name: <end>, align(center)[
-      *6*: $"result"<-"máx"_v - "mín"_v$],
-      shape: shapes.rect)
-    edge(<loop.east>, <end.west>, "-|>", [No])
-    edge("-|>")
-    node((1, v-sep*3), align(center)[*7*: Fin], shape: shapes.pill)
-  }),
-  caption: [Algoritmo `max_distance`]
-)<fig:flujo-max-distance>
-
-==== Problemas  <algorithm-max-distance-problems>
-Los puntos de fallo suelen ser cuando se indexa o cuando se opera. Indexar
-fuera de la época no está definido; y si el resultado de una operación no se
-puede representar en el conjunto es un error.
-
-Se observa posibles fallos en:
-
-- Paso *2*: Indexar el primer elemento de la época $e(1)$. Este falla si $m=0$.
-  Es decir, si no hay ningún elemento en el vector. Eso no tiene mucho sentido,
-  pero podría ocurrir, así que la primera restricción es que $m > 0$.
-- Paso *5*: Si se utiliza un $i in bb(I)_b$ e $i = 2^(b-1)-1$, entonces al
-  añadir $1$ desborda porque $2^(b-1) in.not bb(I)$. Esto ocurre cuando
-  $m=2^(b-1)-1$. Otra restricción debe ser que $m < 2^(b-1)-1$.
-- Paso *6*: Este paso solo da problemas trabajando con punto fijo. Por ejemplo,
-  en un vector de $m = 2$ elementos que sea $e = (-δ_(b,f), 2^f (2^(b-1)-1))$.
-  Al final del algoritmo $"máx"_v=2^f (2^(b-1)-1)$ y
-  $"mín"_v=-delta_(b,f)$, y el resultado
-  $"máx"_v - "mín"_v = 2^f (2^(b-1)-1) - (-delta_(b,f)) = 2^f (2^(b-1))
-  in.not bb(X)_(b,f)$.
-
-==== Análisis de punto fijo
-La función en punto fijo depende, además de la época, en otros dos conjuntos:
-El de entrada $bb(X)_(b_e,f_e)$ y el de salida $bb(X)_(b_s,f_s)$. De manera
-que la época será un vector de $m$ elementos del primer conjunto:
-$e in bb(X)_(b_e,f_e)^m$. Las variables $"mín"_v, "máx"_v in bb(X)_(b_e,f_e)$,
-también pertenecen al conjunto de entrada. $i in bb(I)_b$ para un $b > 1$
-cualquiera.
-
+=== Conversión entre tipos en punto fijo binario
 #definition(title: [$"conv"_f (x)$])[
   *Conversión de punto fijo*: Dado un valor de punto fijo
   $x = 2^f k, x in bb(X)_(b,f), k in bb(I)_b$, se define la operación de
@@ -483,361 +339,6 @@ muchísimo el análisis del error.
   fuerte de que $b' >= b + (f - f')$ se sigue manteniendo.
 ]
 
-Para simplificar el problema, se va a utilizar valores de entrada de 32 _bits_
-y la salida también será de 32 _bits_. Así que $b_e = b_s = 32$. Para
-solucionar el problema que existía en la resta se debe convertir primero los
-valores al tipo de retorno. De acuerdo con el @thm:conv-bit-cond
-$b_s >= b_e + (f_e - f_s) => 32 >= 32 + (f_e - f_s) => f_s >= f_e$ para que
-la conversión se pueda realizar.
-
-Para que la resta se pueda realizar además es necesario que $f_e < f_s$.
-Pues el valor se maximiza cuando $"máx"_v = (2^(31) - 1) 2^f_e$ y
-$"mín"_v = -2^(31) 2^f_e$ entonces $"máx"_v - "mín"_v = 2^(32) - 1$. Nótese
-que se pierde información como consecuencia del @thm:conv-error, se minimiza
-la pérdida de información cuando más pequeño sea $f_s$. Así que $f_e + 1 = f_s$.
-
-==== Precondiciones
-
-- $m > 0$, el vector debe tener al menos un elemento.
-- $m < "máx"{bb(I)_b}$, la longitud del vector debe ser menor que el máximo del
-  número entero que se utilice para indexar.
-- $f_s = f_e + 1$, para poder operar y minimizar la pérdida de información.
-
-==== Postcondiciones
-
-- El resultado es no negativo, pues $"máx"_v >= "mín"_v$.
-
-=== Acumulación
-Varios algoritmos tienen algún paso que consiste en suma una secuencia de
-elementos. El algoritmo es similar al algoritmo `max-distance`
-(@algorithm-max-distance) en que es una reducción. Dado un vector $v in bb(R)^m$
-el algoritmo acumuación computa: $sum_(i=1)^m v(i)$, de acuerdo con el
-siguiente diagrama de flujo:
-
-#figure(
-  diagram(
-    node-stroke: 1pt, {
-    let v-sep = 1
-
-    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
-    edge("-|>")
-    node((0,v-sep), align(center)[*2*:
-      $"res" <- v(1)$ \
-      $i <- 2$
-      ], shape: shapes.rect)
-    edge("-|>")
-    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
-    edge("-|>", [Sí])
-    node((0,v-sep*3), align(center)[
-      *4*:
-      $"res" <- "res" + v(i)$],
-      shape: shapes.rect)
-    edge("-|>")
-    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
-    edge("l,u,u,r", "-|>")
-    node((1, v-sep*2), name: <end>, align(center)[
-      *6*: Fin],
-      shape: shapes.pill)
-    edge(<loop.east>, <end.west>, "-|>", [No])
-  }),
-  caption: [Algoritmo «acumulación»]
-)
-
-==== Problemas <algorithm-accumulation-problems>
-Se siguen viendo similaridades con `max-distance`, y se ve que comparte sus
-dos primeros problemas @algorithm-max-distance-problems:
-
-- En el paso *2*, $v(1)$ falla si $m = 0$.
-- En el paso *5*, $i + 1$ falla si $i in bb(I)_b and i + 1 in.not bb(I)_b$,
-  por ejemplo si $i in bb(I)_b$ y $m = 2^(b-1) - 1$
-- Además en el paso *4*, se ve un problema similar al que tenía `max-distance`
-  en su paso número *6*. Y es que la suma puede desbordar en punto fijo.
-
-==== Análisis de punto fijo
-Existen varias alternativas para solucionar este problema, la más sencilla es
-sin duda utilizar un tipo de punto fijo más grande para el resultado,
-consecuencia del @thm:accumulation.
-
-#lemma[
-  Si $a >= 2$ y $b >= 2$, entonces $a b >= a + b$
-] <lem:product-greater-than-sum>
-
-#theorem[
-  Dados $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$,
-  entonces el resultado debe estar en $bb(X)_(b+B-1,f)$.
-] <thm:accumulation>
-
-#proof[
-  Si $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$. Sea la
-  función de acumulación $g(v,m)=sum_(i=1)^(m) v(i)$, como $bb(X)_(b,f)$ y
-  $bb(I)_B$ son finitos, el codominio de $g$ también es finito y tiene un valor
-  máximo y mínimo que pertenece a $bb(X)_(b+B-1,f)$
-
-  La función se maximiza cuando $v(i) = (2^(b-1) - 1) 2^f, forall i = 1, 2,
-  ..., m$, el resultado entonces sería:
-
-    $ "máx"{sum_(i=1)^m v(i)} = $
-    $ = sum_(i=1)^(2^(B-1)-1) (2^(b-1) - 1) 2^f $
-    $ = 2^f (2^(B-1) - 1) (2^(b-1) - 1) $
-    $ = 2^f [2^(B+b-2) - 2^(B-1) - 2^(b-1) + 1] $
-
-  Es necesario ver que:
-
-    $ (2^(b+B-2) + 1) 2^f > (2^(B-1) + 2^(b-1)) 2^f <=> 2^(b+B-2) + 1 > 2^(B-1) + 2^(b-1) $
-
-  Hay que tener en cuenta que $b, B in bb(N)^+$. Los casos son los siguientes:
-  Cuando $b >= 2 and B >= 2$, como $2^(B-1) >= 2$ y $2^(b-1) >= 2$, de acuerdo
-  con el @lem:product-greater-than-sum:
-
-    $ 2^(b+B-2) >= 2^(B-1) 2^(b-1) => 2^(b+B-2) + 1 > 2^(B-1) 2^(b-1) $
-
-  Por el contrario si $b = 1$, entonces $2^(b+B-2) + 1 = 2^(B-1) >= 1 +
-  2^(B-1)$. Igualmente con $B = 1$, entonces $2^(b+B-2) + 1 = 2^(b-1) >=
-  1+2^(b-1)$.
-
-  Entonces:
-
-    $ 0 <= (2^(b+B-2) + 1) 2^f - [2^(b-1) + 2^(B-1)] 2^f <= (2^(B+b-2) - 1) 2^f $
-    $ "máx"{sum_(i=1)^m v(i)} = (2^(b+B-2) + 1) 2^f - [2^(b-1) + 2^(B-1)] 2^f in bb(X)_(B+b-1,f) $
-
-  La función se minimiza cuando $v(i) = -2^(b-1) 2^f, forall i = 1, 2, ..., m$,
-  el resultado entonces sería:
-
-    $ "mín"{sum_(i=1)^m v(i)} = $
-    $ = 2^f sum_(i=1)^(2^(B-1)-1) -2^(b-1) $
-    $ = 2^f (2^(B-1)-1) (-2^(b-1)) $
-    $ = -2^(B+b-2) 2^f + 2^(b-1) 2^f $
-    $ [ 2^(b-1) 2^f <= 2^(B+b-2) 2^f <=> b - 1 <= B + b - 2 <=> B >= 1 ] $
-    $ -2^(B+b-2) 2^f <= -2^(B+b-2) 2^f + 2^(b-1) 2^f <= 0 $
-    $ "mín"{sum_(i=1)^m v(i)} = -2^(B+b-2) 2^f + 2^(b-1) 2^f in bb(X)_(B+b-1,f) $
-]
-
-Esto viene a decir que si se utiliza un punto fijo de $b$ bits y el tamaño
-máximo se puede almacenar en una variable de tipo entero con signo de $B$ bits:
-se necesitaría que el acumulador tuviera $b + B - 1$ bits para almacenar el
-resultado, con la misma $f$ que el punto fijo de entrada.
-
-==== SPARK <subsubsec:acc-spark>
-A la hora de explicar esto a SPARK hay que utilizar una técnica que utiliza
-un vector con las sumas parciales del vector de manera que
-$v'(i) = sum_(j=1)^i v(i), i = 1, 2, ..., m$ @SPARKpartialSum.
-Además, una condición adicional que se ha visto útil, es decir que los valores
-de $v'(i)$ están acotados. Es decir,
-
-  $ v(i) in [a, b], forall i = 1, 2, ..., m =>
-   v'(i) = sum_(j=1)^i v(i) in [a i, b i], forall i = 1, 2, ..., m $
-
-En SPARK se utilizan lo que se llaman funciones fantasma (_Ghost_), que son
-subrutinas que no generan código y que solamente son utilizadas por el probador
-de teoremas interno. En este caso se define la función `Generic_Accumulation`
-se declararía como dice el @lst:generic-accumulation-spec.
-
-#code(
-  caption: [Especificación de la función fantasma `Generic_Accumulation`],
-  tag: "lst:generic-accumulation-spec"
-)[```adb
-generic
-   type Fixed_Type is delta <>;
-   type Index_Type is range <>;
-   type Array_Type is array (Index_Type range <>) of Fixed_Type;
-   First : in Fixed_Type;
-   Last  : in Fixed_Type;
-function Generic_Accumulation (
-   Item : in Array_Type)
-   return Array_Type with
-   Ghost    => True,
-   Global   => null,
-   Pre      => Item'Length > 0
-      and then (for all X of Item => X in First .. Last),
-   Post     => (
-      declare  Result renames Generic_Accumulation'Result;
-      begin    Result'First = Item'First
-      and then Result'Length = Item'Length
-      and then Result (Item'First) = Item (Item'First)
-      and then (for all I in Item'First + 1 .. Item'Last =>
-                  Result (I - 1) in Positive (I - Item'First) * First
-                                 .. Positive (I - Item'First) * Last
-                  and then Result (I) = Result (I - 1) + Item (I))
-      and then Result (Item'Last) in Item'Length * First
-                                  .. Item'Length * Last);
-```]
-
-La línea 10 del @lst:generic-accumulation-spec
-(@lst:generic-accumulation-spec:10) dice que es una función fantasma, que no
-genere código. En @lst:generic-accumulation-spec:11 mencionamos que es una
-función que no modifica el estado global (en SPARK está prohibido si es una
-función, no si es un procedimiento). A continuación hay dos precondiciones:
-
-- La longitud debe ser estrictamente positiva
-- Todos los elementos deben estar acotados en el mismo rango: $v(i) in ["first", "last"] forall v(i)$.
-
-Finalmente la postcondición dice que:
-
-- La longitud del resultado es igual a la del parámetro. Y además que comienzan
-  en el mismo índice (en Ada o SPARK se puede indexar a partir de cualquier
-  valor).
-- Todos los elementos están acotados como se veía al principio en la
-  @subsubsec:acc-spark.
-
-Y se implementaría como se muestra en @lst:generic-accumulation-body.
-
-#code(
-  caption: [Implementación de la función fantasma `Generic_Accumulation`],
-  tag: "lst:generic-accumulation-body"
-)[```adb
-function Generic_Accumulation (
-   Item : in Array_Type)
-   return Array_Type is
-   Result : Array_Type (Item'Range) := [others => 0.0];
-begin
-   Result (Item'First) := Item (Item'First);
-   for Index in Item'First + 1 .. Item'Last loop
-      pragma Loop_Invariant (Result (Item'First) = Item (Item'First));
-      pragma Loop_Invariant (
-         (for all I in Item'First + 1 .. Index - 1 =>
-            Result (I - 1) in Positive (I - Item'First) * First
-                           .. Positive (I - Item'First) * Last
-            and then Result (I) = Result (I - 1) + Item (I)
-            and then Result (I) in Positive (I - Item'First + 1) * First
-                              .. Positive (I - Item'First + 1) * Last));
-      Result (Index) := Result (Index - 1) + Item (Index);
-   end loop;
-   return Result;
-end Generic_Accumulation;
-```]
-
-Es preciso mencionar que es necesario especificar los predicados invariantes en
-el bucle (`Loop_Invariant`), es decir qué propiedades no cambian de una
-iteración a la siguiente. En este caso estamos diciendo que primero todos
-los valores hasta el índice actual está acotados
-(@lst:generic-accumulation-body:11); que su valor es la suma del anterior
-resultado más el valor del vector en el índice actual
-(@lst:generic-accumulation-body:13); y que, finalmente, esa suma sigue estando
-acotada en un superconjunto (@lst:generic-accumulation-body:14). SPARK, no sabe
-si se están modificando los elementos anteriores o no.
-
-La demostración en SPARK es similar a la inducción matemática: sea $i in
-bb(I)_B$ la variable de iteración, $v in bb(Z)_(b,f)^m$ el vector de entrada y
-$v' in bb(Z)_(b+B,f)^m$ el vector de salida, de modo que
-$v(i) in [a, b], forall i = 1, 2, ..., m$.
-
-
-1. *Caso base*: $v(1) = v'(1)$ y $v(1) in [a, b]$
-2. *Hipótesis inductiva*: Para $v'(k), k > 1$ suponemos $v'(k) in [k a, k b]$.
-3. *Tesis inductiva*: Para $v'(k+1)$, si $v'(k) in [k a, k b]$, como
-   $v'(k+1) = v'(k) + v(k)$ y como $v(k) in [a, b]$, entonces
-   $v'(k) + v(k) in [a (k+1), b (k+1)]$, por lo que $v'(k+1) in [a (k+1), b(k+1)]$
-
-La función fantasma no computa la acumulación como tal, debe ser otra función
-la que haga uso de ella para definir dichos rangos. Suponiendo que hay un
-tipo de punto fijo `Input_Type` ($bb(X)_(b,f)$), un tipo para indexar
-`Index_Type` ($bb(I)_B$), un tipo de resultado `Result_Type`
-($bb(X)_(b+B-1,f)$) y un tipo vector de elementos de tipo `Input_Type` que
-indexa con `Index_Type >= 1` (véase el @lst:generic-accumulation-example).
-
-#code(
-  caption: [Ejemplo de uso de la función fantasma `Generic_Accumulation`],
-  tag: "lst:generic-accumulation-example"
-)[```adb
-function Accumlate (Item : in Input_Type_Array) return Result_Type is
-   subtype Constrained_Result is Result_Type
-      range Result_Type (Input_Type'First) .. Result_Type (Input_Type'Last)
-   type Result_Array is array (Index_Type range <>) of Result_Type;
-   function Acc_Sum is
-      new Lemmas.Generic_Accumulation (
-      Fixed_Type => Result_Type,
-      Index_Type => Index_Type,
-      Array_Type => Result_Array,
-      First      => Constrained_Result'First,
-      Last       => Constrained_Result'Last);
-   Mapped : constant Result_Array (Item'Range) :=
-      [for I in Item'Range => Constrained_Result (Item (I))] with
-      Ghost => True;
-   Result : Result_Type := 0.0;
-begin
-   for Index in Item'Range loop
-      Result := Result + Constrained_Result (Item (Index));
-      pragma Loop_Invariant (Result = Acc_Sum (Mapped) (Index));
-   end loop;
-   return Result;
-end Accumulate;
-```]
-
-Se debe «instanciar» la función que `Generic_Accumulation`, es decir es
-genérica (sirve para distintos tipos de tipos) y por lo tanto está
-parametrizada (@lst:generic-accumulation-example:5). Se define una constante
-fantasma con el vector de entrada, pero esta vez contiene los valores con el
-tipo del resultado. Finalmente en @lst:generic-accumulation-example:19 dice
-que el resultado `Result` en la i-ésima posición tiene el mismo valor que el
-valor en la i-ésima posición de `Generic_Accumulation`.
-
-=== Media
-El algoritmo de la media es básicamente el de la acumulación, pero dividiendo
-entre el número de elementos:
-
-  $ mu (v,m) = sum_(i=1)^m v(i)/m $
-
-O en diagrama de flujo de la @fig:flujo-media.
-
-#figure(
-  diagram(
-    node-stroke: 1pt, {
-    let v-sep = 1
-
-    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
-    edge("-|>")
-    node((0,v-sep), align(center)[*2*:
-      $"res" <- v(1)$ \
-      $i <- 2$
-      ], shape: shapes.rect)
-    edge("-|>")
-    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
-    edge("-|>", [Sí])
-    node((0,v-sep*3), align(center)[
-      *4*:
-      $"res" <- "res" + v(i)$],
-      shape: shapes.rect)
-    edge("-|>")
-    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
-    edge("l,u,u,r", "-|>")
-    node((1, v-sep*2), name: <end>, align(center)[
-      *6*: $"res"<-"res"slash m$],
-      shape: shapes.rect)
-    edge(<loop.east>, <end.west>, "-|>", [No])
-    edge("-|>")
-    node((1, v-sep*3), align(center)[*7*: Fin], shape: shapes.pill)
-  }),
-  caption: [Algoritmo de la media]
-) <fig:flujo-media>
-
-==== Problemas <algorithm-mean-problems>
-
-Se siguen manteniendo los problemas de la acumulación
-como se puede ver en la @algorithm-accumulation-problems. Pero en el caso de
-punto fijo el resultado, si $v(i) in bb(X)_(b,f), forall i = 1, 2, ..., m$,
-también pertenece al mismo conjunto que los valores de entrada $bb(X)_(b,f)$,
-según la demostración del @lem:product-greater-than-sum (esta vez con $m$ en
-vez del valor máximo):
-
-  $ "máx"_(m=m){sum_(i=1)^m v(i)} = m (2^(b-1) - 1) 2^f $
-  $ "mín"_(m=m){sum_(i=1)^m v(i)} = -m 2^(b-1) 2^f $
-
-Y por supuesto si se divide entre $m$ cualquiera de los dos para hacer la media
-se obtiene el máximo y mínimo respectivamente del conjunto de los valores del
-vector:
-
-  $ ("máx"_(m=m){sum_(i=1)^m v(i)}) / m = (2^(b-1) - 1) 2^f $
-  $ ("mín"_(m=m){sum_(i=1)^m v(i)}) / m = 2^(b-1) 2^f $
-
-Sin embargo, nótese que esta condición no es cierta al trabajar con punto
-flotante por problemas de precisión. Es bien conocido que trabajando con un
-computado de punto flotante de 64 bits ($bb(F)_64$), por ejemplo, la suma
-$0.1 + 0.2$ no da exactamente $0.3$, da $0.30000000000000004$; porque ni $0.1$
-ni $0.2$ se pueden respresentar en binario con un número finito de dígitos
-binarios: $0.1_(10) = 0.00overline(0011)_2$ y $0.2_(10) = 0.0overline(0011)$.
-Luego no se puede hacer dicha suposición cuando se trabaja en cualquier
-$bb(F)_b$.
-
 === Subconjunto uniforme de $bb(X)_(b,1-b)$ <uniform>
 Para los siguientes algoritmos resulta bastante trabajar con un punto fijo
 con un exponente $f$ del coeficiente arbitrario, pues muchos de ellos necesitan
@@ -901,7 +402,7 @@ bits:
 #theorem(title: [Producto de punto fijo])[
   Dados $x = p 2^f, x in bb(X)_(b,f)$ e $y = q 2^(f'), y in bb(X)_(b',f')$, su
   producto $x y = p q 2^(f+f')$ es otro punto fijo: $x y in bb(X)_(b+b'-1,f+f')$.
-]
+] <thm:fixed-product>
 
 #proof[
   Dados dos conjuntos de punto fijo $bb(X)_(b,f)$ y $bb(X)_(b',f')$. Por
@@ -1109,7 +610,7 @@ uniformización. En primer lugar, la de un valor:
 
     $ "unif"_(b,f): bb(X)_(b,f) -> bb(U)_b $
     $ "unif"_(b,f) (x) = p 2^(1-b) = x / (2^(f+b-1)) $
-]
+] <def:unif-valor>
 
 #definition(title: [Uniformización de un vector])[
   La uniformización de un vector convierte un vector $v in bb(X)_(b,f)^n$ a
@@ -1133,9 +634,9 @@ uniformización. En primer lugar, la de un valor:
    => && p 2^(1-b)             &&=& q 2^(1-b)             \
    => && p                     &&=& q $
 
-  Llegamos a una contradicción, así que es *inyectiva*.
+  Se llega a una contradicción, así que es *inyectiva*.
 
-  Finalmente es suprayectiva porque el codominio es el conjunto:
+  Finalmente es suprayectiva porque la imagen de la función es el conjunto:
 
   $ =& {"unif"_(b,f) (x) : x in bb(X)_(b,f) without {-2^(b-1) 2^f}} & \
     =& {"unif"_(b,f) (p 2^f) : x in bb(I)_(b) without {-2^(b-1)}} &
@@ -1146,7 +647,7 @@ uniformización. En primer lugar, la de un valor:
     =& bb(U)_b & #text([[por definición]])
   $
 
-  Que cubre todo el conjunto $bb(U)_b$, así que la función es *suprayectiva*.
+  Que cubre todo el codominio $bb(U)_b$, así que la función es *suprayectiva*.
 
   Como la función es a la vez inyectiva y suprayectiva, se dice que la función
   es *biyectiva*.
@@ -1167,7 +668,7 @@ uniformización. En primer lugar, la de un valor:
 
   $ "unif"_(b,f)^(-1) : bb(U)_b -> bb(X)_(b,f) $
   $ "unif"_(b,f) (u) = p 2^f = u 2^(f-b+1) $
-]
+] <def:desunif-valor>
 
 #definition(title: [Desuniformización de un vector])[
   Se exitiende la definición de la desuniformización a vectores pues por
@@ -1179,7 +680,7 @@ uniformización. En primer lugar, la de un valor:
   $ "unif"_(b,f)^(-1) (v) : bb(U)_b^n -> bb(X)_(b,f)^n $
   $ v' = "unif"_(b,f)^(-1) (v) $
   $ v'(i) = "unif"_(b,f)^(-1) (v(i)), forall i = 1, 2, ..., n $
-]
+] <def:desunif-vector>
 
 Un caso específico de división que se ha utilizado a lo largo del proyecto es
 la división entre un número entero, cabe recordar que $bb(X)_(b,0) = bb(I)_b$
@@ -1195,8 +696,511 @@ la división entre un número entero, cabe recordar que $bb(X)_(b,0) = bb(I)_b$
 
 ] <cor:fixed-whole-division>
 
+=== Resumen del algoritmo
+El algoritmo a implementar es el algoritmo 4 (_validation phase_) del artículo
+en que se basa el proyecto @PaFESD. Para determinar si una época pertenece o no
+a un ataque epiléptico se computan lo que el artículo llama _features_ (o
+características) que son cinco funciones matemáticas: `max_distance`, `energy`,
+`psd_1`, `psd_2` y `psd_3`. Si las características de una época están en
+ciertos rangos determinados por el modelo, a época no es un artefacto y la
+distancia utilizando el algoritmo de deformación dinámica del tiempo es lo
+suficientemente pequeña para alguno de los patrones: el modelo dice que la
+época puede tratarse de un ataque epiléptico.
 
-=== Varianza
+El modelo (al que el artículo llama _batch_) es una 7-tupla:
+
+  $ B = (B_M, B_E, B_P_1, B_P_2, B_P_3, B_D, B_Q), B in cal(B) $
+
+  $ B_M, B_E, B_P_1, B_P_2, B_P_3 in bb(R) times bb(R) $
+  $ B_D in bb(R) $
+  $ B_Q = { S_q : bb(R) -> bb(R) } $
+
+- $B_M$, $B_E$, $B_P_1$, $B_P_2$, $B_P_3$ son 2-tuplas de dos números reales
+  $B_x = (B_x_l, B_x_h), B_x_l <= B_x_h$ que indican el rango válido de los
+  resultados de evaluar las funciones `max_distance`, `energy`, `psd_1`,
+  `psd_2` y `psd_3` respectivamente. Además, como se verá más adelante, los
+  valores no negativos: $B_M, B_E, B_P_1, B_P_2, B_P_3 >= 0$.
+- $B_D$ es el valor máximo del resultado del algoritmo de deformación dinámica
+  del tiempo que determina si una época puede ser una ataque epiléptico. Nótese
+  que la función solo retorna números no negativos. Se puede decir que
+  $B_D >= 0$.
+- $B_Q$ es un conjunto de señales finitas que contienen los patrones a
+  contrastar.
+
+Así, se dice que una época tiene un ataque si cumple todas las condiciones
+mencionadas anteriormente:
+
+  $ "¿ataque?"(e, b) &=& not "¿artefacto?"(e)                 \
+                    &and& b_M_l <= "max_distance"(e) <= b_M_h \
+                    &and& b_E_l <= "energy"(e) <= b_M_h       \
+                    &and& b_P_1_l <= "psd_1"(e) <= b_M_1_h    \
+                    &and& b_P_2_l <= "psd_2"(e) <= b_M_2_h    \
+                    &and& b_P_3_l <= "psd_3"(e) <= b_M_3_h    \
+                    &and& exists q in b_Q: "dtw"(e, q) <= b_M dot.op d_("th")
+  $
+  $ "¿ataque?": (bb(R) -> bb(R)) -> cal(B) -> bb(B) $
+
+
+#pagebreak(weak:true)
+== Algoritmos
+/* ==== M A X _ D I S T A N C E ============================================ */
+=== `max distance` <algorithm-max-distance>
+`max_distance` es sin duda uno de los algoritmos más sencillos. Retorna la
+diferencia entre el valor máximo y el valor mínimo de una época.
+Sea $e in bb(R)^m$ una época de $m$ elementos, la entrada del algoritmo.
+Obsérvese el diagrama de flujo siguiente (@fig:flujo-max-distance).
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((0,v-sep), align(center)[*2*:
+      $"mín"_v <- e(1)$\
+      $"máx"_v <- e(1)$\ $i <- 2$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((0,v-sep*3), align(center)[
+      *4*:
+      $"mín"_v <- "mín"("mín"_v, e(i))$\
+      $"máx"_v <- "máx"("máx"_v, e(i))$)],
+      shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
+    edge("l,u,u,r", "-|>")
+    node((1, v-sep*2), name: <end>, align(center)[
+      *6*: $"result"<-"máx"_v - "mín"_v$],
+      shape: shapes.rect)
+    edge(<loop.east>, <end.west>, "-|>", [No])
+    edge("-|>")
+    node((1, v-sep*3), align(center)[*7*: Fin], shape: shapes.pill)
+  }),
+  caption: [Algoritmo `max_distance`]
+)<fig:flujo-max-distance>
+
+==== Problemas  <algorithm-max-distance-problems>
+Los puntos de fallo suelen ser cuando se indexa o cuando se opera. Indexar
+fuera de la época no está definido; y si el resultado de una operación no se
+puede representar en el conjunto es un error.
+
+Se observa posibles fallos en:
+
+- Paso *2*: Indexar el primer elemento de la época $e(1)$. Este falla si $m=0$.
+  Es decir, si no hay ningún elemento en el vector. Eso no tiene mucho sentido,
+  pero podría ocurrir, así que la primera restricción es que $m > 0$.
+- Paso *5*: Si se utiliza un $i in bb(I)_b$ e $i = 2^(b-1)-1$, entonces al
+  añadir $1$ desborda porque $2^(b-1) in.not bb(I)$. Esto ocurre cuando
+  $m=2^(b-1)-1$. Otra restricción debe ser que $m < 2^(b-1)-1$.
+- Paso *6*: Este paso solo da problemas trabajando con punto fijo. Por ejemplo,
+  en un vector de $m = 2$ elementos que sea $e = (-δ_(b,f), 2^f (2^(b-1)-1))$.
+  Al final del algoritmo $"máx"_v=2^f (2^(b-1)-1)$ y
+  $"mín"_v=-delta_(b,f)$, y el resultado
+  $"máx"_v - "mín"_v = 2^f (2^(b-1)-1) - (-delta_(b,f)) = 2^f (2^(b-1))
+  in.not bb(X)_(b,f)$.
+
+La función en punto fijo depende, además de la época, en otros dos conjuntos:
+El de entrada $bb(X)_(b_e,f_e)$ y el de salida $bb(X)_(b_s,f_s)$. De manera
+que la época será un vector de $m$ elementos del primer conjunto:
+$e in bb(X)_(b_e,f_e)^m$. Las variables $"mín"_v, "máx"_v in bb(X)_(b_e,f_e)$,
+también pertenecen al conjunto de entrada. $i in bb(I)_b$ para un $b > 1$
+cualquiera.
+
+Para simplificar el problema, se va a utilizar valores de entrada de 32 _bits_
+y la salida también será de 32 _bits_. Así que $b_e = b_s = 32$. Para
+solucionar el problema que existía en la resta se debe convertir primero los
+valores al tipo de retorno. De acuerdo con el @thm:conv-bit-cond
+$b_s >= b_e + (f_e - f_s) => 32 >= 32 + (f_e - f_s) => f_s >= f_e$ para que
+la conversión se pueda realizar.
+
+Para que la resta se pueda realizar además es necesario que $f_e < f_s$.
+Pues el valor se maximiza cuando $"máx"_v = (2^(31) - 1) 2^f_e$ y
+$"mín"_v = -2^(31) 2^f_e$ entonces $"máx"_v - "mín"_v = 2^(32) - 1$. Nótese
+que se pierde información como consecuencia del @thm:conv-error, se minimiza
+la pérdida de información cuando más pequeño sea $f_s$. Así que $f_e + 1 = f_s$.
+
+==== Precondiciones
+
+- $m > 0$, el vector debe tener al menos un elemento.
+- $m < "máx"{bb(I)_b}$, la longitud del vector debe ser menor que el máximo del
+  número entero que se utilice para indexar.
+- $f_s = f_e + 1$, para poder operar y minimizar la pérdida de información.
+
+==== Postcondiciones
+
+- El resultado es no negativo, pues $"máx"_v >= "mín"_v$.
+
+/* ==== A C U M U L A C I Ó N ============================================== */
+
+#pagebreak(weak:true)
+=== Acumulación <sec:acumulación>
+Varios algoritmos tienen algún paso que consiste en suma una secuencia de
+elementos. El algoritmo es similar al algoritmo `max-distance`
+(@algorithm-max-distance) en que es una reducción. Dado un vector $v in bb(R)^m$
+el algoritmo acumuación computa: $sum_(i=1)^m v(i)$, de acuerdo con el
+siguiente diagrama de flujo:
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((0,v-sep), align(center)[*2*:
+      $"res" <- v(1)$ \
+      $i <- 2$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((0,v-sep*3), align(center)[
+      *4*:
+      $"res" <- "res" + v(i)$],
+      shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
+    edge("l,u,u,r", "-|>")
+    node((1, v-sep*2), name: <end>, align(center)[
+      *6*: Fin],
+      shape: shapes.pill)
+    edge(<loop.east>, <end.west>, "-|>", [No])
+  }),
+  caption: [Algoritmo «acumulación»]
+)
+
+==== Problemas <algorithm-accumulation-problems>
+Se siguen viendo similaridades con `max-distance`, y se ve que comparte sus
+dos primeros problemas @algorithm-max-distance-problems:
+
+- En el paso *2*, $v(1)$ falla si $m = 0$.
+- En el paso *5*, $i + 1$ falla si $i in bb(I)_b and i + 1 in.not bb(I)_b$,
+  por ejemplo si $i in bb(I)_b$ y $m = 2^(b-1) - 1$
+- Además en el paso *4*, se ve un problema similar al que tenía `max-distance`
+  en su paso número *6*. Y es que la suma puede desbordar en punto fijo.
+
+==== Análisis de punto fijo
+Existen varias alternativas para solucionar este problema, la más sencilla es
+sin duda utilizar un tipo de punto fijo más grande para el resultado,
+consecuencia del @thm:accumulation.
+
+#lemma[
+  Si $a >= 2$ y $b >= 2$, entonces $a b >= a + b$
+] <lem:product-greater-than-sum>
+
+#theorem[
+  Dados $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$,
+  entonces el resultado de $sum_(k=1)^i v(k)$ está en $bb(X)_(b+B-1,f)$ y
+  está en el intervalo $[-i 2^(b - 1) 2^f, i (2^(b - 1) - 1) 2^f]$
+] <thm:accumulation>
+
+#proof[
+  Si $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$. Sea la
+  función de acumulación $g(v,m)=sum_(i=1)^(m) v(i)$, como $bb(X)_(b,f)$ y
+  $bb(I)_B$ son finitos, el codominio de $g$ también es finito y tiene un valor
+  máximo y mínimo que pertenece a $bb(X)_(b+B-1,f)$
+
+  La función se maximiza cuando $v(i) = (2^(b-1) - 1) 2^f, forall i = 1, 2,
+  ..., m$, el resultado entonces sería:
+
+    $ "máx"{sum_(i=1)^m v(i)} = $
+    $ = sum_(i=1)^(2^(B-1)-1) (2^(b-1) - 1) 2^f $
+    $ = 2^f (2^(B-1) - 1) (2^(b-1) - 1) $
+    $ = 2^f [2^(B+b-2) - 2^(B-1) - 2^(b-1) + 1] $
+
+  Es necesario ver que:
+
+    $ (2^(b+B-2) + 1) 2^f > (2^(B-1) + 2^(b-1)) 2^f <=> 2^(b+B-2) + 1 > 2^(B-1) + 2^(b-1) $
+
+  Hay que tener en cuenta que $b, B in bb(N)^+$. Los casos son los siguientes:
+  Cuando $b >= 2 and B >= 2$, como $2^(B-1) >= 2$ y $2^(b-1) >= 2$, de acuerdo
+  con el @lem:product-greater-than-sum:
+
+    $ 2^(b+B-2) >= 2^(B-1) 2^(b-1) => 2^(b+B-2) + 1 > 2^(B-1) 2^(b-1) $
+
+  Por el contrario si $b = 1$, entonces $2^(b+B-2) + 1 = 2^(B-1) >= 1 +
+  2^(B-1)$. Igualmente con $B = 1$, entonces $2^(b+B-2) + 1 = 2^(b-1) >=
+  1+2^(b-1)$.
+
+  Entonces:
+
+    $ 0 <= (2^(b+B-2) + 1) 2^f - [2^(b-1) + 2^(B-1)] 2^f <= (2^(B+b-2) - 1) 2^f $
+    $ "máx"{sum_(i=1)^m v(i)} = (2^(b+B-2) + 1) 2^f - [2^(b-1) + 2^(B-1)] 2^f in bb(X)_(B+b-1,f) $
+
+  La función se minimiza cuando $v(i) = -2^(b-1) 2^f, forall i = 1, 2, ..., m$,
+  el resultado entonces sería:
+
+    $ "mín"{sum_(i=1)^m v(i)} = $
+    $ = 2^f sum_(i=1)^(2^(B-1)-1) -2^(b-1) $
+    $ = 2^f (2^(B-1)-1) (-2^(b-1)) $
+    $ = -2^(B+b-2) 2^f + 2^(b-1) 2^f $
+    $ [ 2^(b-1) 2^f <= 2^(B+b-2) 2^f <=> b - 1 <= B + b - 2 <=> B >= 1 ] $
+    $ -2^(B+b-2) 2^f <= -2^(B+b-2) 2^f + 2^(b-1) 2^f <= 0 $
+    $ "mín"{sum_(i=1)^m v(i)} = -2^(B+b-2) 2^f + 2^(b-1) 2^f in bb(X)_(B+b-1,f) $
+]
+
+Esto viene a decir que si se utiliza un punto fijo de $b$ bits y el tamaño
+máximo se puede almacenar en una variable de tipo entero con signo de $B$ bits:
+se necesitaría que el acumulador tuviera $b + B - 1$ bits para almacenar el
+resultado, con la misma $f$ que el punto fijo de entrada.
+
+==== SPARK <subsubsec:acc-spark>
+A la hora de explicar esto a SPARK hay que utilizar una técnica que utiliza
+un vector con las sumas parciales del vector de manera que
+$v'(i) = sum_(j=1)^i v(i), i = 1, 2, ..., m$ @SPARKpartialSum.
+Además, una condición adicional que se ha visto útil, es decir que los valores
+de $v'(i)$ están acotados. Es decir,
+
+  $ v(i) in [a, b], forall i = 1, 2, ..., m =>
+   v'(i) = sum_(j=1)^i v(i) in [a i, b i], forall i = 1, 2, ..., m $
+
+En SPARK se utilizan lo que se llaman funciones fantasma (_Ghost_), que son
+subrutinas que no generan código y que solamente son utilizadas por el probador
+de teoremas interno. En este caso se define la función `Generic_Accumulation`
+se declararía como dice el @lst:generic-accumulation-spec.
+
+#code(
+  caption: [Especificación de la función fantasma `Generic_Accumulation`],
+  tag: "lst:generic-accumulation-spec"
+)[```adb
+generic
+   type Fixed_Type is delta <>;
+   type Index_Type is range <>;
+   type Array_Type is array (Index_Type range <>) of Fixed_Type;
+   First : in Fixed_Type;
+   Last  : in Fixed_Type;
+function Generic_Accumulation (
+   Item : in Array_Type)
+   return Array_Type with
+   Ghost    => True,
+   Global   => null,
+   Pre      => Item'Length > 0
+      and then (for all X of Item => X in First .. Last),
+   Post     => (
+      declare  Result renames Generic_Accumulation'Result;
+      begin    Result'First = Item'First
+      and then Result'Length = Item'Length
+      and then Result (Item'First) = Item (Item'First)
+      and then (for all I in Item'First + 1 .. Item'Last =>
+                  Result (I - 1) in Positive (I - Item'First) * First
+                                 .. Positive (I - Item'First) * Last
+                  and then Result (I) = Result (I - 1) + Item (I))
+      and then Result (Item'Last) in Item'Length * First
+                                  .. Item'Length * Last);
+```]
+
+La línea 10 del @lst:generic-accumulation-spec
+(@lst:generic-accumulation-spec:10) dice que es una función fantasma, que no
+genere código. En @lst:generic-accumulation-spec:11 mencionamos que es una
+función que no modifica el estado global (en SPARK está prohibido si es una
+función, no si es un procedimiento). A continuación hay dos precondiciones:
+
+- La longitud debe ser estrictamente positiva
+- Todos los elementos deben estar acotados en el mismo rango: $v(i) in ["first", "last"] forall v(i)$.
+
+Finalmente la postcondición dice que:
+
+- La longitud del resultado es igual a la del parámetro. Y además que comienzan
+  en el mismo índice (en Ada o SPARK se puede indexar a partir de cualquier
+  valor).
+- Todos los elementos están acotados como se veía al principio en la
+  @subsubsec:acc-spark.
+
+Y se implementaría como se muestra en @lst:generic-accumulation-body.
+
+#code(
+  caption: [Implementación de la función fantasma `Generic_Accumulation`],
+  tag: "lst:generic-accumulation-body"
+)[```adb
+function Generic_Accumulation (
+   Item : in Array_Type)
+   return Array_Type is
+   Result : Array_Type (Item'Range) := [others => 0.0];
+begin
+   Result (Item'First) := Item (Item'First);
+   for Index in Item'First + 1 .. Item'Last loop
+      pragma Loop_Invariant (Result (Item'First) = Item (Item'First));
+      pragma Loop_Invariant (
+         (for all I in Item'First + 1 .. Index - 1 =>
+            Result (I - 1) in Positive (I - Item'First) * First
+                           .. Positive (I - Item'First) * Last
+            and then Result (I) = Result (I - 1) + Item (I)
+            and then Result (I) in Positive (I - Item'First + 1) * First
+                              .. Positive (I - Item'First + 1) * Last));
+      Result (Index) := Result (Index - 1) + Item (Index);
+   end loop;
+   return Result;
+end Generic_Accumulation;
+```]
+
+Es preciso mencionar que es necesario especificar los predicados invariantes en
+el bucle (`Loop_Invariant`), es decir qué propiedades no cambian de una
+iteración a la siguiente. En este caso estamos diciendo que primero todos
+los valores hasta el índice actual está acotados
+(@lst:generic-accumulation-body:11); que su valor es la suma del anterior
+resultado más el valor del vector en el índice actual
+(@lst:generic-accumulation-body:13); y que, finalmente, esa suma sigue estando
+acotada en un superconjunto (@lst:generic-accumulation-body:14). SPARK, no sabe
+si se están modificando los elementos anteriores o no.
+
+La demostración en SPARK es similar a la inducción matemática: sea $i in
+bb(I)_B$ la variable de iteración, $v in bb(Z)_(b,f)^m$ el vector de entrada y
+$v' in bb(Z)_(b+B,f)^m$ el vector de salida, de modo que
+$v(i) in [a, b], forall i = 1, 2, ..., m$.
+
+
+1. *Caso base*: $v(1) = v'(1)$ y $v(1) in [a, b]$
+2. *Hipótesis inductiva*: Para $v'(k), k > 1$ suponemos $v'(k) in [k a, k b]$.
+3. *Tesis inductiva*: Para $v'(k+1)$, si $v'(k) in [k a, k b]$, como
+   $v'(k+1) = v'(k) + v(k)$ y como $v(k) in [a, b]$, entonces
+   $v'(k) + v(k) in [a (k+1), b (k+1)]$, por lo que $v'(k+1) in [a (k+1), b(k+1)]$
+
+La función fantasma no computa la acumulación como tal, debe ser otra función
+la que haga uso de ella para definir dichos rangos. Suponiendo que hay un
+tipo de punto fijo `Input_Type` ($bb(X)_(b,f)$), un tipo para indexar
+`Index_Type` ($bb(I)_B$), un tipo de resultado `Result_Type`
+($bb(X)_(b+B-1,f)$) y un tipo vector de elementos de tipo `Input_Type` que
+indexa con `Index_Type >= 1` (véase el @lst:generic-accumulation-example).
+
+#code(
+  caption: [Ejemplo de uso de la función fantasma `Generic_Accumulation`],
+  tag: "lst:generic-accumulation-example"
+)[```adb
+function Accumlate (Item : in Input_Type_Array) return Result_Type is
+   subtype Constrained_Result is Result_Type
+      range Result_Type (Input_Type'First) .. Result_Type (Input_Type'Last)
+   type Result_Array is array (Index_Type range <>) of Result_Type;
+   function Acc_Sum is
+      new Lemmas.Generic_Accumulation (
+      Fixed_Type => Result_Type,
+      Index_Type => Index_Type,
+      Array_Type => Result_Array,
+      First      => Constrained_Result'First,
+      Last       => Constrained_Result'Last);
+   Mapped : constant Result_Array (Item'Range) :=
+      [for I in Item'Range => Constrained_Result (Item (I))] with
+      Ghost => True;
+   Result : Result_Type := 0.0;
+begin
+   for Index in Item'Range loop
+      Result := Result + Constrained_Result (Item (Index));
+      pragma Loop_Invariant (Result = Acc_Sum (Mapped) (Index));
+   end loop;
+   return Result;
+end Accumulate;
+```]
+
+Se debe «instanciar» la función que `Generic_Accumulation`, es decir es
+genérica (sirve para distintos tipos de tipos) y por lo tanto está
+parametrizada (@lst:generic-accumulation-example:5). Se define una constante
+fantasma con el vector de entrada, pero esta vez contiene los valores con el
+tipo del resultado. Finalmente en @lst:generic-accumulation-example:19 dice
+que el resultado `Result` en la i-ésima posición tiene el mismo valor que el
+valor en la i-ésima posición de `Generic_Accumulation`.
+
+#pagebreak(weak:true)
+/* ==== M E D I A ========================================================== */
+=== Media
+El algoritmo de la media es básicamente el de la acumulación, pero dividiendo
+entre el número de elementos:
+
+  $ mu (v,m) = sum_(i=1)^m v(i)/m $
+
+O en diagrama de flujo de la @fig:flujo-media.
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((0,v-sep), align(center)[*2*:
+      $"res" <- v(1)$ \
+      $i <- 2$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((0,v-sep*3), align(center)[
+      *4*:
+      $"res" <- "res" + v(i)$],
+      shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
+    edge("l,u,u,r", "-|>")
+    node((1, v-sep*2), name: <end>, align(center)[
+      *6*: $"res"<-"res" div m$],
+      shape: shapes.rect)
+    edge(<loop.east>, <end.west>, "-|>", [No])
+    edge("-|>")
+    node((1, v-sep*3), align(center)[*7*: Fin], shape: shapes.pill)
+  }),
+  caption: [Algoritmo de la media]
+) <fig:flujo-media>
+
+==== Problemas <algorithm-mean-problems>
+Se siguen manteniendo los problemas de la acumulación
+como se puede ver en la @algorithm-accumulation-problems. Pero en el caso de
+punto fijo el resultado, si $v(i) in bb(X)_(b,f), forall i = 1, 2, ..., m$,
+también pertenece al mismo conjunto que los valores de entrada $bb(X)_(b,f)$,
+según la demostración del @thm:accumulation (esta vez con $m$ en vez del valor
+máximo):
+
+  $ "máx"_(m=m){sum_(i=1)^m v(i)} = m (2^(b-1) - 1) 2^f $
+  $ "mín"_(m=m){sum_(i=1)^m v(i)} = -m 2^(b-1) 2^f $
+
+Y por supuesto si se divide entre $m$ cualquiera de los dos para hacer la media
+se obtiene el máximo y mínimo respectivamente del conjunto de los valores del
+vector:
+
+  $ "máx"_(m=m){sum_(i=1)^m v(i)} div m = (2^(b-1) - 1) 2^f $
+  $ "mín"_(m=m){sum_(i=1)^m v(i)} div m = 2^(b-1) 2^f $
+
+Sin embargo, nótese que esta condición no es cierta al trabajar con punto
+flotante por problemas de precisión. Es bien conocido que trabajando con un
+computado de punto flotante de 64 bits ($bb(F)_64$), por ejemplo, la suma
+$0.1 + 0.2$ no da exactamente $0.3$, da $0.30000000000000004$; porque ni $0.1$
+ni $0.2$ se pueden respresentar en binario con un número finito de dígitos
+binarios: $0.1_(10) = 0.00overline(0011)_2$ y $0.2_(10) = 0.0overline(0011)$.
+Luego no se puede hacer dicha suposición cuando se trabaja en cualquier
+$bb(F)_b$.
+
+
+==== Soluciones <algorithm-mean-solutions>
+Con punto flotante siempre se trabaja con cierto error, así que hay poco que se
+pueda hacer. Sin embargo, con punto fijo se puede aplicar los conceptos que se
+utilizan para implementar la acumulación y se ve que si
+
+- $i in bb(I)_k$
+- $v in bb(X)_(b,f)^m$
+
+Entonces la variable para acumular $"res"$ como dice @thm:accumulation debe
+pertenecer a $bb(X)_(b+k-1,f)$. La división del final es una división de punto
+fijo que pierde precisión pues se divide entre $m in bb(N)^+$
+como dice el @thm:fixed-division-set. Como $m > 1$, se sabe que:
+
+$ "res" div m in bb(X)_(b+k-1,f) $
+
+y que está acotado en $[-m 2^(b - 1) 2^f, m (2^(b - 1) - 1]$, porque
+
+  $ "máx"_(m=m){sum_(i=1)^m v(i)} = m (2^(b-1) - 1) 2^f $
+  $ "mín"_(m=m){sum_(i=1)^m v(i)} = -m 2^(b-1) 2^f $
+
+Aplicando la @def:fixed-division con $m in bb(N)^+$ para 
+
+  $ (m (2^(b-1) - 1) 2^f) div m = floor((m 2^(b-1)-1)/m) 2^f = 2^(b-1)-1 $
+  $ (-m 2^(b-1) 2^f) div m = ceil((-m 2^(b-1))/m) 2^f = -2^(b-1) $
+
+Luego $"res" div m in [-2^(b-1), 2^(b-1)-1]$ y además $"res" div m in bb(X)_(b,f)$
+
+
+#pagebreak(weak:true)
+/* ==== V A R I A N Z A ==================================================== */
+=== Varianza <algorithm-variance>
 La varianza se define como:
 
   $ "Var"(v, m) = sum_(i=1)^m (x - mu (v, m))^2 $
@@ -1233,7 +1237,7 @@ diagrama de flujo sigue siendo parecido como se puede ver en
   caption: [Algoritmo de la varianza]
 ) <fig:flujo-varianza>
 
-==== Problemas
+==== Problemas <algorithm-variance-problems>
 Para punto flotante sigue habiendo los mismos problemas que para la acumulación
 (@algorithm-accumulation-problems) en cuanto a indexado:
 
@@ -1247,7 +1251,7 @@ Sin contar los numerosos problemas que acarrea utilizar punto flotante:
 - Es más, en el paso *3*, la suma también puede desbordar:
   $"res" + (v(i) - mu')^2$.
 
-==== Soluciones
+==== Soluciones <algorithm-variance-solutions>
 Cuando los números son uniformes @uniform tenemos propiedades interesantes.
 Por ejemplo, en el supuesto en que $v(i) - mu'$ fuera uniforme, su cuadrado
 también lo será según el @thm:uniform-conv-product.
@@ -1255,11 +1259,11 @@ también lo será según el @thm:uniform-conv-product.
 Además como se vio en la función media es (@algorithm-mean-problems), su
 resultado también está en el conjunto que los elementos del vector:
 
-  $ mu: bb(X)_(b,f)^n -> bb(N)^+ -> bb(X)_b $
+  $ mu: bb(X)_(b,f)^m -> bb(N)^+ -> bb(X)_b $
 
 De esta manera si estamos trabajando en $bb(U)_b$, también se sigue cumpliendo:
 
-  $ mu: bb(U)_b^n -> bb(N)^+ -> bb(U)_b $
+  $ mu: bb(U)_b^m -> bb(N)^+ -> bb(U)_b $
 
 Se decide entonces trabajar con $v in bb(U)_b^m, m > 0$ e $i in bb(I)_B$.
 Entonces $mu' in bb(U)_b$. El problema es que:
@@ -1277,23 +1281,28 @@ que:
 
 Y por tanto:
 
-  $ (v(i) div 2 - mu' div 2)^2 in (-1, 1) $
+  $ (v(i) div 2 - mu' div 2)^2 in (0, 1) $
 
-Luego, al final del algoritmo, se multiplica por $4$ y se desuniformiza el
-resultado y se obtiene el valor que se espera de la varianza, como se puede
-ver en la @fig:flujo-varianza-final, del cual las variables son:
+En este caso se va a definir la función «cuarto de la varianza», que computa
+la cuarta parte de la varianza y sin desunifromizar. Esto se debe a que varios
+algoritmos utilizan esta función y aprovechan que está dividida entre cuatro
+para aplicar optimizaciones. El diagrama de flujo se muestra en la
+@fig:flujo-varianza-final, del cual las variables son:
 
 - $i in bb(I)_k$
-- $v in bb(X)_(b,f)^n$
-- $v' in bb(U)_b^n$ (Por @def:unif-vector).
+- $v in bb(X)_(b,f)^m$
+- $v' in bb(U)_b^m$ (Por @def:unif-vector).
 - $"res" in bb(U)_(b+k-1)$ (Por el @thm:accumulation)
 
 La variable $"res"$ almacena lo que es el cuarto de la varianza. En el sexto
-paso del algoritmo se desuniformiza y se multiplica por 4 para obtener el
-verdadero resultado de la varianza.
+paso del algoritmo se divide entre el número de elementos similar a como lo
+hace la media (@algorithm-mean-solutions):
 
- $ "res" in bb(U)_(b+k-1), "res" in [] $
- $ "unif"_(b+k-1,f)^(-1)("res") $
+  $ "res" in& [0, m (2^(b-1)-1) 2^(1-b)] \
+    "res" div m in& [0, (2^(b-1)-1) 2^(1-b)] $
+
+Como $"res" div m in (0, 1)$ es uniforme, puede convertirse a cualquier tipo
+en punto fijo binario uniforme.
 
 #figure(
   diagram(
@@ -1320,22 +1329,425 @@ verdadero resultado de la varianza.
     edge("l,u,u,r", "-|>")
     edge(<loop.east>, <sol.west>, "-|>", [No])
     node((1, v-sep*2), name: <sol>, align(center)[*6*:
-      $"result" <- 4 *_(b',f') "unif"_(b+k-1,f)^(-1)("res" div n)$
-      ], shape: shapes.pill)
+      $"result" <- "res" div n$
+      ], shape: shapes.rect)
     edge("-|>")
     node((1, v-sep*3), name: <end>, align(center)[*7*: Fin], shape: shapes.pill)
   }),
-  caption: [Algoritmo de la varianza]
+  caption: [Algoritmo de la cuarto de la varianza]
 ) <fig:flujo-varianza-final>
 
+#pagebreak(weak:true)
+/* ==== E N E R G Y ======================================================== */
 === _Energy_
+La función _energy_ la define la función de referencia como la propia varianza
+que se define en la <algorithm-variance>. En este caso se extiende el algoritmo
+del cuarto de la varianza para desuniformizar el resultado y multiplicarlo por
+cuatro. Nótese que con la implementación de punto flotante no hay problema
+porque no calcula el cuarto de la varianza, solo la de la punto fijo.
+
+En este caso no es necesario definir el diagrama de flujo, pues es una
+única expresión dada por partes:
+
+  $ q = "conv"_(b,1-b) ("quarter_variance"(v)), v in bb(U)_b $
+
+$q$ es el cuarto de la varianza, se ha convertido a un tipo en punto fijo
+uniforme de $b$ _bits_, una operación que puede hacer que se pierda
+información, pero por razones prácticas se va a ignorar.
+
+Este valor no es el real, además de estar dividido entre cuatro, está
+uniformizado *dos* veces. Porque en un punto del cuarto de la varianza se hizo
+el cuadrado del valor uniformizado:
+
+  $ (v(i) div 2 - mu' div 2)^2 in (-1, 1) $
+
+Por <def:unif-valor> el valor $v(i)$ que está uniformizado está implícitamente
+multiplicado por $1 / 2^(f+b-1)$, de igual manera la media $mu'$ también está
+implícitamente multiplicada por el mismo valor. Suponiendo
+$mu' = mu'' / 2^(f+b-1)$ y que $v(i) = v''(i) / 2^(f+b-1)$, la expresión:
+
+  $ (v''(i) / 2^(f+b-1) div 2 - mu'' / 2^(f+b-1) div 2) ^ 2 $
+  $ (v''(i) div 2 - mu'' div 2) ^ 2  / (2^(f+b-1))^2 $
+
+Está uniformizada dos veces, así que hay que aplicar la desuniformización
+dos veces.
+
+  $ q'' = "unif"_(b,f)^(-1) ("unif"_(b,f)^(-1) (q)) in bb(X)_(b,f) $
+
+Finalmente, el resultado hay que multiplicarlo por cuatro, es decir, son
+necesarios dos _bits_ addicionales para almacenar el valor. Se puede ver que
+$4 in bb(X)_(3,0)$ y según el @thm:conv-bit-cond:
+
+  $ 4 q'' in bb(X)_(b+3-1,f+0) = bb(X)_(b+2,f) $
+
+Eso quiere decir que si $v in bb(X)_(b,f)^m$, entonces el tipo del resultado
+debe ser convertible desde $bb(X)_(b+2,f)$, pues:
+
+  $ "energy"(v) = 4 q'' in bb(X)_(b+2,f) $
+
+Es decir si $bb(X)_(b',f')$ es el tipo del resultado según el
+@thm:conv-bit-cond se debe cumplir que $b' >= b + 2 + (f - f')$ para que
+$"conv"_(b',f') ("energy"(v)) in bb(X)_(b',f')$.
+
+/* ==== S I M P S O N ====================================================== */
+#pagebreak(weak:true)
+=== Regla de _Simpson_
+==== Regla de Simpson para datos irregularmente espaciados
+La regla de Simpson, en honor de Thomas Simpson,  es un método para aproximar
+integrales, hay un caso específico para integrar datos irregularmente
+espaciados @simpson.
+
+Sean el límite de integración inferior $a in bb(R)$ y el límite de integración
+superior $b in bb(R)$ con $b > a$. Dados $N$ subintervalos de anchuras $h_k$,
+la regla de Simpson compuesta viene dada por la expresión:
+
+
+  $ integral_a^b f (x) d x approx phi +
+    sum_(i=0)^(floor(N/2)-1) (h_(2 i) + h_(2 i+1))/6
+    [(2 - h_(2 i+1)/h_(2 i)) f_(2 i)
+    + ((h_(2 i) + h_(2 i + 1))^2) / (h_(2 i) h_(2 i +1))  f_(2 i + 1)
+    + (2 - h_(2 i) / h_(2 i + 1)) f_(2 i + 2)] $
+
+donde
+
+  $ f_k = f (a + sum_(i=0)^(k-1) h_i) $
+
+y donde $phi$ depende de la paridad de $N$, si hay $N$ intervalos, hay $N + 1$
+anchuras,
+
+  $ phi = cases(alpha f_N + beta f_(N - 1) - eta f_(N-2)
+                &", si " N equiv 1 ("mód" 2),
+                0 & ", si no") $
+
+donde
+
+  $ alpha =& (2 h_(N-1)^2 + 3 h_(N-1) h_(N-2)) / (6 (h_(N-2) + h_(N - 1))) \
+    beta  =& (h_(N-1)^2 + 3 h_(N-1) h_(N-2)) / (6 h_(N-2)) \
+    eta   =& (h_(N-1)^3) / (6 h_(N-2) (h_(N-2) + h_(N-1)))
+  $
+
+==== Regla de Simpson para datos uniformememente espaciados
+Los datos de entrada están igualmente espaciados, es decir,
+$h_k = h_j forall k, j = 1, 2, ... N - 1$, por lo que la expresión se puede
+simplificar y por lo tanto se puede mejorar el tiempo de ejecución del
+algoritmo.
+
+  $ integral_a^b f (x) d x approx phi +
+    sum_(i=0)^(floor(N/2)-1) (h + h)/6
+
+    [(2 - h/h) f_(2 i)
+    + ((h + h)^2) / (h h)  f_(2 i + 1)
+    + (2 - h / h) f_(2 i + 2)] $
+
+  $ integral_a^b f (x) d x approx phi +
+    h/3 sum_(i=0)^(floor(N/2)-1)
+    [f_(2 i) + 4  f_(2 i + 1) + f_(2 i + 2)] $
+
+También se puede simplificar la expresión que da $phi$, porque
+
+  $ alpha =& (2 h^2 + 3 h h) / (6 (h + h)) &&= 5 / 12 h \
+    beta  =& (h^2 + 3 h h) / (6 h) &&= 2 / 3 h \
+    eta   =& h^3 / (6 h (h + h)) &&= 1 / 12 h $
+
+luego
+
+  $ phi = cases(h/12 (5 f_N + 8 f_(N-1) - 1 f_(N-2))
+                &", si " N equiv 1 ("mód" 2),
+                0 & ", si no") $
+
+Además los valores $f_k$ vienen dados por el vector de valores uniformememente
+espaciados de entrada $v (k+1) = f_k$, $v in bb(R)^(N-1)$.
+
+==== Algoritmo
+El algoritmo es similar al de una acumulación, dado un vector de $m$ elementos
+$v in bb(Q)^m$ con elementos igualmente espaciados en $h in bb(Q)$ unidades,
+se deduce el algoritmo de la @fig:algorithm-simpson. Nótese que el paso *7*
+comprueba que $m$ es par en vez de impar, porque si hay $m$ valores hay $m - 1$
+intervalos.
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((0,v-sep), align(center)[*2*:
+        $"result" <- 0$ \
+        $"i" <- 3$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((0,v-sep*3), align(center)[
+      *4*:
+      $"res" <- "res" + v(i-2) +$\ $+ 4 v(i-1) + v(i)$],
+      shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 2$])
+    edge("l,u,u,r", "-|>")
+    edge(<loop.east>, <sol.west>, "-|>", [No])
+    node((1, v-sep*2), name: <sol>, align(center)[*6*:
+      $"res" <- "res" dot.c h / 3$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((1,v-sep*3), align(center)[*7*:
+        $n equiv 0 ("mód" 2)$
+      ], name: <parity>, shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((1, v-sep*4), name: <end>, align(center)[*9*: Fin], shape: shapes.pill)
+    node((2, v-sep*3), name: <phi>, align(center)[
+      *8*: $"res" <- "res" + h/12 [5 v(n)+$\ $ + 8 v(n-1) - v(n-2)]$],
+      shape: shapes.rect)
+
+    edge(<parity.east>, <phi.west>, "-|>", [No])
+    edge(<phi.south>, <end.east>, "-|>")
+  }),
+  caption: [Regla de Simpson para datos uniformemente espaciados]
+) <fig:algorithm-simpson>
+
 ==== Problemas
+Nótese en la @fig:algorithm-simpson que en vez de indexar en el paso *4* con
+$v(i)$, $v(i+1)$ y $v(i+2)$, se empeiza a contar en $3$ y se indexa en
+$v(i-2)$, $v(i-1)$ y $v(i)$ respectivamente. Esto se debe a que comprobar que
+no desborda en el límite superior del vector es más complicado que empezar más
+después. Se pueden ver las propiedades del bucle utilizando inducción:
+
+1. *Caso base*: Al inicio del bucle $i = 3$, y el indexado del vector está
+   definido para $v(i-2) = v(1)$, $v(i-1) = v(2)$ y $v(i) = v(3)$. Porque
+   además sabemos que $i <= m$.
+2. *Hipótesis inductiva*: En la $n$-ésima iteración, $i = 3 + 2 n <= m$ y los
+   valores $v(i-2) = v(2 n + 1)$, $v(i-1) = v(2 n + 2)$ y $v(i) = v(2 n + 3)$
+   suponemos que están definidos.
+3. *Tesis inductiva*: Para la $n+1$-ésima iteración, suponiendo que $i <= m$
+   (si no, habría salido del bucle en la bifurcación del paso *3*),
+   $i = 3 + 2 (n + 1) = 5 + 2 n <= m$. Como $i <= m$, está definido
+   $v(i) = v(5 + 2 n)$, y por lo tanto están definidos $v(i-1) = v(4 + 2 n)$
+   y $v(i-2) = v(3 + 2 n)$, porque $0 < 3 + 2 n < 4 + 2 n < 5 + 2 n <= m $.
+
+Los problemas están en los pasos:
+
+- *Paso 5*: $i in bb(I)_B$ puede desbordar, eso hace necesario que
+  $m <= 2^(B-1) - 3$.
+- *Paso 8*: Si $m < 3$, no se puede indexar el vector, eso hace necesario que
+  $m >= 3$.
+
+Que como se ve se puede solucionar con la precondición $3 <= m <= 2^(B-1) - 3$.
+
 ==== Análisis de punto fijo
-=== Transformada de Fourier (FFT)
+En punto fijo puede desbordar en el *paso 4* y en el *paso 8* de la
+@fig:algorithm-simpson, hay que replantear el problema como una reducción
+utilizando la acumulación mostrada en la @sec:acumulación, la cual sí está
+demostrada.
+
+Lo primero es reescribir la ecuación en dos sumas, una de los elementos pares
+y otra de los elementos impares, ya que se puede ver que
+$2 i equiv 0 ("mód" 2)$, $2 i + 2 equiv 0 ("mód" 2)$ y
+$2 i + 1 equiv.not 0 ("mód" 2)$  de la siguiente manera.
+
+  $ integral_a^b f (x) d x approx&
+    phi + h/3 sum_(i=0)^(floor(N/2)-1) [f_(2 i) + 4  f_(2 i + 1) + f_(2 i + 2)] \
+    =& phi + h/3 [ sum_(i=0)^(floor(N/2)-1) f_(2 i)
+                 + 4 sum_(i=0)^(floor(N/2)-1) f_(2 i + 1)
+                 + sum_(i=0)^(floor(N/2)-1)f_(2 i + 2) ] \
+    =& phi + h/3 [ sum_(i=1)^(floor(N/2)-1) f_(2 i) + f_0
+                 + 4 sum_(i=0)^(floor(N/2)-1) f_(2 i + 1)
+                 + sum_(i=1)^(floor(N/2))f_(2 i)
+                 ] \
+    =& phi + h/3 [ sum_(i=1)^(floor(N/2)-1) f_(2 i) + f_0
+                 + 4 sum_(i=0)^(floor(N/2)-1) f_(2 i + 1)
+                 + sum_(i=1)^(floor(N/2)-1)f_(2 i) + f_(N')
+                 ] \
+  $
+
+
+donde $N'$ depende de la paridad de $N$, si $N$ es par $N' = N$, si no
+$N' = N - 1$, la expresión que queda es la siguiente:
+
+  $ integral_a^b f (x) d x approx phi + h/3 [ 2 sum_(i=1)^(floor(N/2)-1) f_(2 i)
+                 + 4 sum_(i=0)^(floor(N/2)-1) f_(2 i + 1) + f_0 + f_(N')] $
+
+Para simplificar más adelante las demostraciones, es preciso que ambos
+sumatorios empiecen y terminen en el mismo valor:
+
+  $ integral_a^b f (x) d x approx phi + h/3 [ 2 sum_(i=1)^(floor(N/2)-1) f_(2 i)
+                 + 4 sum_(i=1)^(floor(N/2)-1) f_(2 i - 1) + f_0 + f_(N') + 4 f_(N'')] $
+
+donde $N''$ depende de la paridad de $N$, si $N$ es impar $N'' = N$, si no,
+$N' = N - 1$.
+
+Cambiando los índices $f_k$ por el vector $v in bb(X)_(b,f), v(k+1) = f_k$ que
+indexa a partir de $1$, $n = N + 1$, $n' = N' + 1$, $n'' = N'' + 1$:
+
+  $ integral_a^b f (x) d x approx phi + h/3 [ 2 sum_(i=1)^(floor(N/2)-1) v(2 i + 1)
+                 + 4 sum_(i=1)^(floor(N/2)-1) v(2 i) + v(1) + v(n') + 4 v(n'')] $
+
+Se puede ver que ambas sumas tienen la misma cantidad de sumandos, sea $s$ el
+número de sumandos de ambas sumas que viene dado por la expresión:
+
+  $ s = floor(N/2-1) - 1 + 1 = floor((n - 1)/2 - 1) = floor((n - 3) / 2) $
+
+Sea $o in bb(X)_(b,f)^s$ y $e in bb(X)_(b,f)^s$ los vectores que contienen los
+elementos en posiciones (contando desde 1) impares (excepto el primer y último
+elementos impares) y pares (excepto el último elemento par) de $v$
+respectivamente.
+
+  $ o(i) =& v(2 i + 1), i = 1, 2, ..., floor(N / 2 - 1) \
+    e(i) =& v(2 i), i = 1, 2, ..., floor(N / 2 - 1) $
+
+De acuerdo con el @thm:accumulation como $s in bb(I)_B$, entonces
+$sum_(i=1)^s o(i),$ $sum_(i=1)^s e(i) in bb(X)_(B+b-1,f)$ y además
+$sum_(i=1)^s o(i)$, $sum_(i=1)^s e(i) in [-s 2^(b-1) 2^f, s (2^(b-1)-1) 2^f]$.
+Además $2 sum_(i=1)^s o(i) in bb(X)_(B+b,f)$ y $2 sum_(i=1)^s o(i) in
+[-2 s 2^(b-1) 2^f, 2 s (2^(b-1)-1) 2^f]$, según el @thm:conv-bit-cond con
+$2 in bb(X)_(2,0)$; y de la misma manera $4 sum_(i=2)^s e(i) in
+bb(X)_(B+b+1,f)$ y
+$4 sum_(i=1)^s e(i) in [-4 s 2^(b-1) 2^f, 4 s (2^(b-1)-1) 2^f]$ por el mismo
+@thm:conv-bit-cond con $4 in bb(X)_(3,0)$.
+
+La suma de ambas sumas también está acotada:
+
+  $  2 sum_(i=1)^(floor(N/2)-1) v(2 i + 1)
+                 + 4 sum_(i=1)^(floor(N/2)-1) v(2 i) =
+  2 sum_(i=1)^s o(i) + 4 sum_(i=1)^s e(i)
+        in [-6 s 2^(b-1) 2^f, 6 s (2^(b-1)-1) 2^f] $
+
+Los sumandos que faltan son $v(1) + v(n') + 4 v(n'')$, como
+$v in bb(X)_(b,f)^m$, se puede ver las suma de esos tres valores como
+$6 x, x in bb(X)_(b,f)$, como $6 in bb(X)_(3,0)$ de acuerdo con el
+@thm:conv-bit-cond:
+
+  $ v(1) + v(n') + 4 v(n'') in [-6 dot.c 2^(b-1) 2^f, 6 (2^(b-1)-1) 2^f] $
+
+Luego la suma
+
+  $ 2 sum_(i=1)^s o(i) + 4 sum_(i=1)^s e(i) + v(1) + v(n') + 4 v(n'')
+        in [-6 (s + 1) 2^(b-1) 2^f, 6 (s + 1) (2^(b-1)-1) 2^f] $
+
+también está acotada. Si se divide el resultado entre $3 in bb(X)_(2,0)$
+también sigue estando acotado:
+
+  $ sigma = [2 sum_(i=1)^s o(i) + 4 sum_(i=1)^s e(i) + v(1) + v(n') + 4 v(n'')] div 3 \
+        in [-2 (s + 1) 2^(b-1) 2^f, 2 (s + 1) (2^(b-1)-1) 2^f] $
+
+Queda por añadir $phi$, que también está acotada:
+
+  $ phi = cases(h/12 (5 v(n) + 8 v(n-1) - v(n-2))
+                &", si " n equiv 0 ("mód" 2),
+                0 & ", si no") $
+
+El problema es que está multiplicada por $h$ y dificulta el análisis del punto
+fijo. Así que es preferible trabajar con $phi'=phi/h$ y luego multiplicar por
+$h$:
+
+
+  $ integral_a^b f (x) d x approx h {phi' + 1/3 [ 2 sum_(i=1)^(floor(N/2)-1) v(2 i + 1)
+                 + 4 sum_(i=1)^(floor(N/2)-1) v(2 i) + v(1) + v(n') + 4
+                   v(n'')]} $
+
+donde
+
+  $ phi' = cases(1/12 (5 v(n) + 8 v(n-1) - v(n-2))
+                 &", si " n equiv 0 ("mód" 2),
+                 0 & ", si no") $
+
+Por razones similares a la suma de los últimos sumandos, se puede ver que
+$(5 v(n) + 8 v(n-1) - v(n-2) in [-14 dot.c 2^(b-1) 2^f, 14 (2^(b-1)-1) 2^f]$.
+Y por tanto $(5 v(n) + 8 v(n-1) - v(n-2) div 12 in [-2 dot.c 2^(b-1) 2^f, 2
+(2^(b-1)-1) 2^f]$. Nótese que no se ha decidido utilizar $14/12$ como factor y
+se ha optado por $2$, porque simplifica después añadir $phi'$ al sumando.
+Además, obviamente $0 in [-2 dot.c 2^(b-1) 2^f, 2 (2^(b-1)-1) 2^f]$. De ahí:
+
+  $ sigma + phi' in [-2 (s + 2) 2^(b-1) 2^f, 2 (s + 2) (2^(b-1)-1) 2^f] $
+
+Lo único que faltaría sería multiplicar $sigma + phi'$ por $h$. Sin embargo,
+el producto complica demasiado la demostración, así que se ha decidido utilizar
+un producto saturado, es decir:
+
+  $ "sat_mult"(x, y, l, h) = cases(h & ", si " x y > h,
+                                   l & ", si " x y < l,
+                                   x y & ", si no") $
+
+Ya que en la práctica si el resultado de Simpson es demasiado grande, supera el
+valor del _batch_ de la densidad espectral de potencia y ya clasificaría como
+«no ataque». El algoritmo definitivo se ve en la @fig:algorithm-simpson-fixed.
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((0,v-sep), align(center)[*2*: \
+        $"i" <-& 1 in bb(I)_B  \
+         "s" <-& floor((m-3)/2) in bb(I)_B  \
+         e <-& 0 in bb(X)_(b+B-1,f)  \
+         o <-& 0 in bb(X)_(b+B-1,f)$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= s$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((0,v-sep*3), align(center)[
+      *4*: \
+      $e <-& e + v(2 i) \
+       o <-& o + v(2 i + 1) \
+       i <-& i + 1$],
+      shape: shapes.rect)
+    edge("l,u,r", "-|>")
+    edge(<loop.east>, <sol.west>, "-|>", [No])
+    node((1, v-sep*2), name: <sol>, align(center)[*5*:\
+      $e   <-& 4 dot.c e \
+       o   <-& 2 dot.c o \
+       t   <-& v(m) in bb(X)_(b+3,f) \
+       phi <-& 0 in bb(X)_(b+2,f) $
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((1,v-sep*3), align(center)[*6*:
+        $n equiv 0 ("mód" 2)$
+      ], name: <parity>, shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((1,v-sep*4), align(center)[*7*: \
+        $t   <-& 4 v(m) + v(m - 1) \
+         f   in& bb(X)_(b+5,f) \
+         f   <-& 5 v(m) + 8 v(m-1) - v(m-2) \
+         phi <-& f div 12$
+      ], name: <cierto>, shape: shapes.rect)
+    node((2,v-sep*4), align(center)[*8*:
+        $t   <-& v(m) + 4 v(m - 1) $
+      ], name: <falso>, shape: shapes.rect)
+    edge(<parity.east>, <falso.north>, "-|>", [No])
+
+    node((1.5,v-sep*5), align(center)[*9*: \
+      $"r" <-& (e + o) div 3 + t + phi in bb(X)_(b+B+4,f)  \
+       "result" <-& "sat_mult"(r, h, -2^(b'-1)2^(f'), (2^(b'-1)-1)2^(f'))$
+    ], name: <endif>, shape: shapes.rect)
+    edge("-|>")
+    node((1.5,v-sep*6), align(center)[*10*: Fin], name: <fin>, shape: shapes.pill)
+    edge(<cierto.south>, <endif.north>, "-|>")
+    edge(<falso.south>, <endif.north>, "-|>")
+  }),
+  caption: [Regla de Simpson para datos uniformemente espaciados para punto fijo]
+) <fig:algorithm-simpson-fixed>
+
+
+
+
+/* ==== T R A N S F O R M A D A _ D E _ F O U R I E R ====================== */
+#pagebreak(weak:true)
+=== Transformada rápida de Fourier (FFT)
 ==== Recursivo a iterativa
 ==== _Caché_ y $omega^k_n$
 ==== Consideraciones para punto fijo
-=== Método de _Simpson_
+#pagebreak(weak:true)
+
+/* ==== W E L C H ========================================================== */
 === _Welch_
-=== Deformación dinámica del tiempo
-=== Densidad espectral de potencia
+#pagebreak(weak:true)
+/* ==== D E F O R M A C I Ó N _ D I N Á M I C A _ D E L _ T I E M P O ====== */
+
+=== Deformación dinámica del tiempo (DTW)
+#pagebreak(weak:true)
+
+/* ==== D E N S I D A D _ E S P E C T R A L _ D E _ P O T E N C I A ======== */
+=== Densidad espectral de potencia (PSD)
