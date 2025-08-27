@@ -169,8 +169,8 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
             σ : constant Even_Fraction_Sample := Sqrt (σ2);
          begin
             (if    σ = 0.0  then Even_Fraction_Sample'Delta
-             elsif σ >= 1.0 then Even_Fraction_Sample'Last
-             else                2 * σ));
+             elsif σ >= 1.0 then Even_Fraction_Sample'Last / 2
+             else                σ));
 
    begin
       Output := [others => 0.0];
@@ -186,7 +186,7 @@ package body Detector.Signals.Batch_Normalisation with SPARK_Mode is
          Lemmas.Lemma_Half_Halves (Input (Input'First + I));
          Lemmas.Lemma_Half_Halves (μ);
          Output (Output'First + I) :=
-            2 * Scale (Input (Input'First + I) / 2 - μ / 2, σ);
+            Scale (Input (Input'First + I) / 2 - μ / 2, σ);
       end loop;
    end Normalise;
 

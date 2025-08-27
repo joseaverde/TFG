@@ -47,7 +47,7 @@ abstract project Detector_Common is
    end Compiler;
 
    package Binder is
-      for Switches ("Ada") use ("-Es");
+      for Switches ("Ada") use ("-Es", "-Ldetector_");
    end Binder;
 
    package Install is

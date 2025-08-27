@@ -1301,7 +1301,7 @@ hace la media (@algorithm-mean-solutions):
   $ "res" in& [0, m (2^(b-1)-1) 2^(1-b)] \
     "res" div m in& [0, (2^(b-1)-1) 2^(1-b)] $
 
-Como $"res" div m in (0, 1)$ es uniforme, puede convertirse a cualquier tipo
+Como $"res" div m in [0, 1)$ es uniforme, puede convertirse a cualquier tipo
 en punto fijo binario uniforme.
 
 #figure(
@@ -1339,7 +1339,7 @@ en punto fijo binario uniforme.
 
 #pagebreak(weak:true)
 /* ==== E N E R G Y ======================================================== */
-=== _Energy_
+=== _Energy_ <sec:energy>
 La función _energy_ la define la función de referencia como la propia varianza
 que se define en la <algorithm-variance>. En este caso se extiende el algoritmo
 del cuarto de la varianza para desuniformizar el resultado y multiplicarlo por
@@ -1736,18 +1736,212 @@ valor del _batch_ de la densidad espectral de potencia y ya clasificaría como
 /* ==== T R A N S F O R M A D A _ D E _ F O U R I E R ====================== */
 #pagebreak(weak:true)
 === Transformada rápida de Fourier (FFT)
-==== Recursivo a iterativa
+==== Transformada de Fourier discreta
+Dado un vector $x in bb(C)^m$ de $m$ números complejos
+$x_1, x_2, ..., x_m in bb(C)$, la transformada discreta de fourier se define
+como un vector $X in bb(C)^m$ de $m$ números complejos
+$X_1, X_2, ..., X_m in bb(C)$ que vienen dados por la fórmula:
+
+  $ X_k = sum_(n=0)^(m-1) x_(n+1) e^((-2 pi j)/m k n) $
+
+donde $j = sqrt(-1) in bb(C)$ es la unidad imaginaria.
+
+==== Algoritmo de Cooley-Tukey -- Transformada rápida de Fourier
+
+
+==== Recursiva a iterativa
+
 ==== _Caché_ y $omega^k_n$
+
 ==== Consideraciones para punto fijo
-#pagebreak(weak:true)
 
 /* ==== W E L C H ========================================================== */
+#pagebreak(weak:true)
 === _Welch_
-#pagebreak(weak:true)
-/* ==== D E F O R M A C I Ó N _ D I N Á M I C A _ D E L _ T I E M P O ====== */
-
-=== Deformación dinámica del tiempo (DTW)
-#pagebreak(weak:true)
 
 /* ==== D E N S I D A D _ E S P E C T R A L _ D E _ P O T E N C I A ======== */
+#pagebreak(weak:true)
 === Densidad espectral de potencia (PSD)
+
+/* ==== B A T C H _ N O R M A L I S A T I O N ============================== */
+#pagebreak(weak:true)
+=== _Batch normalisation_ <sec:batch-normalisation>
+Es una técnica de normilización que se usa para mejorar el tiempo y la
+estabilidad de entrenamiento de redes de neuronas artificiales, pues recentra
+los valores alrededor del cero y los reescala, fue introducido por Sergey Ioffe
+and Christian Szegedy en 2015 @IoffeS15.
+
+Dada la media $mu' = mu(v,m) in bb(R)$ y la varianza $sigma^2 = "Var"(v,m)$ de
+un vector $v in bb(R)^m$. Se denota la normalización de _batch_ como
+$v' = "bnorm"(v,m)$ y se define para como:
+
+  $ v'(i) = "bnorm"(v,m) = (v(i) - mu') / sqrt(sigma^2 + epsilon) $
+
+Donde $0 < epsilon < 1$ es un valor pequeño que se utiliza para dar estabilidad
+numérica. Como $sigma^2 >= 0$ y que $epsilon > 0$, $sqrt(sigma^2 + epsilon) >
+0$ y por tanto nunca se divide entre cero.
+
+==== Análisis de punto fijo
+Solo se encuentran problemas cuando se trabaja con punto fijo, pues la
+operación del numerador puede desbordar, la suma dentro de la raíz cuadrada
+puede desbordar y la división puede hacer que desborde el resultado. También
+hay que trabajar con el cuarto de la varianza, valor que está normalizado dos
+veces (ver @sec:energy) y al que se le va a dar como nombre
+
+  $ q = "cuarto_var"(v,m) = "unif"_(b,f) ("unif"_(b,f) (sigma^2 / 4)) $
+
+La expresión queda como:
+
+  $ v'(i) = "bnorm"(v,m) =& ("unif"_(b, f) (v) (i) - mu ("unif"_(b,f) (v, m)))
+                         / sqrt(4 q + epsilon) \
+    =& ("unif"_(b, f) (v) (i) - mu ("unif"_(b,f) (v, m))) / 2 1 / sqrt(q + epsilon)
+  $
+
+Como el numerador está uniformizado y el denominador también lo está (al hacer
+la raíz cuadrada, del factor de uniformización $(2^(f+b-1))^2$ da
+$sqrt((2^(f+b-1))^2)=2^(f+b-1)$, que es solo un factor de uniformización), el
+resultado es escalar y no está uniformizado (se cancelan los factores de
+uniformización).
+
+Sea $nu in [0, 1)$,
+
+  $ nu = "unif"_(b, f) (v) (i) div 2 - mu ("unif"_(b,f) (v, m)) div 2 $
+
+El denominador en vez de ser $sqrt(q + epsilon)$, suma que puede desbordar,
+es preferible que sea $d in (0, 1)$:
+
+  $ d =  cases(delta_(b,f)     & ", si " sqrt(q) = 0,
+               sqrt(q)         & ", si no") $
+
+El $epsilon$ estaba para que el denominador no fuera cero, en el caso en el que
+la raíz cuadrada sea cero, el denominador se vuelve el valor más pequeño
+representable en el conjunto de punto fijo $bb(X)_(b,f)$, que es
+$delta_(b,f) = 2^f$.
+
+En segundo lugar $q in [0, 1)$ porque es uniforme como se ve al final de la
+@algorithm-variance-problems, eso quiere decir que $sqrt(q) in [0, 1)$. Además
+$d > 0$.
+
+Puesto que por definición la normalización de _batch_ se teóricamenete acerca
+los valores alrededor de cero. Para simplificar la demostración se ha decidido
+poner un rango finito para el resultado de las expresiones. Pues al dividir
+entre un denominador muy pequeño implicaría que el resultado aumenta.
+
+Por razones prácticas se ha decidido que el rango sea $[-B, B]$ con $B = 16$, o
+que es lo mismo: $exists b', f': -16, 16 in bb(X)_(b',f')$, por ejemplo:
+$bb(X)_(32,-13)$ es válido para almacenar el resultado.
+
+El valor del cociente $nu / d$ siempre va crecer en valor absoluto, porque
+$d < 1$, para evitar el desbordamiento es preciso encontrar un predicado que
+preferiblemente no desborde:
+
+- Si $nu >= 0$ entonces:
+
+  $ nu / d &>= 0     && #h(1cm) [d > 0 and nu >= 0]      & \
+    nu / d &<= B     && #h(1cm) [#text([Postcondición])] & \
+    nu &<= B d       && #h(1cm) [d > 0]                  & \
+    nu / B &<= d     && #h(1cm) [B > 0]                  & $
+
+  Es decir si $nu > 0 and nu / B <= d$ entonces $nu / d <= B$.
+
+- Si $nu < 0$ entonces:
+
+  $ nu / d &< 0       && #h(1cm) [d > 0 and nu < 0]       & \
+    nu / d &>= -B     && #h(1cm) [#text([Postcondición])] & \
+    nu &>= -B d       && #h(1cm) [d > 0]                  & \
+    nu / (-B) &<= d   && #h(1cm) [-B < 0]                 & $
+
+  Es decir si $nu < 0 and nu / (-B) <= d$ entonces $nu / d >= -B$.
+
+El valor del resultado depende del signo y de los valores del numerador y del
+denominador:
+
+  $ v'(i) = "bnorm"(v,m) =
+      cases(nu / d  &", si " nu >= 0 and nu / B <= d,
+            B       &", si " nu >= 0 and nu / B > d ,
+            nu / d  &", si " nu < 0  and nu / (-B) <= d,
+            -B      &", si " nu < 0 and nu / B > d ) $
+
+
+/* ==== D E F O R M A C I Ó N _ D I N Á M I C A _ D E L _ T I E M P O ====== */
+#pagebreak(weak:true)
+=== Deformación dinámica del tiempo (DTW)
+Es un algoritmo apra medir la similaridad entre dos secuencias temporales que
+difieren en la velocidad. El algoritmo está basado en la implementación de
+referencia @PPMC-DAC.
+
+Dadas dos señales de $m$ elementos $u in bb(X)_(b'',f'')^m$ y
+$v in bb(X)_(b''',f''')^m$. Sean $u', v' in bb(X)_(b,f)^m$ las señales _batch_
+normalizadas de acuerdo con la @sec:batch-normalisation como $u'="bnorm"(u,m)$
+y $v'="bnorm"(v,m)$. Sea $w in bb(N)^+, w < m$ la ventana de deformación
+(_warping window_). El algoritmo se resume en la @fig:algorithm-dtw.
+
+// TODO: +': Definir suma saturada
+// TODO: Demostrar ausencia de Index_Error
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((1,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((1,v-sep), align(center)[*2*:\
+      $ "size"   <-& 2 w + 3 \
+        "band"_a <-& (infinity', ..., infinity') in bb(R)^m \
+        "band"_b <-& (infinity', ..., infinity') in bb(R)^m \
+        i        <-& 1                                      \
+        "row"    <-& 1 in bb(I)_B                           $
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((1,v-sep*2), name: <rowloop>, align(center)[*3*: ¿$"row" <= m$?],
+      shape: shapes.parallelogram)
+    edge("-|>", [No])
+    node((2,v-sep*2), align(center)[*12*: $"result" <- "band"_b ("index" - 1)$])
+    edge("-|>")
+    node((2, v-sep*1), align(center)[*13*: Fin], shape: shapes.pill)
+
+    edge(<rowloop.south>, <rowfirst.north>, "-|>", [Sí])
+    node((1, v-sep*3), align(center)[*4*:\
+      $i     <-& "máx"(1, w - "row" + 2) \
+       F     <-& "máx"(1, "row" - w) in bb(I)_B \
+       L     <-& "mín"(m, "row" + w) in bb(I)_B \
+       "col" <-& L in bb(I)_B            $
+    ], name: <rowfirst>, shape: shapes.rect)
+    edge("-|>")
+    node((1,v-sep*4), name: <colloop>, align(center)[*5*: ¿$"col" <= L$?],
+      shape: shapes.parallelogram)
+    edge("l,u", "-|>", [#h(1.2em) No])
+    node((0,v-sep*3), align(center)[*11*:\
+      $"band"_a <->& "band"_b \ "row" <-& "row" + 1$], shape:shapes.rect)
+    edge("u,r", "-|>")
+
+    edge(<colloop.south>, <colfirst.north>, "-|>", [Sí])
+    node((1,v-sep*5), align(center)[*6*: $d <- "dist"(w("row"), v("col"))$],
+         name: <colfirst> , shape:shapes.rect)
+    edge("-|>")
+    edge(<cond.south>, <band.north>, "-|>", [Sí])
+    node((1,v-sep*6), align(center)[*7*: ¿$"col" = 1 and "row" = 1$?],
+         shape:shapes.parallelogram, name: <cond>)
+
+    edge("-|>", [No])
+    node((0,v-sep*7), align(center)[*8*:\
+      $y <-& "band"_a (i - 1) +' d \
+       x <-& "band"_b (i + 1) +' d \
+       z <-& "band"_b (i)     +' d \
+       d <-& "mín"(x,y,z) $
+    ], shape:shapes.rect)
+
+    edge("-|>")
+    node((1,v-sep*7), align(center)[*9*: $"band"_a(i) <- d$],
+         name: <band>, shape:shapes.rect)
+    edge("-|>")
+    node((2,v-sep*7), align(center)[*10*:\ $
+        "col" <-& "col" + 1 \
+        "i"   <-& "i + 1"
+      $],shape:shapes.rect)
+    edge("u,u,u,l", "-|>")
+  }),
+  caption: [Algoritmo de la deformación dinámica del tiempo (DTW)]
+) <fig:algorithm-dtw>
+

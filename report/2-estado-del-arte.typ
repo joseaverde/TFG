@@ -18,7 +18,7 @@ anormal que resulta en episodios recurrentes de convulsiones
 Existen distintas técnicas para la detección de ataques epilépticos por
 computador. @PaFESD
 
-/* ==== Representación de valores numéricos en un computador ===============
+/* ==== Representación de valores numéricos en un computador =============== */
 == Representación de valores numéricos en un computador
 Existen diversas técnicas para representar o codificar valores númericos en
 un computador. Seleccionar una codificación adecuada para cada problema
@@ -29,7 +29,6 @@ Solo se analizan las
 
 
 === Enteros
-
 
 
 === Racionales
@@ -68,7 +67,6 @@ Solo se analizan las
 
 
 === Punto fijo
-*/
 
 /* ==== Probadores de teoremas ============================================= */
 == Demostración interactiva de teoremas
