@@ -4,9 +4,28 @@
 Este capítulo describe brevemente la motivación detrás del proyecto
 (@sec:1-motivación), los objetivos principales del mismo (@sec:1-objetivos) y
 se dan pequeñas pinceladas sobre el contenido de cada uno de los capítulos
-(@sec:1-estructura).
+(@sec:1-estructura). El código y la documentación de este proyecto están
+alojados en https://github.com/joseaverde/TFG .
 
 == Motivación <sec:1-motivación>
+Este proyecto surge de la colaboración entre el grupo de investigación de
+modelos de programación paralela y compiladores de la Universidad de Málaga
+(PPMC) @PPMC, que escribió un artículo sobre detección de ataques epilépticos
+utilizando patrones aumentados y características estadísticas @PaFESD, y la
+Universidad Carlos III de Madrid.
+
+El estudio obtuvo resultados prometedores y el foco tornó a ser la viabilidad
+de ejecución del algoritmo de detección en un dispositivo empotrado de bajo
+consumo en tiempo real. La detección de estos ataques es computacionalmente
+costosa, pero si fuera factible que funcionase en tales dispositivos abriría
+las puertas al desarrollo de accesorios que monitoreen la actividad cerebral de
+un paciente en tiempo real.
+
+Finalmente se quería estudiar cuál es el impacto del paralelismo en el tiempo
+de ejecución del programa de entrenamiento del modelo, pues consume mucha
+energía y tiempo ejecutarlo y cualquier mejora es disponible; y también qué
+técnicas se podrían aplicar a los algoritmos para mejorar su rendimiento en
+máquinas de bajas características computacionales.
 
 
 == Objetivos <sec:1-objetivos>

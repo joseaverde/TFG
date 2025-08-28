@@ -98,6 +98,7 @@
     adb: (name: "SPARK", color: rgb("#c69ed3")),
     cpp: (name: "C++", color: rgb("#659bd3")),
     python: (name: "Python 3", color: rgb("#ffd947")),
+    lean: (name: "Lean", color: rgb("#6ba4ff")),
   )
 )
 

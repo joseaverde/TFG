@@ -11,28 +11,75 @@ computación y entornos de ejecución.
 
 /* ==== Detección de ataques epilépticos =================================== */
 == Detección de ataques epilépticos
-La epilepsia, una condición neurológica caracterizada por la actividad cerebral
-anormal que resulta en episodios recurrentes de convulsiones
-@anchundia2024revision. Poder determinar 
+Según la Organización Mundial de la Salud, la epilepsia es una enfermedad
+crónica que afecta al cerebro y a gente de todas las edades. Se calcula que
+alrededor de 50 millones de personas en todo el mundo la padecen,
+lo que la posiciona como una de las afecciones neurológicas más comunes de todo
+el mundo. El riesgo de muerte prematura es tres veces mayor a resto de
+la población.
 
-Existen distintas técnicas para la detección de ataques epilépticos por
-computador. @PaFESD
+Además los ataques epilépticos se pueden controlar, alrededor del 70% de la
+gente que sufre de epilepsia puede vivir sin experimentar ninguno con las
+medicación apropiada. Una etiología documentada de la epilpsia o patrones
+anormales de encefalografía son los predictores más consitentes de epilepsia
+@WHOEpilepsy.
+
+Una evaluación de detección de ataques epilépticos utilizando clasificadores de
+apredizaje automático explica que aplicar aprendizaje automático directamente
+sobre el conjunto de datos de encefalografía en bruto puede no producir
+patrones sensatos. Por lo tanto, seleccionar las características estadísticas
+de la señal de encefalograma es crucial, entre ellas se encuentran distintas
+técnicas de transformación como: transformaciones de ondículas discretas
+(_discrete wavelet transformation_ o DWT), transformaciones de ondículas
+continuas (_continuous wavelet transformation_ o CWT), transformadas de Fourier
+(_Fourier transformation_, FT), transformaciones de conseno discretas
+(_discrete cosine transformation_ o DCT), descomposición en valores singulares
+(_singular value decomposition_ o SVD) entre otras @siddiqui2020review.
+
+=== PaFESD: _Patterns Augmented by Features Epileptic Seizure Detection_
+O patrones aumentados por características de detección de ataques epilépticos,
+es un método para detección de ataques epilépticos a partir de las
+características estadísticas de encefalografía además de comparación de
+patrones. Las características principales son tres:
+
+1. $f_1(E_i)$: la amplitud pico a pico (_pk-pk_) de la época, que es la
+   diferencia entre el el valor máximo y mínimo. En este proyecto se refiere a
+   ella como _max distance_ o distancia máxima.
+2. $f_2(E_i)$: la energía de la época como la varianza de la época. En este
+   proyecto se la denomina _energy_ o energía.
+3. $f_3(E_i)$, $f_4(E_i)$, $f_5(E_i)$: es la potencia integrada de la banda
+   espectral de la señal de encefalograma en las bandas, respectivamente:
+   de $2.5$ a $12$ Hz ,cubriendo casi completamente las ondas cerebrales
+   $alpha$, $beta$ y $theta$; de $12$ a $18$ Hz, banda baja de las ondas
+   $beta$; y de $18$ a $35$ Hz, bandas altas de las ondas $beta$. Se computa
+   como la integral de cada banda de la densidad espectral de potencia de la
+   época a partir del método de Welch. A estas se las denomnina $"PSD"_1$,
+   $"PSD"_2$ y $"PSD"_3$ en el resto del documento.
+
+Finalmente se utiliza la distancia dada por el algoritmo de la deformación
+dinámica del tiempo (DTW) para comparar cada época de señal con varios patrones
+previamente seleccionados @PaFESD.
+
+Se ha decidido utilizar este estudio como referencia y se ha colaborado con los
+investigadores originales que escribieron el artículo. La implementación de
+referencia está alojada en
+https://github.com/PPMC-DAC/PaFESD-Epileptic-Seizure-Detection. Entre otras
+razones, porque con tan solo un 22% de datos de entrenamiento consigue una
+sensibilidad del 99.6%, una especificidad del 100% y una precisión del 98.3%,
+mucho mejor que otros modelos que necesitan mucho más porcentaje de
+entrenamiento @PaFESD.
 
 /* ==== Representación de valores numéricos en un computador =============== */
-== Representación de valores numéricos en un computador
-Existen diversas técnicas para representar o codificar valores númericos en
-un computador. Seleccionar una codificación adecuada para cada problema
-individual puede tener un gran efecto en su rendimiento, así que es necesario
-tenerlas todas en cuenta.
-
-Solo se analizan las
-
-
-=== Enteros
-
+== Representación de valores numéricos fraccionarios en un computador
+Existen diversas técnicas para representar o codificar valores númericos de
+tipo fraccionario en un computador. Seleccionar una codificación adecuada para
+cada problema individual puede tener un gran impacto en su rendimiento.
 
 === Racionales
+Patata
 
+=== Punto fijo
+Patata
 
 === Punto flotante
 
@@ -57,16 +104,13 @@ Solo se analizan las
 
 #figure(
   make-ieee(0.4, 1, 8, 23),
-  caption: [IEEE 754 32 bits]
+  caption: [IEEE 754 -- Punto flotante de simple precisión (32 bits)]
 )
 
 #figure(
   make-ieee(0.2, 1, 11, 52),
-  caption: [IEEE 754 64 bits]
+  caption: [IEEE 754 -- Punto flotante de doble precisión (64 bits)]
 )
-
-
-=== Punto fijo
 
 /* ==== Probadores de teoremas ============================================= */
 == Demostración interactiva de teoremas
@@ -85,6 +129,21 @@ grupo fundamental de un círculo en teoría de tipos homotópicos
 
 === _Lean_
 _Lean_ es a la vez un probador de teoremas y un lenguaje de programación, que
+permite escribir código correcto, mantenible y verificado formalmente
+@LeanLang. Hoy en día el su desarrollo está apoyado por la organización sin
+ánimo de lucro _Lean Focused Research Organization_ (FRO) @LeanFRO. Un ejemplo
+de cómo definir los números naturales (cero incluido) basándose en los axiomas
+de Peano en Lean se ve en la @fig:LeanPeano:
+
+#code(
+  caption: [Axiomas de Peanno en Lean],
+  tag: "fig:LeanPeano",
+)[
+```lean
+inductive Natural : Type
+| zero : Natural
+| succ : Natural -> Natural
+```]
 
 === SPARK
 SPARK 2014 es un lenguaje de programación definido formalmente y un conjunto de
@@ -268,6 +327,11 @@ mejorar, $m$ es el factor con que se ha mejorado dicha parte y $f$ es el factor
 de mejora máximo del sistema final @proTBB.
 
 ==== Paralelismo y concurrencia en lenguajes de programación
+Algunos lenguajes de programación vienen con construcciones para realizar
+concurrencia y a veces paralelismo de forma nativa y portable. En el caso de
+este proyecto solo interesa ver cómo lo hacen los lenguajes de programación que
+se han utilizado: #box([Python 3]), #cxx y Ada.
+
 ===== En C++
 En C++ existen las clases `std::thread` y su versión mejorada `std::jthread`
 que dan soporte para hilos en dicho lenguaje. `std::jthread` tiene el mismo
@@ -523,10 +587,18 @@ def parallel_sum[T] (lst : list[T], cores : int) -> int:
 ```]
 
 ==== OpenMP
-OpenMP
+OpenMP es una especificación para un juego de directivas de compilación,
+rutinas de biblioteca y variables de entorno que se pueden utilizar para
+especificar paralelismo de alto nivel en programas escritos en Fortran, C y
+#cxx @OpenMPWhatIs.
+
+OpenMP es una de las especificaciones para hacer paralelismo más utilizadas,
+solo en GitHub en 2023 el 45% de los repositorios lo utilizan
+@kadosh2023quantifying.
+
 
 #code(
-  caption: [Implementación del @lst:2-cpp-thread con OpenMP en C++.],
+  caption: [Implementación del @lst:2-cpp-thread con OpenMP en #cxx.],
   tag: "lst:2-openmp"
 )[```cpp
 #include <omp.h>
