@@ -1,6 +1,5 @@
 //! Functions for creating and managing items
 
-#import "defaults.typ": default-config
 #import "config.typ": validate-config
 
 
@@ -53,7 +52,10 @@
     return (
       false,
       "Missing fields ("
-        + class_fields.filter(f => not item_fields.keys().contains(f.name)).map(f => f.name).join(", ")
+        + class_fields
+          .filter(f => not item_fields.keys().contains(f.name))
+          .map(f => f.name)
+          .join(", ")
         + ").",
     )
   }
@@ -67,10 +69,16 @@
 
     if field.value == "content" and type(value) != content {
       return (false, "Field '" + field.name + "' is not of type `content`.")
-    } else if type(field.value) == dictionary and not field.value.keys().contains(value) {
+    } else if (
+      type(field.value) == dictionary and not field.value.keys().contains(value)
+    ) {
       return (
         false,
-        "Invalid value for field '" + field.name + "'. Valid values are '" + field.value.keys().join("', '") + "'.",
+        "Invalid value for field '"
+          + field.name
+          + "'. Valid values are '"
+          + field.value.keys().join("', '")
+          + "'.",
       )
     }
   }
@@ -104,9 +112,10 @@
     }
 
     // check if it's a valid origin class
-    let found = false;
+    let found = false
+    let item_origin_tag = origin_tag.slice(0, count: origin_tag.len() - 1)
+
     for class_origin_tag in class_origins.tags {
-      let item_origin_tag = origin_tag.slice(0, count: origin_tag.len() - 1)
       found = found or item_origin_tag == class_origin_tag
     }
 
@@ -120,7 +129,6 @@
           + "')",
       )
     }
-
 
     // traverse the tree to see if that origin item exists
     let current = tree
@@ -151,7 +159,8 @@
 #let _validate-item(item, config, tree) = {
   // check format (duck typing)
   if (
-    (type(item) != dictionary) or item.keys() != ("id", "class", "origins", "fields")
+    (type(item) != dictionary)
+      or item.keys() != ("id", "class", "origins", "fields")
   ) {
     return (false, "Invalid format. Please make sure to use #make-item.")
   }
@@ -173,7 +182,11 @@
     if current == none {
       return (
         false,
-        "Invalid class. '" + class_id + "' is not a subclass of '" + item.class.at(i - 1) + "'.",
+        "Invalid class. '"
+          + class_id
+          + "' is not a subclass of '"
+          + item.class.at(i - 1)
+          + "'.",
       )
     }
     class_fields += current.fields
@@ -257,11 +270,17 @@
       if not overwrite {
         assert(
           not current.at(class_id).keys().contains(item.id),
-          message: "ID '" + item.id + "' already exists for class '" + item.class.join("-") + "'",
+          message: "ID '"
+            + item.id
+            + "' already exists for class '"
+            + item.class.join("-")
+            + "'",
         )
       }
 
-      current.at(class_id).insert(item.id, (origins: item.origins, fields: item.fields))
+      current
+        .at(class_id)
+        .insert(item.id, (origins: item.origins, fields: item.fields))
 
       // re-build the tree
       for (j, node) in stack.enumerate().rev() {
@@ -297,9 +316,11 @@
 
 
 #let create(
-  config: default-config,
+  config: none,
   ..items,
 ) = {
+  assert(config != none, message: "Missing argument 'config'")
+
   // validate configuration
   let (ok, err) = validate-config(config)
   assert(ok, message: "Invalid configuration: " + err)

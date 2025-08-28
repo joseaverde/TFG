@@ -4,7 +4,7 @@
 #import "locale.typ" as locale
 #import "utils.typ": *
 #import "arguments.typ": validate-argument
-
+#import "generative-ai.typ": genai-template
 
 
 /// Main configuration function.
@@ -37,6 +37,7 @@
 /// - abbreviations (dictionary, content, none): Abbreviations, acronyms and initials used throughout the thesis. You can provide a map (dictionary of strings) or a custom one (`content`).
 /// - appendixes (content, none): Set of appendixes.
 /// - glossary (content, none): Glossary.
+/// - genai-declaration (dictionary, content): Information about the use of Generative AI in the thesis. You can suply your own `content`, or use the university's template, by suplying a `dictionary`. See the example for more details.
 /// - doc (content): Thesis contents.
 ///
 /// -> content
@@ -67,6 +68,7 @@
   appendixes: none,
   glossary: none,
   abbreviations: none,
+  genai-declaration: none,
   doc,
 ) = {
   // ========================= ARGUMENT VALIDATION ========================== //
@@ -201,6 +203,64 @@
 
   validate-argument("glossary", glossary, optional: true, target-type: content)
 
+  validate-argument(
+    "genai-declaration",
+    genai-declaration,
+    target-type: (content, dictionary),
+    schema: (
+      usage: (target-type: bool),
+      data-usage: (
+        target-type: dictionary,
+        schema: (
+          sensitive: (
+            target-type: str,
+            possible-values: (
+              "with-authorization",
+              "without-authorization",
+              "not-used",
+            ),
+          ),
+          copyright: (
+            target-type: str,
+            possible-values: (
+              "with-authorization",
+              "without-authorization",
+              "not-used",
+            ),
+          ),
+          personal: (
+            target-type: str,
+            possible-values: (
+              "with-authorization",
+              "without-authorization",
+              "not-used",
+            ),
+          ),
+          followed-terms: (target-type: bool),
+          explanation: (target-type: str, optional: true),
+        ),
+      ),
+      technical-usage: (
+        target-type: dictionary,
+        schema: (
+          documentation: (target-type: content, optional: true),
+          review: (target-type: content, optional: true),
+          research: (target-type: content, optional: true),
+          references: (target-type: content, optional: true),
+          summary: (target-type: content, optional: true),
+          translation: (target-type: content, optional: true),
+          assistance-coding: (target-type: content, optional: true),
+          generating-content: (target-type: content, optional: true),
+          optimization: (target-type: content, optional: true),
+          data-processing: (target-type: content, optional: true),
+          idea-inspiration: (target-type: content, optional: true),
+          other: (target-type: content, optional: true),
+        ),
+      ),
+      usage-reflection: (target-type: content),
+    ),
+  )
+
 
   // ============================== PAGE SETUP ============================== //
 
@@ -330,10 +390,10 @@
               bottom-edge: -0.25em,
             )
           } else {
-            v(2 * page-grid)
+            v(32pt)
             text(
-              size: 2 * page-grid,
-              fill: azul-uc3m,
+              size: 32pt,
+              fill: azuluc3m,
               weight: "bold",
               counter(heading).display() + h(0.5em) + it.body,
             ) // appendix
@@ -684,6 +744,11 @@
     // only apply for contents (headings) outline
     if it.element.func() != heading { return it }
 
+    // don't show page number in outline for appendixes
+    let page-number = if (
+      it.element.supplement == [#locale.APPENDIX.at(language)]
+    ) { "" } else { it.page() }
+
     if style == "strict" {
       set block(spacing: 1.5em)
       link(
@@ -691,10 +756,9 @@
         it.indented(
           it.prefix(),
           upper(it.body())
-            + "  "
-            + box(width: 1fr, repeat([.], gap: 2pt))
-            + "  "
-            + it.page(),
+            + if page-number == "" { "" } else {
+              "  " + box(width: 1fr, repeat([.], gap: 2pt)) + "  " + page-number
+            },
         ),
       )
     } else if style == "clean" {
@@ -702,7 +766,7 @@
       set text(weight: "semibold", fill: azuluc3m)
       link(
         it.element.location(), // make entry linkable
-        it.indented(it.prefix(), it.body() + box(width: 1fr) + it.page()),
+        it.indented(it.prefix(), it.body() + box(width: 1fr) + page-number),
       )
     } else if style == "fancy" {
       set block(above: 1.3em)
@@ -721,7 +785,7 @@
               }
             } else {
               none
-            } #it.body() #box(width: 1fr) #it.page()
+            } #it.body() #box(width: 1fr) #page-number
           ],
         ),
       )
@@ -853,18 +917,45 @@
   in-endmatter.update(false)
 
 
-  // =============================== APPENDIX =============================== //
+  // ============================== APPENDIXES ============================== //
+
+  // we need to start a new page so `in-appendix` doesn't affect the bibliography
+  newpage(double-sided, weak: true)
+
+  in-appendix.update(true)
+
+  set heading(
+    // don't show numbering for headings above level 1
+    numbering: (..n) => { if n.pos().len() == 1 { numbering("A.1", ..n) } },
+    supplement: [#locale.APPENDIX.at(language)],
+    outlined: false, // not in outline
+  )
+  // show just appendixes titles in outline
+  show heading.where(level: 1): set heading(outlined: true)
+
+  counter(heading).update(0)
+
 
   if appendixes != none {
-    in-appendix.update(true)
-
-    newpage(double-sided)
-
-    set heading(numbering: "A.1.", supplement: [#locale.APPENDIX.at(language)])
-    counter(heading).update(0)
-
     appendixes
-
-    // in-appendix.update(false)
   }
+
+  /* generative AI declaration */
+  [= #locale.AI-USAGE.title.at(language)]
+
+  if type(genai-declaration) == content {
+    // custom
+    genai-declaration
+  } else {
+    genai-template(
+      language,
+      genai-declaration.at("usage"),
+      genai-declaration.at("data-usage"),
+      genai-declaration.at("technical-usage"),
+      genai-declaration.at("usage-reflection"),
+    )
+  }
+
+
+  // in-appendix.update(false)
 }

@@ -14,38 +14,30 @@
 #show math.equation.where(block: false): box
 
 = Diseño e implementación <sec:4>
-*TODO*: REFORMULAR
-
 En este capítulo se describen tanto la implementación del algoritmo con todas
-sus peculiaridades matemáticas y el despliegue del proyecto entero.
+sus peculiaridades matemáticas.
 
-La parte de implementación se introduce con una enumeración de distintas
-convenciones matemáticas que se usan a lo largo del capítulo, se ofrece una
-descripción del algoritmo de manera global utilizando dichas convenciones, y
-termina con un análisis de todos los algoritmos que se consideran relevantes
-para el propio algoritmo.
-
-En la sección de despliegue se describen los métodos que se utilizan para
-desplegar el proyecto y su reproducibilidad. Se comentan los métodos de
-compilación cruzada que se han utilizado para las distintas plataformas.
-
-*TODO: Reformular con la parte de diseño y uniformizar los capítulos*
+La parte de implementación se introduce con una lista de distintas convenciones
+matemáticas que se usan a lo largo del capítulo, se ofrece una descripción del
+algoritmo de manera global utilizando dichas convenciones, y termina con un
+análisis de todos los algoritmos que se consideran relevantes para el propio
+algoritmo.
 
 == Estudio de la solución final <sec:4-estudio-de-la-solución-final>
 La implementación original del algoritmo de detección de ataques epilépticos
-que se analiza en este proyecto (PaFESD) /* TODO: Referenciar */ se escribió
+que se analiza en este proyecto (PaFESD) @PPMC-DAC se escribió
 en Python 3.10. En este trabajo se analiza el impacto en el rendimiento de
 utilizar otros lenguajes de programación, compiladores, técnicas y
 herramientas, de cara a un análisis en el impacto energético y de seguridad
 del programa.
 
 Que la implementación original estuviera escrita en Python dificulta bastante
-la compilación cruzada. Esto es especialmente difícil para dispositivos empotrados como la
-ESP32-C3, /* TODO: Referenciar */  que tiene pocos megabytes de memoria disponibles para almacenar el
-ejecutable, pues el tamaño de la suma de todas las dependencias superaba los
-cientos de megabytes. Además uno de los requisitos fundamentales del proyecto
-es que corriera en tiempo real. Por estas razones técnicas se ha optado por utilizar
-otros lenguajes de programación.
+la compilación cruzada. Esto es especialmente difícil para dispositivos
+empotrados como la ESP32-C3, que tiene pocos megabytes de memoria disponibles
+para almacenar el ejecutable, pues el tamaño de la suma de todas las
+dependencias superaba los cientos de megabytes. Además uno de los requisitos
+fundamentales del proyecto es que corriera en tiempo real. Por estas razones
+técnicas se ha optado por utilizar otros lenguajes de programación.
 
 Los lenguajes usados y representación de valores numéricos utilizadas son los
 siguientes: C++ 20 con punto flotante de simple precisión, C++ 20 con punto
@@ -103,7 +95,7 @@ el último. No están definidos los elementos $v(k), k <= 0 or k > n$.
   $ S^1 = S $
   $ S^n = S^(n-1) times S $
 
-Además la notación $S^+$, inspirada por la clausura de Kleene /*TODO: Citar*/, denota:
+Además la notación $S^+$, inspirada por la clausura de Kleene, denota:
 
   $ S^+ = union.big_(i in bb(N)^+) S^i $
 

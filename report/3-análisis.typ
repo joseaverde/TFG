@@ -42,7 +42,6 @@ De acuerdo con Craig Larman, _Unified Process_ define el modelo de casos de uso
 dentro de la disciplina de requisitos e insiste en que los casos de uso son
 documentos textuales, no diagramas, y que el modelado de casos de uso es
 principalmente un acto de escribir texto, no de dibujar diagramas @LarmanUML. 
-/*TODO: Quizás una cita textual */
 
 El mismo autor define «actor» como todo aquello con comportamiento, eso incluye
 el propio sistema cuando este hace uso de otros servicios o sistemas. Los
@@ -56,10 +55,15 @@ paciente, que quiere detectar sus propios ataques epilépticos; y el doctor,
 que puede ser un médico o un investigador que se encarga de entrenar el modelo
 para posteriormente detectar ataques epilépticos.
 
-#srs.show-class(reqs, srs.make-tag("CU"),
-  class-formatter: srs.default-class-formatter-maker(breakable: false),
-  item-formatter: srs.default-item-formatter-maker(
-    name: srs.name-by-field-maker("Nombre")))
+#srs.show-template(reqs, srs.make-tag("CU"))
+
+#srs.show-items(reqs, srs.make-tag("CU"),
+  // custom formatter bc use cases are ✨special✨
+  formatter: srs.defaults.table-item-formatter-maker(
+    namer: srs.defaults.field-namer-maker("Nombre"),
+    tagger: srs.defaults.item-tagger-maker(prefix: none), // e.g.: @srs:uc-detect
+    style: (columns: (8em, 1fr), align: left),
+    breakable: true))
 
 #figure(
   image("uml/casos-de-uso.svg", width: 70%),
@@ -86,27 +90,16 @@ formato:
 - *Requisitos no funcionales*: `RNF-XX`, donde `XX` es un valor numérico de dos
   cifras, que comienza en `01` y que crece monótonamente de uno en uno.
 
-La @tab:rf muestra el formato de los requisitos funcionales y la @tab:rnf de
-los no funcionales.
+La @srs:requisito-funcionales-template muestra el formato de los requisitos
+funcionales y la @srs:requisito-no-funcional-template de los no funcionales.
 
 === Requisitos funcionales
-#srs.show-class(reqs, srs.make-tag("R", "F"),
-  class-formatter: srs.default-class-formatter-maker(
-    id       : "tab:rf",
-    breakable: false),
-  item-formatter: srs.default-item-formatter-maker(
-    name:      srs.incremental-name-maker("RF-", first: 1, width: 2),
-    breakable: false))
+#srs.show-template(reqs, srs.make-tag("R", "F"))
+#srs.show-items(reqs, srs.make-tag("R", "F")) // e.g.: @srs:rf-binding
 
 === Requisitos no funcionales
-
-#srs.show-class(reqs, srs.make-tag("R", "N"),
-  class-formatter: srs.default-class-formatter-maker(
-    id       : "tab:rnf",
-    breakable: false),
-  item-formatter: srs.default-item-formatter-maker(
-    name:      srs.incremental-name-maker("RNF-", first: 1, width: 2),
-    breakable: false))
+#srs.show-template(reqs, srs.make-tag("R", "N"))
+#srs.show-items(reqs, srs.make-tag("R", "N")) // e.g.: @srs:rnf-better
 
 == Análisis de requisitos <sec:3-análisis-de-requisitos>
 Finalmente, las siguientes dos matrices de trazabilidad nos permiten ver la
@@ -123,23 +116,28 @@ el grado de dependencia entre ambos.
 La arquitectura se del sistema se puede separar en cuatro componentes
 principales:
 
-- *Lector* (@c-lector): que lee una señal de encefalograma de un sensor.
-- *Detector* (@c-detector): que utiliza un _batch_ (o modelo) generado por
+- *Lector* (@srs:c-lector): que lee una señal de encefalograma de un sensor.
+- *Detector* (@srs:c-detector): que utiliza un _batch_ (o modelo) generado por
   el #reference("c-entrenador", [entrenador]) para clasificar la señal
   generada por el #reference("c-lector", [lector]).
-- *Entrenador* (@c-entrenador): que genera un modelo a partir de los datos de
+- *Entrenador* (@srs:c-entrenador): que genera un modelo a partir de los datos de
   un paciente.
-- *Validador* (@c-validador): que es utilizado por el
+- *Validador* (@srs:c-validador): que es utilizado por el
   #reference("c-entrenador", [entrenador]) para optimizar el modelo.
 
 El diagrama UML se resume en la @arquitectura, donde se pueden ver los
 distintos componentes y su relación entre ellos.
 
-#srs.show-class(reqs, srs.make-tag("C"),
-  class-formatter: srs.default-class-formatter-maker(breakable: false),
-  item-formatter: srs.default-item-formatter-maker(
-    name: srs.name-by-field-maker("Nombre"),
+#srs.show-template(reqs, srs.make-tag("C"))
+
+#srs.show-items(reqs, srs.make-tag("C"),
+  // custom formatter bc use cases are ✨special✨
+  formatter: srs.defaults.table-item-formatter-maker(
+    namer: srs.defaults.field-namer-maker("Nombre"),
+    tagger: srs.defaults.item-tagger-maker(prefix: none), // e.g.: @srs:c-detector
+    style: (columns: (8em, 1fr), align: left),
     breakable: false))
+
 #[
   #set page(flipped: true)
   #set align(horizon)

@@ -19,222 +19,237 @@
   c: "Cliente",
   a: "Analista")
 
-#let reference(id, text) = link(label(id), text)
+#let reference(id, text) = link(label("srs:" + id), text)
 
 #let config = srs.make-config(
+  language: "es",
+  // formatter por defecto de plantillas
+  template-formatter: srs.defaults.table-template-formatter-maker(
+    tagger: srs.defaults.template-tagger-maker(),
+    style: (columns: (8em, 1fr), align: left)),
+  // formatter por defecto de items
+  item-formatter: srs.defaults.table-item-formatter-maker(
+    namer: srs.defaults.incremental-namer-maker(
+      prefix: (class, _separator) => { class.tag.join("") },
+      start: 1,
+      width: 2),
+    tagger: srs.defaults.item-tagger-maker(prefix: none),
+    style: (columns: (8em, 1fr), align: left)),
 
   /* *** R e q u i s i t o s *** --------------------------------------- *** */
-  srs.make-class(
-    "R",
-    "Requisito",
-    fields: (
-      /* Requisito :: Descripción */
-      srs.make-field(
-        "Descripción",
-        srs.content-field,
-        [Descripción detallada del requisito]),
+  classes: (
+    srs.make-class(
+      "R",
+      "Requisito",
+      fields: (
+        /* Requisito :: Descripción */
+        srs.make-field(
+          "Descripción",
+          srs.content-field,
+          [Descripción detallada del requisito]),
 
-      /* Requisito :: Necesidad */
-      srs.make-field(
-        "Necesidad",
-        scale-f-type,
-        [Prioridad del requisito para el usuario]),
+        /* Requisito :: Necesidad */
+        srs.make-field(
+          "Necesidad",
+          scale-f-type,
+          [Prioridad del requisito para el usuario]),
 
-      /* Requisito :: Prioridad */
-      srs.make-field(
-        "Prioridad",
-        scale-f-type,
-        [Prioridad del requisito para el desarrollador]),
+        /* Requisito :: Prioridad */
+        srs.make-field(
+          "Prioridad",
+          scale-f-type,
+          [Prioridad del requisito para el desarrollador]),
 
-      /* Requisito :: Estabilidad */
-      srs.make-field(
-        "Estabilidad",
-        stability-type,
-        [Indica la variabilidad del requisito a lo largo del proceso de
-        desarrollo.]),
+        /* Requisito :: Estabilidad */
+        srs.make-field(
+          "Estabilidad",
+          stability-type,
+          [Indica la variabilidad del requisito a lo largo del proceso de
+          desarrollo.]),
 
-      /* Requisito :: Verificabilidad */
-      srs.make-field(
-        "Verificabilidad",
-        scale-f-type,
-        [Capacidad de probar la valided del requisito.]),
+        /* Requisito :: Verificabilidad */
+        srs.make-field(
+          "Verificabilidad",
+          scale-f-type,
+          [Capacidad de probar la valided del requisito.]),
 
-      /* Requisito :: Fuente */
-      srs.make-field(
-        "Fuente",
-        source-type,
-        [Quién ha propuesto el requisito.]),
+        /* Requisito :: Fuente */
+        srs.make-field(
+          "Fuente",
+          source-type,
+          [Quién ha propuesto el requisito.]),
+      ),
+      classes: (
+        srs.make-class("F", "Requisito funcionales",
+          origins: srs.make-origins(
+            [Caso de uso del que es origen este requisito.],
+            srs.make-tag("CU"))),
+        srs.make-class("N", "Requisito no funcional",
+          origins: srs.make-origins(
+            [Caso de uso del que es origen este requisito.],
+            srs.make-tag("CU")))),
     ),
-    classes: (
-      srs.make-class("F", "Requisito funcionales",
-        origins: srs.make-origins(
-          [Caso de uso del que es origen este requisito.],
-          srs.make-tag("CU"))),
-      srs.make-class("N", "Requisito no funcional",
-        origins: srs.make-origins(
-          [Caso de uso del que es origen este requisito.],
-          srs.make-tag("CU")))),
-  ),
 
-  /* *** C a s o s   d e   u s o *** ----------------------------------- *** */
-  srs.make-class(
-    "CU",
-    "Caso de uso",
-    fields: (
-      /* Caso de uso :: Nombre */
-      srs.make-field(
-        "Nombre",
-        srs.content-field,
-        [Nombre del caso de uso, es una acción así que debe empezar con un
-         verbo.],),
+    /* *** C a s o s   d e   u s o *** ----------------------------------- *** */
+    srs.make-class(
+      "CU",
+      "Caso de uso",
+      fields: (
+        /* Caso de uso :: Nombre */
+        srs.make-field(
+          "Nombre",
+          srs.content-field,
+          [Nombre del caso de uso, es una acción así que debe empezar con un
+          verbo.],),
 
-      /* Caso de uso :: Alcance */
-      srs.make-field(
-        "Alcance",
-        srs.make-enum-field(
-          empotrado:     [Dispositivo empotrado],
-          entrenamiento: [Entrenamiento],
-          todo:          [Dispositivo empotrado y entrenamiento]),
-        [A qué subsistema o subsistemas específicos afecta el mismo. En
-         este proyecto se diferencia la fase de entrenamiento del dispositivo
-         empotrado con el sistema en tiempo real.]),
+        /* Caso de uso :: Alcance */
+        srs.make-field(
+          "Alcance",
+          srs.make-enum-field(
+            empotrado:     [Dispositivo empotrado],
+            entrenamiento: [Entrenamiento],
+            todo:          [Dispositivo empotrado y entrenamiento]),
+          [A qué subsistema o subsistemas específicos afecta el mismo. En
+          este proyecto se diferencia la fase de entrenamiento del dispositivo
+          empotrado con el sistema en tiempo real.]),
 
-      /* Caso de uso :: Nivel */
-      srs.make-field(
-        "Nivel",
-        srs.make-enum-field(
-          meta-de-usuario : [Meta de usuario],
-          subfunción      : [Subfunción]),
-        [«Meta de usuario» o «Subfunción». La subfunción se diferencia de la
-         meta de usuario en que es un paso intermedio.]),
+        /* Caso de uso :: Nivel */
+        srs.make-field(
+          "Nivel",
+          srs.make-enum-field(
+            meta-de-usuario : [Meta de usuario],
+            subfunción      : [Subfunción]),
+          [«Meta de usuario» o «Subfunción». La subfunción se diferencia de la
+          meta de usuario en que es un paso intermedio.]),
 
-      /* Caso de uso :: Actores principales */
-      srs.make-field(
-        "Actores principales",
-        srs.content-field,
-        [Los agentes que hacen uso de los servicios del sistema para alcanzar
-         su objetivo.]),
+        /* Caso de uso :: Actores principales */
+        srs.make-field(
+          "Actores principales",
+          srs.content-field,
+          [Los agentes que hacen uso de los servicios del sistema para alcanzar
+          su objetivo.]),
 
-      /* Caso de uso :: Parte interesada */
-      srs.make-field(
-        "Parte interesada",
-        srs.content-field,
-        [Son los actores a quienes les concierne y qué quieren.]),
+        /* Caso de uso :: Parte interesada */
+        srs.make-field(
+          "Parte interesada",
+          srs.content-field,
+          [Son los actores a quienes les concierne y qué quieren.]),
 
-      /* Caso de uso :: Precondiciones */
-      srs.make-field(
-        "Precondiciones",
-        srs.content-field,
-        [Qué debe ser cierto al inicio.]),
+        /* Caso de uso :: Precondiciones */
+        srs.make-field(
+          "Precondiciones",
+          srs.content-field,
+          [Qué debe ser cierto al inicio.]),
 
-      /* Caso de uso :: Postcondiciones */
-      srs.make-field(
-        "Postcondiciones",
-        srs.content-field,
-        [Qué se garantiza que es cierto al completar la operación.]),
+        /* Caso de uso :: Postcondiciones */
+        srs.make-field(
+          "Postcondiciones",
+          srs.content-field,
+          [Qué se garantiza que es cierto al completar la operación.]),
 
-      /* Caso de uso :: Escenario de éxito principal */
-      srs.make-field(
-        "Escenario de éxito principal",
-        srs.content-field,
-        [La descrición de los pasos de las situación más típica.]),
+        /* Caso de uso :: Escenario de éxito principal */
+        srs.make-field(
+          "Escenario de éxito principal",
+          srs.content-field,
+          [La descrición de los pasos de las situación más típica.]),
 
-      /* Caso de uso :: Extensiones */
-      srs.make-field(
-        "Extensiones",
-        srs.content-field,
-        [Escenarios alternativos y ramificaciones del escenario principal.]),
+        /* Caso de uso :: Extensiones */
+        srs.make-field(
+          "Extensiones",
+          srs.content-field,
+          [Escenarios alternativos y ramificaciones del escenario principal.]),
 
-      /* Caso de uso :: Requisitos especiales */
-      srs.make-field(
-        "Requisitos especiales",
-        srs.content-field,
-        [Requisitos no funcionales relacionados.]),
+        /* Caso de uso :: Requisitos especiales */
+        srs.make-field(
+          "Requisitos especiales",
+          srs.content-field,
+          [Requisitos no funcionales relacionados.]),
 
-      /* Caso de uso :: Frecuencia con que ocurre */
-      srs.make-field(
-        "Frecuencia con que ocurre",
-        srs.content-field,
-        [Cada cuánto tiempo se espera que se utilice el caso de uso.]),
+        /* Caso de uso :: Frecuencia con que ocurre */
+        srs.make-field(
+          "Frecuencia con que ocurre",
+          srs.content-field,
+          [Cada cuánto tiempo se espera que se utilice el caso de uso.]),
+      ),
     ),
-  ),
 
-  /* *** C o m p o n e n t e s *** ------------------------------------- *** */
-  srs.make-class(
-    "C",
-    "Componente",
-    fields: (
-      /* Componente :: Nombre */
-      srs.make-field(
-        "Nombre",
-        srs.content-field,
-        [La función del componente en el sistema.]),
+    /* *** C o m p o n e n t e s *** ------------------------------------- *** */
+    srs.make-class(
+      "C",
+      "Componente",
+      fields: (
+        /* Componente :: Nombre */
+        srs.make-field(
+          "Nombre",
+          srs.content-field,
+          [La función del componente en el sistema.]),
 
-      /* Componente :: Rol */
-      srs.make-field(
-        "Rol",
-        srs.content-field,
-        [La función del componente en el sistema.]),
+        /* Componente :: Rol */
+        srs.make-field(
+          "Rol",
+          srs.content-field,
+          [La función del componente en el sistema.]),
 
-      /* Componente :: Dependencias */
-      srs.make-field(
-        "Dependencias",
-        srs.content-field,
-        [Componentes que dependen de este.]),
+        /* Componente :: Dependencias */
+        srs.make-field(
+          "Dependencias",
+          srs.content-field,
+          [Componentes que dependen de este.]),
 
-      /* Componente :: Descripción */
-      srs.make-field(
-        "Descripción",
-        srs.content-field,
-        [Explicación de la funcionalidad del componente.]),
+        /* Componente :: Descripción */
+        srs.make-field(
+          "Descripción",
+          srs.content-field,
+          [Explicación de la funcionalidad del componente.]),
 
-      /* Componente :: Entradas */
-      srs.make-field(
-        "Entrada",
-        srs.content-field,
-        [Datos de entrada del componente.]),
+        /* Componente :: Entradas */
+        srs.make-field(
+          "Entrada",
+          srs.content-field,
+          [Datos de entrada del componente.]),
 
-      /* Componente :: Salidas */
-      srs.make-field(
-        "Salida",
-        srs.content-field,
-        [Datos de salida del componente.]),
+        /* Componente :: Salidas */
+        srs.make-field(
+          "Salida",
+          srs.content-field,
+          [Datos de salida del componente.]),
+      ),
     ),
-  ),
 
-  /* *** T e s t s *** ------------------------------------------------- *** */
-  srs.make-class(
-    "T",
-    "Test",
-    origins: srs.make-origins(
-      [Requisito del que se deriva este _test_.],
-      srs.make-tag("R", "F"),
-      srs.make-tag("R", "N")),
-    fields: (
-      /* Test :: Descripción */
-      srs.make-field(
-        "Descripción",
-        srs.content-field,
-        [Descripción del _test_]),
+    /* *** T e s t s *** ------------------------------------------------- *** */
+    srs.make-class(
+      "T",
+      "Test",
+      origins: srs.make-origins(
+        [Requisito del que se deriva este _test_.],
+        srs.make-tag("R", "F"),
+        srs.make-tag("R", "N")),
+      fields: (
+        /* Test :: Descripción */
+        srs.make-field(
+          "Descripción",
+          srs.content-field,
+          [Descripción del _test_]),
 
-      /* Test :: Precondiciones */
-      srs.make-field(
-        "Precondiciones",
-        srs.content-field,
-        [Condiciones que deben cumplirse antes de ejecutar la prueba.]),
+        /* Test :: Precondiciones */
+        srs.make-field(
+          "Precondiciones",
+          srs.content-field,
+          [Condiciones que deben cumplirse antes de ejecutar la prueba.]),
 
-      /* Test :: Postcondiciones */
-      srs.make-field(
-        "Postcondiciones",
-        srs.content-field,
-        [Condiciones que deben cumplirse después de ejecutar la prueba.]),
+        /* Test :: Postcondiciones */
+        srs.make-field(
+          "Postcondiciones",
+          srs.content-field,
+          [Condiciones que deben cumplirse después de ejecutar la prueba.]),
 
-      /* Test :: Evaluación */
-      srs.make-field(
-        "Evaluación",
-        srs.make-enum-field(ok: "Correcta", err: "Errónea"),
-        [Resultado de la prueba]),
-    ),
+        /* Test :: Evaluación */
+        srs.make-field(
+          "Evaluación",
+          srs.make-enum-field(ok: "Correcta", err: "Errónea"),
+          [Resultado de la prueba]),
+      ),
+    )
   )
 )
 

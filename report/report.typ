@@ -71,8 +71,8 @@
     Muchas gracias.
   ],
   outlines: (figures: true, tables: true, listings: true),
-  appendixes: [
-    = Declaración de uso de I.A. generativa
+  // appendixes: [],
+  genai-declaration: [
     #set align(center)
     *DECLARACIÓN DE USO DE IA GENERATIVA EN EL TRABAJO DE FIN DE GRADO* \
 

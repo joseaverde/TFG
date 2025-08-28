@@ -27,20 +27,18 @@ que es correcto el programa.
 
 Puesto que como se ve en la @sec:3-análisis-de-requisitos, todos los requisitos
 cubren todos los casos de uso. Solo basta con demostrar que todos los
-requisitos están cubiertos para validar y verificar el programa. La @tab:test
-muestra la plantilla que van a seguir los tests. La única prueba que no se
-puede realizar es la relacionada al requisito de la @rnf-f1, pues no hay forma
-de asegurarse de que el modelo que va a la placa tiene esa mínima puntuación.
+requisitos están cubiertos para validar y verificar el programa. La
+@srs:test-template muestra la plantilla que van a seguir los tests. La única
+prueba que no se puede realizar es la relacionada al requisito de la
+@srs:rnf-f1, pues no hay forma de asegurarse de que el modelo que va a la placa
+tiene esa mínima puntuación.
 
-#srs.show-class(reqs, srs.make-tag("T"),
-  class-formatter: srs.default-class-formatter-maker(
-    id       : "tab:test",
-    breakable: false),
-  item-formatter: srs.default-item-formatter-maker(
-    name:      srs.incremental-name-maker("T-", first: 1, width: 2),
-    breakable: false))
+#srs.show-template(reqs, srs.make-tag("T"))
+#srs.show-items(reqs, srs.make-tag("T")) // e.g.: @srs:t-no-fallo
+
 
 #pagebreak()
+
 == Evaluación <sec:5-evaluación>
 En esta sección se hace una evaluación del rendimiento del programa y un
 análisis del mismo. Se hace un análisis en orden cronológico y se indica las
