@@ -26,7 +26,7 @@ algoritmo.
 == Estudio de la solución final <sec:4-estudio-de-la-solución-final>
 La implementación original del algoritmo de detección de ataques epilépticos
 que se analiza en este proyecto (PaFESD) @PPMC-DAC se escribió
-en Python 3.10. En este trabajo se analiza el impacto en el rendimiento de
+en Python 3.10. En este trabajo se analiza el impacto en el rendimiento al
 utilizar otros lenguajes de programación, compiladores, técnicas y
 herramientas, de cara a un análisis en el impacto energético y de seguridad
 del programa.
@@ -39,8 +39,8 @@ dependencias superaba los cientos de megabytes. Además uno de los requisitos
 fundamentales del proyecto es que corriera en tiempo real. Por estas razones
 técnicas se ha optado por utilizar otros lenguajes de programación.
 
-Los lenguajes usados y representación de valores numéricos utilizadas son los
-siguientes: C++ 20 con punto flotante de simple precisión, C++ 20 con punto
+Los lenguajes usados y las representaciones de valores numéricos utilizadas son
+los siguientes: C++ 20 con punto flotante de simple precisión, C++ 20 con punto
 flotante de doble precisión, Ada 2022 con punto flotante de simple precisión,
 Ada 2022 con punto flotante de doble precisión, SPARK 2014 con punto fijo y
 Python 3.10 con punto flotante.
@@ -69,6 +69,7 @@ Los conjuntos clásicos se denotan como:
 - $bb(N)^+ = {1, 2, 3, ...}$ es el conjunto de los números enteros positivos.
 - $bb(Q)$ es el conjunto de los números racionales.
 - $bb(R)$ es el conjunto de los números reales.
+- $bb(C)$ es el conjunto de los números complejos.
 
 Como la implementación en el computador se trabaja con números con un tamaño
 fijo de _bits_, a continuación se definen ciertos conjuntos interesantes para
@@ -103,8 +104,8 @@ Además, si se se define $S^0 != {}$, se puede extender la notación de
 $S^* = S^0 union S^+$. Estas notaciones son útiles para definir vectores.
 
 Una muestra $m in bb(R)$ es un valor que ha sido leido por un sensor de
-encefalograma en un instante de tiempo, el valor puede ser tanto negativo como
-positivo como nulo. Una señal $S_r (t), S: bb(R)->bb(R)$ es una función que
+encefalograma en un instante de tiempo, el valor puede ser tanto negativo, como
+positivo, como nulo. Una señal $S_r (t), S: bb(R)->bb(R)$ es una función que
 asocia para un sensor cualquiera $r$ en un instante de tiempo $t$ una muestra.
 
 Un sensor $r$ lee a una razón de $s in bb(N)^+$ muestras por segundo, a esa
@@ -265,12 +266,12 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 ]
 
 Del @thm:conv-error se obtienen propiedades muy relevantes. En primer lugar,
-si se converte de punto un fijo multiplicado por un coeficiente más grande
+si se convierte de punto un fijo multiplicado por un coeficiente más grande
 a uno más pequeño, no se pierde hay error y por tanto no se pierde información.
-Por ejemplo $a = 1 dot.op 2^(-2) in bb(X)_(32,-2)$, al convertirlo a un punto fijo
-con un bit más de precisión en la parte fraccionaria como $"conv"_(32,-3) (a)$
-se puede representar perfectamente como $2 dot.op 2^(-3)$, pues el numerador
-debe ser entero.
+Por ejemplo: $a = 1 dot.op 2^(-2) in bb(X)_(32,-2)$, al convertirlo a un punto
+fijo con un bit más de precisión en la parte fraccionaria como
+$"conv"_(32,-3) (a)$ se puede representar perfectamente como $2 dot.op 2^(-3)$,
+pues el numerador debe ser entero.
 
 Cuando $f < f'$, es decir hay más bits en la parte fraccionaria del tipo de
 origen que el de destino, hay un error (que está acotado) en el rango
@@ -281,7 +282,7 @@ da $0 dot.op 2^(-1)$, que está a como mucho $2^(-1)$ unidades del valor real.
 
 Otras propiedades importantes son que el número de _bits_ del tipo de punto
 fijo no influye en la conversión ni en el error. Además el error solamente
-depende del el exponente $f'$ del coeficiente del tipo al que se convierte,
+depende del exponente $f'$ del coeficiente del tipo al que se convierte,
 no depende de cuál era el exponente $f$ del valor origen. Esto simplifica
 muchísimo el análisis del error.
 
@@ -326,7 +327,7 @@ muchísimo el análisis del error.
   $
   $ => f + b - 1 <= f' + b' - 1 => b' >= b + (f - f') $
 
-  Finalmente si $f < f'$, de acuerdo con el @cor:conv-order $0 <= M' <= M$.
+  Finalmente, si $f < f'$, de acuerdo con el @cor:conv-order $0 <= M' <= M$.
   Trabajamos con valores no negativos. Y como se vio arriba, la condición más
   fuerte de que $b' >= b + (f - f')$ se sigue manteniendo.
 ]
@@ -628,7 +629,7 @@ uniformización. En primer lugar, la de un valor:
 
   Se llega a una contradicción, así que es *inyectiva*.
 
-  Finalmente es suprayectiva porque la imagen de la función es el conjunto:
+  Finalmente, es suprayectiva porque la imagen de la función es el conjunto:
 
   $ =& {"unif"_(b,f) (x) : x in bb(X)_(b,f) without {-2^(b-1) 2^f}} & \
     =& {"unif"_(b,f) (p 2^f) : x in bb(I)_(b) without {-2^(b-1)}} &
@@ -694,7 +695,7 @@ en que se basa el proyecto @PaFESD. Para determinar si una época pertenece o no
 a un ataque epiléptico se computan lo que el artículo llama _features_ (o
 características) que son cinco funciones matemáticas: `max_distance`, `energy`,
 `psd_1`, `psd_2` y `psd_3`. Si las características de una época están en
-ciertos rangos determinados por el modelo, a época no es un artefacto y la
+ciertos rangos determinados por el modelo, la época no es un artefacto y la
 distancia utilizando el algoritmo de deformación dinámica del tiempo es lo
 suficientemente pequeña para alguno de los patrones: el modelo dice que la
 época puede tratarse de un ataque epiléptico.
@@ -865,7 +866,7 @@ siguiente diagrama de flujo:
 )
 
 ==== Problemas <algorithm-accumulation-problems>
-Se siguen viendo similaridades con `max-distance`, y se ve que comparte sus
+Se siguen viendo similitudes con `max-distance`, y se ve que comparte sus
 dos primeros problemas @algorithm-max-distance-problems:
 
 - En el paso *2*, $v(1)$ falla si $m = 0$.
@@ -935,7 +936,7 @@ consecuencia del @thm:accumulation.
 ]
 
 Esto viene a decir que si se utiliza un punto fijo de $b$ bits y el tamaño
-máximo se puede almacenar en una variable de tipo entero con signo de $B$ bits:
+máximo se puede almacenar en una variable de tipo entero con signo de $B$ bits,
 se necesitaría que el acumulador tuviera $b + B - 1$ bits para almacenar el
 resultado, con la misma $f$ que el punto fijo de entrada.
 
@@ -943,7 +944,7 @@ resultado, con la misma $f$ que el punto fijo de entrada.
 A la hora de explicar esto a SPARK hay que utilizar una técnica que utiliza
 un vector con las sumas parciales del vector de manera que
 $v'(i) = sum_(j=1)^i v(i), i = 1, 2, ..., m$ @SPARKpartialSum.
-Además, una condición adicional que se ha visto útil, es decir que los valores
+Además, una condición adicional que se ha visto útil, es decir, que los valores
 de $v'(i)$ están acotados. Es decir,
 
   $ v(i) in [a, b], forall i = 1, 2, ..., m =>
@@ -993,7 +994,7 @@ función, no si es un procedimiento). A continuación hay dos precondiciones:
 - La longitud debe ser estrictamente positiva
 - Todos los elementos deben estar acotados en el mismo rango: $v(i) in ["first", "last"] forall v(i)$.
 
-Finalmente la postcondición dice que:
+Finalmente, la postcondición dice que,
 
 - La longitud del resultado es igual a la del parámetro. Y además que comienzan
   en el mismo índice (en Ada o SPARK se puede indexar a partir de cualquier
@@ -1029,7 +1030,7 @@ end Generic_Accumulation;
 ```]
 
 Es preciso mencionar que es necesario especificar los predicados invariantes en
-el bucle (`Loop_Invariant`), es decir qué propiedades no cambian de una
+el bucle (`Loop_Invariant`), es decir, qué propiedades no cambian de una
 iteración a la siguiente. En este caso estamos diciendo que primero todos
 los valores hasta el índice actual está acotados
 (@lst:generic-accumulation-body:11); que su valor es la suma del anterior
@@ -1089,7 +1090,7 @@ Se debe «instanciar» la función que `Generic_Accumulation`, es decir es
 genérica (sirve para distintos tipos de tipos) y por lo tanto está
 parametrizada (@lst:generic-accumulation-example:5). Se define una constante
 fantasma con el vector de entrada, pero esta vez contiene los valores con el
-tipo del resultado. Finalmente en @lst:generic-accumulation-example:19 dice
+tipo del resultado. Finalmente, en @lst:generic-accumulation-example:19 dice
 que el resultado `Result` en la i-ésima posición tiene el mismo valor que el
 valor en la i-ésima posición de `Generic_Accumulation`.
 
@@ -1508,10 +1509,10 @@ después. Se pueden ver las propiedades del bucle utilizando inducción:
 1. *Caso base*: Al inicio del bucle $i = 3$, y el indexado del vector está
    definido para $v(i-2) = v(1)$, $v(i-1) = v(2)$ y $v(i) = v(3)$. Porque
    además sabemos que $i <= m$.
-2. *Hipótesis inductiva*: En la $n$-ésima iteración, $i = 3 + 2 n <= m$ y los
+2. *Hipótesis inductiva*: En la $n"-ésima"$ iteración, $i = 3 + 2 n <= m$ y los
    valores $v(i-2) = v(2 n + 1)$, $v(i-1) = v(2 n + 2)$ y $v(i) = v(2 n + 3)$
    suponemos que están definidos.
-3. *Tesis inductiva*: Para la $n+1$-ésima iteración, suponiendo que $i <= m$
+3. *Tesis inductiva*: Para la $n+1"-ésima"$ iteración, suponiendo que $i <= m$
    (si no, habría salido del bucle en la bifurcación del paso *3*),
    $i = 3 + 2 (n + 1) = 5 + 2 n <= m$. Como $i <= m$, está definido
    $v(i) = v(5 + 2 n)$, y por lo tanto están definidos $v(i-1) = v(4 + 2 n)$
@@ -1730,7 +1731,7 @@ valor del _batch_ de la densidad espectral de potencia y ya clasificaría como
 === Transformada rápida de Fourier (FFT)
 ==== Transformada de Fourier discreta
 Dado un vector $x in bb(C)^m$ de $m$ números complejos
-$x_1, x_2, ..., x_m in bb(C)$, la transformada discreta de fourier se define
+$x_1, x_2, ..., x_m in bb(C)$, la transformada discreta de Fourier (DFT) se define
 como un vector $X in bb(C)^m$ de $m$ números complejos
 $X_1, X_2, ..., X_m in bb(C)$ que vienen dados por la fórmula:
 
@@ -1739,13 +1740,310 @@ $X_1, X_2, ..., X_m in bb(C)$ que vienen dados por la fórmula:
 donde $j = sqrt(-1) in bb(C)$ es la unidad imaginaria.
 
 ==== Algoritmo de Cooley-Tukey -- Transformada rápida de Fourier
+Es un algoritmo del tipo «divide y vencerás» que se pude combinar el resultado
+de la transformada de Fourier del vector de los elementos en posiciones pares y
+los de posiciones impares. Sin embargo, solo funciona para vectores con $m$
+elementos donde $m = 2^k$ para algún $k in bb(N)$, es decir potencias de dos.
+Se deduce de la siguiente forma:
 
+  $ X_k =& sum_(n=0)^(m-1) x_(n+1) e^((-2 pi j)/m k n) \
+        =& sum_(n=0)^(m/2-1) x_(2 n) e^((-2 pi j)/m k (2 n))
+          +  sum_(n=0)^(m/2-1) x_(2 n + 1) e^((-2 pi j)/m k (2 n + 1)) \
+        =& sum_(n=0)^(m/2-1) x_(2 n) e^((-2 pi j)/m k (2 n))
+          + e^((-2 pi j)/m k)
+            sum_(n=0)^(m/2-1) x_(2 n + 1) e^((-2 pi j)/m k (2 n))
+        =& E_k + e^((-2 pi j) / m k) O_k
+  $
+
+También se puede llegar a demostrar que:
+
+  $ X_(k+N/2) = E_k - e^((-2 pi j) / m k) O_k $
+
+por la periodicidad de la exponencial compleja.
+
+El algoritmo se puede describir de manera recursiva:
+
+  $ "FFT"(v,m) = cases("DFT"(v) & ", si " m equiv.not 0 ("mód" 2),
+      cases(v_k =& "FFT"("pares"(v), m/2) (k) + e^((-2 pi j)/m k)
+                       "FFT"("impares"(v), m/2) (k),
+            v_(k+m/2) =& "FFT"("pares"(v), m/2) (k) - e^((-2 pi j)/m k)
+                         "FFT"("impares"(v), m/2) (k)
+                      ) k < m/2 & ", si no") $
+
+Donde $"pares"(v)$ e $"impares"(v)$ son dos funciones que retornan dos vectores
+con los elementos del vector $v$ en las posiciones pares e impares
+resepectivamente.
 
 ==== Recursiva a iterativa
+El algoritmo se define de manera recursiva, pero tiene inconvenientes. En
+primer lugar, cada vez que se llama a la función el tamaño de la pila de
+memoria del sistema incrementa pues necesita espacio adicional para almancenar
+los resultados parciales. Esto podría provocar que desborde la pila cuando
+recurra mucho, especialmente en un dispositivo empotrado.
 
-==== _Caché_ y $omega^k_n$
+El segundo problema es con SPARK, es complicado para el probador de teoremas
+hacer demostraciones de funciones recursivas. Y mucho menos con una función
+tan compleja como es la de la transformada de Fourier. Así que es preciso
+«iterativizar» el algoritmo.
+
+Para deducir cómo se podría implementar lo primero es definir los parámetros:
+
+- $m = p 2^q > 1$, es la longitud del vector de entrada y salida, donde
+  $p equiv.not 0 ("mód" 2)$, $p in bb(N)^+$ y $q in bb(N)$.
+- $v = (v_0, v_1, ..., v_(m-1)), v in bb(C)^m$ es el vector de entrada.
+- $w = (w_0, w_1, ..., w_(m-1)), w in bb(C)^m$ es el vector de salida.
+
+Para simular recursión utilizando iteración, primero se ejecuta el caso
+base y luego se ejecuta un bucle. Hasta ahora el algoritmo tiene la forma del
+diagrama de flujo de la @fig:fft-recursive.
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+
+    node((1,0), name: <start>, [*1*: Inicio FFT], shape: shapes.pill)
+    edge("-|>")
+    node((1,v-sep*1), name: <branch>, align(center)[*2*: ¿$m equiv 0 ("mód" 2$)?],
+      shape: shapes.parallelogram)
+    edge("-|>", [No])
+    node((2,v-sep*2), align(center)[*3*: $w <- "DFT"(v,m)$])
+    edge("-|>")
+    node((2, v-sep*3), align(center)[*4*: Fin], shape: shapes.pill)
+    edge(<branch.south>, <rec.north>, "-|>", [Sí])
+    node((1,v-sep*2), align(center)[*5*:\
+      $E <-& "FFT"("pares"(v), m/2) \
+       O <-& "FFT"("impares"(v), m/2)$], name: <rec>)
+    edge("l,u,u,r", "-|>", [ #h(-2.2cm) Recursión])
+    edge("-|>")
+    node((1, v-sep*3), align(center)[*6*: Combinar $E$ y $O$])
+    edge("r", "-|>")
+
+
+  }),
+  caption: [Diagrama de flujo de la transformada rápida de Fourier recursiva]
+) <fig:fft-recursive>
+
+En el paso recursivo se ve que el vector se divide en dos vectores de la mitad
+de tamaño, uno con los elementos en posiciones pares (empezando por cero) y
+posiciones impares. En cada paso recursivo siempre que sea múltiplo de dos,
+se divide en pares e impares.
+
+- En la primera iteración se divide $v$ en dos vectores $v_0$ y $v_1$:
+  $v_0_i = v_(2 i)$ y $v_1_i = v_(2 i + 1)$, es decir, del vector $v$ los
+  elementos en posiciones $i equiv 0 ("mód" 2)$ e $i equiv 1 ("mód" 2)$
+  respectivamente.
+
+- En la segunda iteración (si siguen siendo múltiplos de dos) se dividen de
+  nuevo ambos vectores $v_0$ y $v_1$ en pares e impares:
+  de $v_0$ salen $v_(0,0)$, $v_(0,1)$ y de $v_1$ salen $v_(1,0)$ y $v_(1,1)$.
+  - $v_(0,0)$ y $v_(0,1)$ respecto a $v_0$ están en posiciones
+    $i equiv 0 ("mód" 2)$ e $i equiv 1 ("mód" 2)$ respectivamente, pero en
+    relación al vector $v$ original están en posiciones
+    $i equiv 0 ("mód" 2)$ e $i equiv 2 ("mód" 2)$ respectivamente.
+  - Del mismo $v_(1,0)$ y y $v_(1,1)$ respecto a $v_1$ están en posiciones
+    $i equiv 0 ("mód" 2)$ e $i equiv 1 ("mód" 2)$ respectivamente, pero en
+    relación al vector $v$ original están en posiciones
+    $i equiv 1 ("mód" 2)$ e $i equiv 3 ("mód" 2)$ respectivamente.
+  Se empieza a ver un patrón.
+
+Para simplificar el problema, vamos a utilizar secuencias de índices. El vector
+$w$ de $m$ elementos tiene todos los elementos en los índices
+$w = (0, 1, ... m - 1)$. En la segunda iteración se toman los índices en
+posiciones pares $w_0 = (0, 2, 4, ..., m - 2)$; y los impares conjunto
+$w_1 = (1, 3, 5, ..., m - 1)$, siempre y cuando su cardinalidad sea par:
+$|w| equiv 0 ("mód" 2)$.
+
+Se denota el vector $w_(a_1,a_2,...,a_k)$ con $a_i in {0, 1}, i = 1, 2, ..., k$
+al vector que ha tomado los elementos de paridad $a_k$ del vector
+$w_(a_1,a_2,...,a_(k-1))$. El vector $w_(a_1,a_2,...,a_k)$ da la secuencia
+ordenada
+$(i : i equiv sum_(i=1)^(k) 2^(i-1) a_i ("mód" 2^k), i in 0, 1, ... m - 1)$.
+
+#proof[
+
+- *Hipótesis de inducción*: En la $k"-ésima"$ iteración si
+  $m equiv 0 ("mód" 2^k)$, el vector $w_(a_1,a_2,...,a_k) =
+  (i: i equiv sum_(i=1)^k 2^(i-1) a_i ("mód" 2^k), i in bb(Z))$. Sea
+  $f = sum_(i=1)^k 2^(i-1) a_i$, entonces
+  $w_(a_1,a_2,...,a_k) = (f, 2^k + f, 2 dot.c 2^k + f, 3 dot.c 2^k + f, ...)$.
+- *Tesis inductiva*: La $k+1"-ésima"$ iteración, puede ser uno de dos vectores
+  dependiendo si se divide en pares o impares:
+  - *Pares*: El vector $w_(a_1,a_2,...,a_k,0)$, con $a_(k+1) = 0$ tiene los
+    valores en posiciones pares del vector $w_(a_1,a_2,...,a_k) =
+      (f, 2^k + f, 2 dot.c 2^k + f, 3 dot.c 2^k + f, ...)$.
+    Es decir los elementos $(f, 2 dot.c 2^k + f, 4 dot.c 2^k + f, ...)$
+    $= (f, 1 dot.c 2^(k+1) + f, 2 dot.c 2^(k+1) + f, ...)$,
+    Que cumplen el predicado:
+
+    $ & (i : i equiv f ("mód" 2^(k+1)), i = 0, 1, ..., m - 1)  \
+    = & (i : i equiv sum_(i=1)^k 2^(i-1) a_i ("mód" 2^(k+1)), i = 0, 1, ..., m - 1) \
+    = & (i : i equiv 2^k a_(k+1) + sum_(i=1)^k 2^(i-1) a_i ("mód" 2^(k+1)), i = 0, 1, ..., m - 1) \
+    = & (i : i equiv sum_(i=1)^(k+1) 2^(i-1) a_i ("mód" 2^(k+1)), i = 0, 1, ..., m - 1)
+    $
+
+  - *Impares*: De manera similar el vector $w_(a_1,a_2,...,a_k,1)$, con
+    $a_(k+1) = 1$ tiene los valores en posiciones impares del vector
+    $w_(a_1,a_2,...,a_k) = (f, 2^k + f, 2 dot.c 2^k + f, 3 dot.c 2^k + f, 4 dot.c 2^k, ...)$.
+    Es decir los elementos
+    $(1 dot.c 2^k + f, 3 dot.c 2^k + f, 5 dot.c 2^k + f, 7 dot.c 2^k, ...)$
+    $= (2^k + f,
+        1 dot.c 2^(k+1) + 2^k + f,
+        2 dot.c 2^(k+1) + 2^k + f,
+        3 dot.c 2^(k+1) + 2^k + f, ...)$.  Que cumplen el predicado:
+
+    $ & (i : i equiv 2^k + f ("mód" 2^(k+1)), i = 0, 1, ..., m - 1)  \
+    = & (i : i equiv 2^k + sum_(i=1)^k 2^(i-1) a_i ("mód" 2^(k+1)), i = 0, 1, ..., m - 1) \
+    = & (i : i equiv 2^k a_(k+1) + sum_(i=1)^k 2^(i-1) a_i ("mód" 2^(k+1)), i = 0, 1, ..., m - 1) \
+    = & (i : i equiv sum_(i=1)^(k+1) 2^(i-1) a_i ("mód" 2^(k+1)), i = 0, 1, ..., m - 1)
+    $
+- *Caso base*: En la primera iteración cuando $k = 0$,
+  $w = (0, 1, 2, 3, ..., m - 1)$.
+]
+
+Esta relación se puede ver gráficamente como muestra la @fig:fft-indices-mod.
+Donde las dos flechas que salen de cada cuadrado significa que dividide el
+vector en dos partes con los elementos en las posiciones $equiv i ("mód" 2^k)$
+en la $k"-ésima"$ iteración.
+
+#let invert-bits(x,bits) = {
+  let r = 0
+  for i in range(bits) {
+    r = 2 * r + calc.rem(x, 2)
+    x = calc.quo(x, 2)
+  }
+  return r
+}
+
+#figure(
+  caption: [Relación entre el resto y la iteración en que está la transformada
+            rápida de Fourier],
+  cetz.canvas({
+    let height = 1cm
+    let v-space = 1cm
+    let width = 1.5cm
+    let rows = 4
+    let count = int(calc.pow(2, rows - 1))
+    for row in range(rows) {
+      let y = (height + v-space) * row
+      for col in range(count) {
+        rect((col * width, y), ((col + 1) * width, y + height))
+        content(((col + 0.5) * width, y + height / 2),
+                [$equiv #invert-bits(col, rows - row - 1)$])
+        line(((col + 0.5) * width, y),
+             ((col + 0.25) * width, y - height),
+             mark: (end: "stealth"))
+        line(((col + 0.5) * width, y),
+             ((col + 0.75) * width, y - height),
+             mark: (end: "stealth"))
+      }
+      content((count * width + 2cm, y + height / 2), [$k = #(4 - row)$])
+      count = int(count / 2)
+      width = width * 2
+    }
+  })
+) <fig:fft-indices-mod>
+
+El problema de esta aproximación es que para hacerlo de manera iterativa, se
+empieza abajo (en el caso base) y se va subiendo hacia arriba combinando los
+resultados. Supondría tener que cambiar los elementos de orden en el vector,
+pues con los elementos ordenados en los índices: $0,1,2,3,4,5,...,m-3,m-2,m-1$.
+
+Se propone una alternativa que se puede ver en la @fig:fft-indices-good, donde
+las flechas indican que se combina la solución
+(utilizando $X_n = E_n + e^((-2 pi j) / (2^k) n) O_n$) en el paso recursivo de
+la función original. Se puede ver que en la $k"-ésima"$ iteración en el
+$n"-ésimo"$ bloque se combina la solución del: $n"-ésimo"$ bloque de la $k-1$-ésima
+iteración con el $n + 2^(k-1)"-ésimo"$ bloque de la $k-1"-ésima"$ iteración.
+
+Esto se debe a que se definieron los índices previamente como
+$(i: i equiv sum_(i=1)^k 2^(i-1) a_i ("mód" 2^k), i in 0, 1, ..., m - 1)$ para
+el vector de índices $w_(a_1,a_2,...,a-k)$ en la $k"-ésima"$ iteración. Si el
+siguiente era impar entonces tendría los elementos que sean $equiv 2^k + f
+"mód" (2^(k+1))$ y si no eran los elementos que fueran $equiv f ("mód"
+2^(k+1))$, donde $f = sum_(i=1)^k 2^(i-1) a_i$.
+
+#figure(
+  caption: [Propuesta de índices para la transformada de Fourier],
+  cetz.canvas({
+    let height = 1cm
+    let v-space = 1cm
+    let width = 1.5cm
+    let rows = 4
+    let count = int(calc.pow(2, rows - 1))
+    for row in range(rows) {
+      let y = -(height + v-space) * row
+      for col in range(count) {
+        rect((col * width, y), ((col + 1) * width, y + height))
+        content(((col + 0.5) * width, y + height / 2), [$equiv #col$])
+      }
+      for col in range(count * 2) {
+        line(((col / 2 + 0.25) * width, y + v-space + height),
+             ((calc.rem(col, count) + 0.5) * width, y + height),
+             mark: (end: "stealth"))
+      }
+      content((count * width + 2cm, y + height / 2), [$k = #(1+row)$])
+      count = int(count / 2)
+      width = width * 2
+    }
+  })
+) <fig:fft-indices-good>
+
+Se puede ver en la @fig:fft-indices-good que en la $k"-ésima"$ iteración, el
+$n"-ésimo"$ bloque tiene el doble de elementos que en la iteración anterior,
+en este caso $p 2^k$ elementos, donde $p$ era la parte impar de la longitud
+del vector ($m = p 2^q$), y se computa combinando las soluciones de los
+bloques $n$ y $n + 2^(k-1)$.
+
+Llamemos «bloque final» a este $n"-ésimo"$ bloque que combina las soluciones del
+$n"-ésimo"$ bloque de la iteración anterior («bloque izquierdo») y el $n +
+2^(k-1)$-ésimo bloque de la iteración anterior («bloque derecho»):
+
+- El «bloque izquierdo» empieza en el índice $n p 2^(k-1)$ y tiene
+  $p 2^(k-1)$ elementos.
+- El «bloque derecho» empieza en el índice $(n + 2^(k-1)) p 2^(k-1)$ y tiene
+  $p 2^(k-1)$.
+- El «bloque final» empieza en el índice $n p 2^k$ y tiene $p 2^k$ elementos.
+
+Esa es la clave para hacer que algoritmo deje de ser recursivo y sea iterativo.
+Véase el diagrama de flujo que muestra la @fig:algorithm-fft-iterative, para
+ver el resumen de cómo se podría implementar.
+
+Nótese que esto también es necesario para la transformada discreta de Fourier
+del caso base cuando $p > 1$, en ese caso los elementos están separados $2^q$
+elementos.
+
+#figure(
+  diagram(
+    node-stroke: 1pt, {
+    let v-sep = 1
+    node((1,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((1,v-sep), align(center)[*2*: \
+      $p, q:& p 2^q = m, p equiv 0 ("mód" 2)\
+       w, w' in& bb(C)^m \
+       "chunk" &<- 0 in bb(N)
+      $])
+    edge("-|>")
+    node((1,v-sep*2), name: <loop1>, [*3*: ¿$c < p$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    node((1,v-sep*3), [*4*: $c <- 0$])
+    edge("-|>")
+    node((1,v-sep*4), name: <loop2>, [*5*: ¿$b < p$?], shape: shapes.parallelogram)
+    edge("-|>", [Sí])
+    edge("l,u,r", "-|>")
+    node((1,v-sep*5), [*4*: $c <- 0$])
+  }),
+  caption: [Algoritmo de la transformada rápida de Fourier iterativo]
+) <fig:algorithm-fft-iterative>
+
+
 
 ==== Consideraciones para punto fijo
+Para punto fijo, el algoritmo desborda en casi todos los pasos, lo que complica
+bastante su implementación. Sin embargo existe un estudio del doctor P. Welch
+@welch2003fixed que permite simplificar el desarrollo del algoritmo de la
+transformada de Fourier utilizando punto fijo.
 
 /* ==== W E L C H ========================================================== */
 #pagebreak(weak:true)
@@ -1858,7 +2156,7 @@ denominador:
 /* ==== D E F O R M A C I Ó N _ D I N Á M I C A _ D E L _ T I E M P O ====== */
 #pagebreak(weak:true)
 === Deformación dinámica del tiempo (DTW)
-Es un algoritmo apra medir la similaridad entre dos secuencias temporales que
+Es un algoritmo para medir la similaridad entre dos secuencias temporales que
 difieren en la velocidad. El algoritmo está basado en la implementación de
 referencia @PPMC-DAC.
 
@@ -1866,10 +2164,49 @@ Dadas dos señales de $m$ elementos $u in bb(X)_(b'',f'')^m$ y
 $v in bb(X)_(b''',f''')^m$. Sean $u', v' in bb(X)_(b,f)^m$ las señales _batch_
 normalizadas de acuerdo con la @sec:batch-normalisation como $u'="bnorm"(u,m)$
 y $v'="bnorm"(v,m)$. Sea $w in bb(N)^+, w < m$ la ventana de deformación
-(_warping window_). El algoritmo se resume en la @fig:algorithm-dtw.
+(_warping window_). El algoritmo se resume en la @fig:algorithm-dtw. Donde
+$"máx"(...)$ es la función que retorna el valor máximo de una secuencia de
+valores
 
-// TODO: +': Definir suma saturada
-// TODO: Demostrar ausencia de Index_Error
+  $ "máx"(x)         =& x \
+    "máx"(x, y, ...) =& cases(x             & ", si " x > "máx"(y, ...),
+                              "máx"(y, ...) & ", si no")
+  $
+
+$"mín"(...)$ es la función que retorna el mínimo de una secuencia de valores
+
+  $ "mín"(x)         =& x \
+    "mín"(x, y, ...) =& cases(x             & ", si " x < "mín"(y, ...),
+                              "mín"(y, ...) & ", si no")
+  $
+
+$"dist"(a, b)$ es la función de distancia que se define como:
+
+  $ "dist"(a, b) = (a - b)^2 $
+
+y $M$ es un valor arbitrario lo suficientemente grande.
+
+==== Problemas
+Al igual que el resto de algoritmos, existen puntos de fallo, especialmente
+cuando se indexa. Sin embargo, en este caso algunas soluciones ya se han
+aplicado al algoritmo @fig:algorithm-dtw para simplificar la explicación.
+
+- *Paso 2*: La operación $2 w + 3$ puede desbordar
+- *Paso 4*: Las sumas pueden desbordar.
+- *Paso 6*: Indexar los vectores $u("row")$ y $v("col")$ puede ser fuera de
+  rango.
+- *Paso 8*: Indexar puede fallar.
+- *Paso 9*: Indexar en $"band"_a (i+1)$ puede fallar.
+- *Paso 10*: Incrementar cualquiera de los acumulador puede desbordar.
+- *Paso 11*: Incrementar el acumulador puede desbordar.
+- *Paso 12*: Indexar en $"band"_b (i+1)$ puede fallar.
+
+Además, para punto fijo hay problemas en:
+
+- *Paso 6*: La función $"dist"(a,b)$ también puede desbordar.
+- *Paso 8*: Cualquiera de las sumas puede y lo más seguro es que desborde, pues
+  ambos vectores se inician con todos elementos a $M$, que es muy grande.
+
 
 #figure(
   diagram(
@@ -1880,8 +2217,8 @@ y $v'="bnorm"(v,m)$. Sea $w in bb(N)^+, w < m$ la ventana de deformación
     edge("-|>")
     node((1,v-sep), align(center)[*2*:\
       $ "size"   <-& 2 w + 3 \
-        "band"_a <-& (infinity', ..., infinity') in bb(R)^m \
-        "band"_b <-& (infinity', ..., infinity') in bb(R)^m \
+        "band"_a <-& (M, ..., M) in bb(R)^m \
+        "band"_b <-& (M, ..., M) in bb(R)^m \
         i        <-& 1                                      \
         "row"    <-& 1 in bb(I)_B                           $
       ], shape: shapes.rect)
@@ -1909,7 +2246,7 @@ y $v'="bnorm"(v,m)$. Sea $w in bb(N)^+, w < m$ la ventana de deformación
     edge("u,r", "-|>")
 
     edge(<colloop.south>, <colfirst.north>, "-|>", [Sí])
-    node((1,v-sep*5), align(center)[*6*: $d <- "dist"(w("row"), v("col"))$],
+    node((1,v-sep*5), align(center)[*6*: $d <- "dist"(u("row"), v("col"))$],
          name: <colfirst> , shape:shapes.rect)
     edge("-|>")
     edge(<cond.south>, <band.north>, "-|>", [Sí])
@@ -1918,14 +2255,14 @@ y $v'="bnorm"(v,m)$. Sea $w in bb(N)^+, w < m$ la ventana de deformación
 
     edge("-|>", [No])
     node((0,v-sep*7), align(center)[*8*:\
-      $y <-& "band"_a (i - 1) +' d \
-       x <-& "band"_b (i + 1) +' d \
-       z <-& "band"_b (i)     +' d \
+      $y <-& "band"_a (i) + d \
+       x <-& "band"_b (i + 2) + d \
+       z <-& "band"_b (i + 1) + d \
        d <-& "mín"(x,y,z) $
     ], shape:shapes.rect)
 
     edge("-|>")
-    node((1,v-sep*7), align(center)[*9*: $"band"_a(i) <- d$],
+    node((1,v-sep*7), align(center)[*9*: $"band"_a (i + 1) <- d$],
          name: <band>, shape:shapes.rect)
     edge("-|>")
     node((2,v-sep*7), align(center)[*10*:\ $
@@ -1937,3 +2274,219 @@ y $v'="bnorm"(v,m)$. Sea $w in bb(N)^+, w < m$ la ventana de deformación
   caption: [Algoritmo de la deformación dinámica del tiempo (DTW)]
 ) <fig:algorithm-dtw>
 
+==== Soluciones
+En primer lugar para que el *paso 2* no desborder en la suma $2 w + 3$, basta
+con añadir la precondición:
+
+  $  2 w + 3 <= 2^(B-1) - 1 \
+  => 2 w <= 2^(B - 1) - 4   \
+  => w <= 2^(B - 2) - 2     $
+
+A continuación en el *paso 4*, pueden desbordar las operaciones:
+$(w - "row" + 2)$, $("row" - w)$, $("row" + w)$, eso añade más precondiciones,
+se sabe que $"row" in [1, m]$:
+
+  $  & -2^(B-1) <= w - "row" + 2 <= 2^(B-1) - 1 & \
+  <=>& -2^(B-1) <= (w + 2) - "row" <= 2^(B-1) - 1
+        & #h(1cm) [1 <= w <= 2^(B - 2) => 3 <= (w + 2) <= 2^(B-2)] \
+  <=>& -2^(B-1) <= 3 - "row" and 2^(B-2) - "row" <= 2^(B-1) - 1 & \
+  <=>& -2^(B-1) <= 3 - 2^(B-1) - 1 and 2^(B-2) - 1 <= 2^(B-1) - 1
+        & #h(1cm) [1 <= "row" <= "m" <= 2^(B-1)-1] $
+
+La expresión $(w - "row" + 2)$ no añade ninguna precondición nueva, porque
+siempre está en rango y siempre es cierto que $-2^(B-1) - 1 + 3 <= -2^(B-1)$ y
+que $2^(B-2) - 1 <= 2^(B-1) - 1$. De igual manera:
+
+  $  & -2^(B-1) <= "row" - w <= 2^(B-1) - 1  & \
+  <=>& -2^(B-1) <= 1 - w and 2^(B - 1) - 1 - w <= 2^(B-1) - 1
+        & #h(1cm) [1 <= "row" <= m <= 2^(B-1) - 1] \
+  <=>& -2^(B-1) <= 1 - 2^(B-2) - 2 and 2^(B - 1) - 1 - 1 <= 2^(B-1) - 1
+        & #h(1cm) [1 <= w <= 2^(B - 2) - 2]$
+
+Siempre es cierto y entonces $"row" - w$ no añade ninguna precondición. Y
+finalmente:
+
+  $  & -2^(B-1) <= "row" + w <= 2^(B-1) - 1 & \
+  <=>& "row" + w <= 2^(B - 1) - 1
+        & #h(1cm) ["row" >= 1 and w >= 1] \
+  <=>&  m + w <= 2^(B-1) - 1 & #h(1cm) ["row" <= m]$
+
+Que sí añade una precondición adicional, pues dicha operación puede desbordar,
+se deduce que:
+
+  $ m + w <= 2^(B-1) - 1 $
+
+El *paso 6* depende de cuál es el máximo y cuál es el mínimo del *paso 4*:
+
+$ i =& cases(1             &", si " w - "row" + 2 <= 1,
+             w - "row" + 2 &", si " w - "row" + 2 > 1) \
+  F =& cases(1             &", si " "row" - w <= 1,
+             "row" - w     &", si " "row" - w > 1) \
+  L =& cases(m             &", si " "row" + w >= m,
+             "row" + w     &", si " "row" + w < m) \
+$
+
+Si se reordenan los las inecuaciones:
+
+$ i =& cases(1             &", si " "row" >= w + 1,
+             w - "row" + 2 &", si " "row" < w + 1) \
+  F =& cases(1             &", si " "row" <= w + 1,
+             "row" - w     &", si " "row" > w + 1) \
+  L =& cases(m             &", si " "row" >= m - w,
+             "row" + w     &", si " "row" < m - w) \
+$
+
+Y si se combinan $i$ y $F$ en la misma expresión condicional:
+
+$
+  (i, F) =& cases(
+    (w - "row" + 2,& 1)  & ", si " "row" < w + 1,
+    (1,& 1)              & ", si " "row" = w + 1,
+    (1,& "row" - w)      & ", si " "row" > w + 1)
+$
+
+Si también se combina con $L$, añadiendo una *precondición adicional
+$m - w > w + 1$*, se puede llegar a que
+
+$
+  (i, F, L) =& cases(
+    (w - "row" + 2,& 1,& "row" + w) & ", si " "row" < w + 1,
+    (1,& 1,& "row" + w)             & ", si " "row" = w + 1,
+    (1,& "row" - w,& "row" + w)     & ", si " w + 1 < "row" < m - w,
+    (1,& "row" - w,& m)             & ", si " "row" >= m - w)
+$
+
+Conocer cuánto valen $i$, $F$ y $L$ en cada iteración nos permite identificar
+cuál es el dominio de $"col"$ en el bucle de iteración más anidado, pues
+depende de los valores de $L$ y de $F$:
+
+$
+  L - F =& cases(
+    "row" + w - 1 & ", si " "row" < w + 1,
+    "row" + w - 1 & ", si " "row" = w + 1,
+    2 w           & ", si " w + 1 < "row" < m - w,
+    m - "row" + w & ", si " "row" >= m - w)
+$
+
+Además se puede demostrar que $L - F in [w, 2 w]$, por casos:
+
+#proof[
+- *$"row" < w + 1$:* Como $L - F = "row" + w - 1$ y como $1 <= "row" < w$
+  $=> 1 + w <= "row" + w < 2 w$ $=> w <= "row" + w - 1 < 2 w - 1$.
+- *$"row" = w + 1$:* Como $L - F = "row" + w - 1 = w + w + 1 - 1 = 2 w in [w, 2 w]$
+- *$"row" < m - w$:* Como $L - F = 2 w in [w, 2 w]$.
+- *$"row" >= m - w$:* Como $L - F = m - "row" + w$ y como $m - w <="row" <= m$
+  $=> 0 <= m - "row" <= w $ $=> w <= m - "row" + w <= 2 w$
+]
+
+Otro valor que es necesario acotar es $i$ y la expresión $i - F + L$, que es el
+valor que tendría $i$ al final del bucle en el *paso 10*. Se puede demostrar
+por casos que $i in [1 .. w]$ y que $i + L - F in [w + 1, 2 w + 1]$.
+
+#proof[
+- *$"row" < w + 1$*:
+  1. $i = w - "row" + 2$, como $1 <= "row" < w + 1$ $=> -1 < w - "row" <= w - 1 $
+    $=> 1 < w - "row" + 2 <= w + 1 $. $i in [2, w+1] subset [1, w+1]$
+  2. $i + L - F = "row" + w - 1 + w - "row" + 2 = 2 w + 1 in [w + 1, 2 w + 1]$
+- *$"row" = w + 1$*:
+  1. $i = w - "row" + 2 = w - (w + 1) + 2 = 1 in [1, w + 1]$.
+  2. $i + L - F = 1 + "row" + w - 1 = 2 w + 1 in [w + 1, 2 w + 1]$.
+- *$"row" < m - w$*:
+  1. $i = 1 in [1, w + 1]$
+  2. $i + L - F = 2 w + 1 in [w + 1, 2 w + 1]$
+- *$"row" >= m - w$*:
+  1. $i = 1 in [1, w + 1]$
+  2. $i + L - F = 1 + m - "row" + w$, como se demostró antes cuando
+     $"row" >= m - w$ entonces $w <= L - F <= 2 w$ luego
+     $1 + w <= 1 + L - F <= 2 w + 1$ y $i + L - F in [w + 1, 2 w + 1]$.
+]
+
+De aquí se obtienen tres propiedades esenciales:
+
+- El bucle itera $L - F + 1 in [w + 1, 2 w + 1]$ veces
+- $i in [1, 2 w + 1]$ en cualquier punto del bucle
+- $"col" in [1, m]$, porque $F = "máx"(1, "row" - w)$ que es el índice inferior
+  y se minimiza cuando $F = 1$; y $L = "mín"(m, "row" + w)$ que es el índice
+  superior que maximiza cuando $L = m$.
+
+El problema del *paso 6* se soluciona automáticamente porque $"row" in [1, m]$
+y $"col" in [1, m]$, ya que $u$ y $v$ son vectores de $m$ elementos.
+
+El problema del *paso 9* se soluciona porque $i in [1, 2 w + 1]$ y las bandas
+son vectores de $2 w + 3$ elementos e $i + 1 in [2, 2 w + 2]$. De igual manera
+se soluciona el *paso 8* y el *paso 12*.
+
+El desbordamiento *paso 10* y el *paso 11* se pueden solucionar si se pone la
+restricción de que $m < 2^(B-1) - 1$.
+
+Es preciso tener en cuenta que los valores en las bandas $"band"_a$ y
+$"band"_b$ son estrictamente positivos:
+
+#proof[
+
+  Se quiere demostrar que
+  $"band"_a (k) >= 0 and "band"_b (k) >= 0, forall k in 1, 2, ... m$.
+
+- *Paso 2*: Como $"band"_a (k) = M and "band"_b (k) = M, forall k in 1, 2, ... m$
+  y como $M > 0$, se ve que es cierto.
+- *Paso 3*: En la primera iteración es cierto, es necesario demostrar que para
+  una iteración arbitraria seguirá siendo cierto suponiendo que es cierto en la
+  iteración previa (inducción):
+
+  - *Paso 4*: Irrelevante.
+  - *Paso 5*: En la primera iteración es cierto suponiendo que es cierto en el
+    *paso 3*, es necesario demostrar que para una iteración arbitraria se
+    mantiene la condición suponiendo que la iteración anterior es cierta
+    (inducción):
+
+    - *Paso 6*: $d >= 0$, es no negativo.
+    - *Paso 7*: $d >= 0$
+    - *Paso 8*: Como $d >= 0$ y $"band"_a (k) = M and "band"_b (k) = M,
+      forall k in 1, 2, ... m$ entonces $y >= 0$, $x >= 0$ y $z >= 0$ y por lo
+      tanto $"mín"(x, y, z) >= 0$.
+    - *Paso 9*: $d >= 0$ independientemente de si ha pasado por el *paso 8* y
+      por lo tanto $"band"_a(i + 1) >= 0$.
+    - *Paso 10*: Irrelevante.
+
+    Si suponiendo que
+    $"band"_a (k) >= 0 and "band"_b (k) >= 0, forall k in 1, 2, ... m$, al
+    final del bucle se sigue manteniendo la condición, como en la primera
+    iteración también se cumple, por inducción se
+    demuestra que el bucle más anidado mantiene la invariante de que:
+    $"band"_a (k) >= 0 and "band"_b (k) >= 0, forall k in 1, 2, ... m$.
+
+  - *Paso 11*: Intercambia el valor de $"band"_a$ y $"band"_b$, se sigue
+    manteniendo el predicado de que sean todos sus elementos positivos.
+
+  Como en la primera iteración es cierto que
+  $"band"_a (k) >= 0 and "band"_b (k) >= 0, forall k in 1, 2, ... m$ y para
+  una iteración arbitraria suponiendo que es cierto 
+  $"band"_a (k) >= 0 and "band"_b (k) >= 0, forall k in 1, 2, ... m$ se sigue
+  manteniendo la invariante al final del bucle, por inducción se demuestra
+  que
+  $"band"_a (k) >= 0 and "band"_b (k) >= 0, forall k in 1, 2, ... m$ es una
+  invariante de los pasos 2 al 11 (todos incluidos).
+
+]
+
+Finalmente, queda solucionar los problemas de punto fijo. Para ello, en el
+*paso 8* se ha decidido utilizar suma saturada, que se define solo para números
+positivos pues en el como se ha visto por inducción una invariante del bucle es
+que $"band"_a (k) >= 0 and "band"_b (k) >= 0, forall k in 1, 2, ... m$; y
+también se puede ver que
+$"dist"(a, b) >= 0, forall a in bb(R), forall b in bb(R)$:
+
+  $ "sat_sum"_(b,f): bb(X)_(b,f) inter [0, infinity) -> bb(X)_(b,f) inter [0, infinity)
+                    -> bb(X)_(b,f) inter [0, infinity) $
+  $ "sat_sum"_(b,f) (a, b) = cases(2^(b-1)-1 & ", si" a > 2^(b-1) - 1 - b,
+                                   a + b     & ", si no") $
+
+La función $"sat_sum"_(b,f) (a, b)$ lo que hace si la suma
+$a + b in bb(X)_(b,f)$ entonces retorna $a + b$, si no retorna el valor más
+grande del conjunto que es $2^(b-1) 2^f$. De esta manera es posible evitar
+desbordamientos. Se sustituyen las sumas del *paso 8* por sumas saturadas.
+
+En el *paso 6*, para la función distancia se podría utilizar el producto
+saturado, o bien, como se ha hecho en este proyecto trabajar sobre un conjunto
+$bb(X)_(b,f)$ de manera que el cuadrado del valor máximo y mínimo del conjunto
+del tipo del resultado de la función _batch normalisation_ sea contenido en él.

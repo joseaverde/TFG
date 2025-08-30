@@ -491,7 +491,8 @@
     origins: (srs.make-tag("CU", "uc-sample"),),
   (
     Descripción: [
-      El sensor debe leer muestras a un ritmo constante, es decir],
+      El sensor debe leer muestras a un ritmo constante, es decir, el intervalo
+      entre lecturas debe ser el mismo.],
     Necesidad: "h",
     Prioridad: "h",
     Estabilidad: "i",

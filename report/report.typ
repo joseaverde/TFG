@@ -32,14 +32,52 @@
     author: "Donald E. Knuth"),
   abstract: (
     body: [
-      *TODO*
+      La epilepsia es una de las enfermedades cerebrales más comunes, la
+      detección de ataques epilépticos a partir de señales de encefalograma
+      puede tener un impacto positivo en la vida de los pacientes que la
+      padecen. Pero para ello es necesario detectarlos a tiempo.
+
+      Esta tesis toma de base un estudio sobre de detección de ataques
+      epilépticos utilizando patrones aumentados y las características
+      estadísticas de la señal de encefalogama para implementarlo en un sistema
+      de bajo consumo en tiempo real, además de diminuir el tiempo de
+      entrenamiento del modelo.
+
+      Se hace un estudio sobre el impacto de distintas técnicas de
+      programación, del paralelismo, de varios lenguajes de programación
+      (Python 3, C++ y Ada) y de utilizar números codificados en punto fijo
+      y en punto flotante en el tiempo de ejecución del programa en las
+      distintas plataformas.
+
+      También se hace un estudio exhaustivo y riguroso de los algoritmos
+      que forman el detector para demostrar formalmente mediante SPARK la
+      ausencia de errores en tiempo de ejecución y demostrar las propiedades
+      del propio programa.
     ],
-    keywords: ("Optimización", "Epilepsia", "Tiempo real")),
+    keywords: ("Señales de encefalograma", "Epilepsia", "Rendimiento", "Tiempo real")),
   english-abstract: (
     body: [
-      *TODO*
+      Epilepsy is one of the most common brain-related diseases.
+      Electroencephalography-based seizure detection may have a possitive
+      impact in patients who suffer it.
+      But for that to happen, it is essential to detect them on time.
+
+      This thesis builds upon a study about pattern augmented by features
+      epileptic seizure detection,
+      as a means to implement it in an energy-efficient real-time system.
+      And to reduce training time.
+
+      Different programming techniques, parallelism, various programming
+      languages (Python 3, C++ and Ada) and real number encoding (fixed types
+      and floating types) are analysed.
+      And their performance is measured in different platforms.
+
+      A thorough and strict study about the algorithms that make-up the
+      detector is performed as well.
+      By using SPARK it is possible to formally prove the absence of run-time
+      errors and certain properties about the program itself.
     ],
-    keywords: ("Optimisation", "Seizure detection", "Real time")),
+    keywords: ("EEG Signals", "Seizure detection", "Performance", "Real time")),
   acknowledgements: [
     Me gustaría dedicarle esta tesis a esas personas que me fueron guiando
     desde el inicio y gracias a las cuales, hoy puedo presentar esta tesis. A
@@ -82,7 +120,7 @@
     la redacción de este documento. No considera que sea útil.
   ],
   glossary: print-glossary(entry-list, show-all: true),
-  abbreviations: none) // TODO
+  abbreviations: none)
 
 #set text(
   lang:   "es",
