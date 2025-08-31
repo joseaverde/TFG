@@ -1,7 +1,7 @@
 #import "@preview/cetz:0.3.4"
-#import cetz.draw: *
 
 #let big-brace(from-x, to-x, from-y, to-y) = {
+  import cetz.draw: *
   let half-x = (from-x + to-x) / 2
   let half-y = (from-y + to-y) / 2
   let dx = calc.min(0.05, (to-x - from-x) * 0.05)

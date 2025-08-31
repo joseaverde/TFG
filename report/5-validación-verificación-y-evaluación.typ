@@ -21,7 +21,7 @@ los requisitos están cubiertos.
 
 Cabe mencionar que muchas de las propiedades del programa se pueden y han sido
 validadas formalmente con SPARK, que utiliza probadores de teoremas por debajo.
-Así que si el programa compila implica que todas las propiedades del programa
+Así que si el programa compila, implica que todas las propiedades del programa
 son correctas, aunque eso no significa que los resultados sean correctos, sino
 que es correcto el programa.
 
@@ -45,7 +45,7 @@ análisis del mismo. Se hace un análisis en orden cronológico y se indica las
 conclusiones a las que se llegó en cada paso.
 
 === Comparación en la validación <sec:5-validation>
-En un primer lugar como se ve en la @sec:8-planificación en la *tarea 3.3* se
+En un primer lugar, como se ve en la @sec:8-planificación en la *tarea 3.3* se
 hicieron pruebas de rendimiento con el algoritmo después de optimizarlo y
 paralelizarlo. Las pruebas se realizan en dos dispositivos:
 
@@ -171,12 +171,12 @@ señal. Véase la @tab:pre-slimbook y la @tab:pre-moa:
 #pre-table(pre-results-slimbook, "tab:pre-slimbook", [_Slimbook_: 20 hilos])
 #pre-table(pre-results-moa, "tab:pre-moa", [Servidor: 64 hilos])
 
-De los resultados se ve que la versión de C++ es mucho más rápida que la
-versión de Python bajo las mismas condiciones (paralelismo con el mismo número
-de hilos). El incremento se ve menor en las funciones de _Simpson_ y _Welch_,
-posiblemente porque ambas pertenecen a `SciPy` que utiliza `numpy` por debajo,
-que está escrito en C. La función _max distance_ que está escrita en Python 3
-nativo es la que mejor mejora ve como se observa en la
+A partir de los resultados se ve que la versión de C++ es mucho más rápida que
+la versión de Python bajo las mismas condiciones (paralelismo con el mismo
+número de hilos). El incremento se ve menor en las funciones de _Simpson_ y
+_Welch_, posiblemente porque ambas pertenecen a `SciPy` que utiliza `numpy` por
+debajo, que está escrito en C. La función _max distance_ que está escrita en
+Python 3 nativo es la que mejor mejora ve como se observa en la
 @fig:original-simpson-welch, en la @fig:original-psd-energy y en la
 @fig:original-max-dist-all.
 
@@ -258,9 +258,9 @@ procesador RISC-V de Espressif a 160MHz.  Y se obtuvo los siguientes resultados
        .flatten())
 )) <tab:cxx-pre-results>
 
-Se analiza el peor caso: en el que el algoritmo tiene que computar todas las
+Se analiza el peor caso, en el que el algoritmo tiene que computar todas las
 características y compararlo con tres patrones distintos. En la
-@tab:cxx-pre-results se ve que en todas da tiempo real. Sin embargo en la
+@tab:cxx-pre-results se ve que en todas da tiempo real. Sin embargo, en la
 ESP32C3, que carece de unidad de cómputo para punto flotante (FPU), está
 bastante al límite. Como consecuencia se empezó a valorar la alternativa de
 usar punto fijo a punto flotante.
@@ -350,13 +350,14 @@ flotante de C++. Con pruebas activadas, la implementación con punto fijo de 32
 bits termina abruptamente por un desbordamiento; pero con las pruebas
 desactivadas alcanza un total de $21.04$ épocas por segundo.
 
-Se llega a la conclusión de que pese a que no se puede traducir directamente a
-punto fijo, pues habría que estudiar cómo evitar el desbordamiento en todas las
-operaciones que pueden llegar a desbordar, la idea de convertirlo a punto fijo
-es *viable*. Incluso si un pequeño porcentaje del código utiliza punto fijo de
-64 bits, el límite experimental nos dice que se puede mejorar enormemente.
+Se llega a la conclusión de que a pesar de que no se puede traducir
+directamente a punto fijo, pues habría que estudiar cómo evitar el
+desbordamiento en todas las operaciones que pueden llegar a desbordar, la idea
+de convertirlo a punto fijo es *viable*. Incluso si un pequeño porcentaje del
+código utiliza punto fijo de 64 bits, el límite experimental nos dice que se
+puede mejorar enormemente.
 
-Después de estudiar por qué la solución de 64 bits era más lenta se descubrió
+Después de estudiar por qué la solución de 64 bits era más lenta, se descubrió
 que el 49.2% del tiempo total de ejecución lo pasaba dividiendo números en
 punto fijo. Así que dividir o multiplicar números de 64 bits de punto fijo en
 un procesador de 32 bits es muy costoso.
@@ -385,7 +386,7 @@ resultados se pueden ver en la @tab:pruebas-finales-ada.
 
 Se observa que para la ESP32C3 supera con creces el requisito de tiempo real
 de una época por segundo, con $10.36$ épocas por segundo. El tiempo adicional
-permitiría o bien introducir código adicional para autoentrenamiento o bien
+permitiría o bien introducir código adicional para autoentrenamiento, o bien
 dormir el dispositivo empotrado para disminuir el consumo energético.
 
 #let complex-comparison-diagram(target, legend : none) = {

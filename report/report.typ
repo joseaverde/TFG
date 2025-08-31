@@ -80,13 +80,13 @@
     keywords: ("EEG Signals", "Seizure detection", "Performance", "Real time")),
   acknowledgements: [
     Me gustaría dedicarle esta tesis a esas personas que me fueron guiando
-    desde el inicio y gracias a las cuales, hoy puedo presentar esta tesis. A
+    desde el inicio y, gracias a las cuales, hoy puedo presentar esta tesis. A
     mi tutor, José Daniel García Sánchez; y a los investigadores de la
     Universidad de Málaga con los que cooperamos, que escribieron el artículo
     en el cual se basa este trabajo: a María Ángeles González Navarro, a Felipe
     Muñoz López y especialmente a Rafael Asenjo Plaza, que descanse en paz. A
     vosotros os lo dedico y os agradezco de todo corazón todo el tiempo que me
-    han dedicado, los recursos que me han dado y el interés por verlo
+    habéis dedicado, los recursos que me habéis dado y el interés por verlo
     completado. Muchas gracias.
 
     Asimismo, agradezco a mis compañeros del laboratorio de ARCOS de la
@@ -99,9 +99,9 @@
     de compañeros del laboratorio de ARCOS: a Diego, a Álvaro, a Daniel y a
     Elisa. Muchas gracias.
 
-    Igualmente, quiero dar las gracias a Luisda, a Jorge Lázaro y a Eduardo
-    Alarcón por sus contribuciones para preparar y mejorar la plantilla de este
-    mismo documento. Muchas Gracias.
+    Igualmente, quiero dar las gracias a Luis Daniel, a Jorge Lázaro y a
+    Eduardo Alarcón por sus contribuciones para preparar y mejorar la plantilla
+    de este mismo documento. Muchas Gracias.
 
     Finalmente, a esas personas que me han estado apoyando desde el principio,
     en mis peores y en mis mejores momentos, que siempre han estado ahí cuando

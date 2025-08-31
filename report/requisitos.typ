@@ -744,7 +744,7 @@
     Postcondiciones: [
       El intérprete de Python 3 no termina inesperadamente y se puede acceder a
       todas las funciones definidas desde #box([C++]), todas ellas con el mismo
-      nombre que la implementación de referencia en Python 3.
+      nombre que la implementación de referencia en #box([Python 3]).
     ],
     Evaluación: "ok",
   )),
@@ -756,7 +756,7 @@
     Descripción: [El detector identifica ataques.],
     Precondiciones: [
       1. Se utiliza una señal sintética de 1280.
-      2. Se generan un _batch_ específico para dicha época. Donde las
+      2. Se genera un _batch_ específico para dicha época. Donde las
          características sean las características de las señal sintética y el
          patrón sea la propia señal.
       3. Se ejecuta el algoritmo con el _batch_ generado y la señal sintética.
@@ -765,7 +765,7 @@
       La distancia utilizando el algortimo de deformación dinámica del tiempo
       debe dar una distancia cercana a 0. Y todas las características son las
       mismas que las del _batch_, así que están todas en rango. El detector
-      debe notificar de que hay un ataque.
+      debe notificar que hay un ataque.
     ],
     Evaluación: "ok",
   )),
@@ -788,8 +788,8 @@
     Postcondiciones: [
       La distancia debe estar cerca de 0, pues es la misma señal. Para cada una
       de las características $[0, 0)$ es un rango vacío, así que como no está
-      en el rango no debería notificar de que hay ataque. De la misma manera,
-      cuando es $[0, x)$, tampoco debería notificar de que hay ataque porque
+      en el rango no debería notificar que hay ataque. De la misma manera,
+      cuando es $[0, x)$, tampoco debería notificar que hay ataque porque
       $x in.not [0, x)$.
     ],
     Evaluación: "ok",
@@ -799,7 +799,7 @@
     origins: (srs.make-tag("R", "F", "rf-classify"),
               srs.make-tag("R", "F", "rf-notify")),
   (
-    Descripción: [El detector identifica que no es atauqe por el patrón.],
+    Descripción: [El detector identifica que no es ataque por el patrón.],
     Precondiciones: [
       1. Se genera un _batch_ con todas las características en el rango
          $[0, infinity)$. Y como patrón una señal sintética sintética de
@@ -833,7 +833,7 @@
       3. Se ejecuta el algoritmo para cada muestra sintética.
     ],
     Postcondiciones: [
-      Notifica de que hay ataque en todas y cada una de ellas. La distancia
+      Notifica de hay ataque en todas y cada una de ellas. La distancia
       de cada una de los patrones a sí mismo tiende a cero. Además no se
       descarta ningún patrón porque la característica máxima del rango, también
       es la mayor de dicha característica para cada uno de los patrones.
@@ -846,7 +846,7 @@
   (
     Descripción: [Leer de un sensor de encefalograma],
     Precondiciones: [
-      1. Conectar el sensor un pin de la placa.
+      1. Conectar el sensor a un pin de la placa.
     ],
     Postcondiciones: [
       Debe mostrar los valores leídos.
@@ -864,7 +864,7 @@
     Precondiciones: [
       1. El sensor está conectado.
       2. Esperar a que pase un segundo
-      3. Comprobar cuántas muestras a leído y cada cuánto
+      3. Comprobar cuántas muestras ha leído y cada cuánto
     ],
     Postcondiciones: [
       El sensor debe haber leído un total de 256 muestras cada segundo,
@@ -888,11 +888,11 @@
       4. Comprobar cuánto tarda la época más lenta.
     ],
     Postcondiciones: [
-      Es el peor caso, pues como todas las características tienen un rango
+      Es el peor caso, pues, como todas las características tienen un rango
       $[0, infinity)$ tiene que computarlas todas, los patrones tiene que
-      compararlos todos también porque ninguno está en rango (para que sea un
-      ataque alguno debe estar en rango). El tiempo total debe ser menor de
-      un segundo por época.
+      compararlos todos también porque ninguno está en rango (para ser
+      considerado «ataque» debe estar en rango). El tiempo total debe ser menor
+      de un segundo por época.
     ],
     Evaluación: "ok",
   )),
@@ -915,7 +915,7 @@
   make-item("t-max-distance-error", srs.make-tag("T"),
     origins: (srs.make-tag("R", "N", "rnf-max-distance-error"),),
   (
-    Descripción: [El error medio absoluto de la `max_distance` es aceptable],
+    Descripción: [El error medio absoluto de `max_distance` es aceptable],
     Precondiciones: [
       1. Para una señal sintética lo suficientemente larga.
       2. Utilizar la versión de referencia para computar `max_distance` para
@@ -931,7 +931,7 @@
   make-item("t-energy-error", srs.make-tag("T"),
     origins: (srs.make-tag("R", "N", "rnf-energy-error"),),
   (
-    Descripción: [El error medio absoluto de la `energy` es aceptable],
+    Descripción: [El error medio absoluto de `energy` es aceptable],
     Precondiciones: [
       1. Para una señal sintética lo suficientemente larga.
       2. Utilizar la versión de referencia para computar `energy` para
@@ -947,7 +947,7 @@
   make-item("t-dtw-error", srs.make-tag("T"),
     origins: (srs.make-tag("R", "N", "rnf-dtw-error"),),
   (
-    Descripción: [El error medio absoluto de la `dtw` es aceptable],
+    Descripción: [El error medio absoluto de `dtw` es aceptable],
     Precondiciones: [
       1. Para una señal sintética lo suficientemente larga.
       2. Utilizar la versión de referencia para computar `dtw` para
@@ -963,7 +963,7 @@
   make-item("t-psd-1-error", srs.make-tag("T"),
     origins: (srs.make-tag("R", "N", "rnf-psd-1-error"),),
   (
-    Descripción: [El error medio absoluto de la `PSD 1` es aceptable],
+    Descripción: [El error medio absoluto de `PSD 1` es aceptable],
     Precondiciones: [
       1. Para una señal sintética lo suficientemente larga.
       2. Utilizar la versión de referencia para computar `PSD 1` para
@@ -979,7 +979,7 @@
   make-item("t-psd-2-error", srs.make-tag("T"),
     origins: (srs.make-tag("R", "N", "rnf-psd-2-error"),),
   (
-    Descripción: [El error medio absoluto de la `PSD 2` es aceptable],
+    Descripción: [El error medio absoluto de `PSD 2` es aceptable],
     Precondiciones: [
       1. Para una señal sintética lo suficientemente larga.
       2. Utilizar la versión de referencia para computar `PSD 2` para
@@ -995,7 +995,7 @@
   make-item("t-psd-3-error", srs.make-tag("T"),
     origins: (srs.make-tag("R", "N", "rnf-psd-3-error"),),
   (
-    Descripción: [El error medio absoluto de la `PSD 3` es aceptable],
+    Descripción: [El error medio absoluto de `PSD 3` es aceptable],
     Precondiciones: [
       1. Para una señal sintética lo suficientemente larga.
       2. Utilizar la versión de referencia para computar `PSD 3` para

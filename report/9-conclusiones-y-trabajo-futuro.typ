@@ -1,23 +1,24 @@
 #import "utility.typ": cxx
 
 = Conclusiones y trabajo futuro <sec:9>
-En este capítulo se enuncian en primer lugar las conclusiones del proyecto
-(@sec:9-proyecto), en segundo lugar las (@sec:9-personal) y finalmente qué
-resta para el futuro (@sec:9-futuro).
+En este capítulo se enuncian: en primer lugar, las conclusiones del proyecto
+(@sec:9-proyecto); en segundo lugar, las conclusiones personales
+(@sec:9-personal); y finalmente qué resta para el futuro (@sec:9-futuro).
 
 == Conclusiones del proyecto <sec:9-proyecto>
-Se han completado todos los objetivos, aunque el tercer objetivo parcialmente.
-Los objetivos se describieron en la @sec:1-objetivos.
+Se han completado todos los objetivos, aunque el tercer objetivo solo
+parcialmente.  Los objetivos se describieron en la @sec:1-objetivos.
 
 - *O1*: Se pudo implementar dicho módulo de Python 3 en #cxx y como se
   observa en la @sec:5-validation los resultados son geniales. En un portátil
   se ha mejorado el tiempo $56.7$ veces y en un servidor, que es donde va a
-  acabar corriendo el entrenamiento, va $85.9$ veces más rápido que la
+  acabar corriendo el entrenamiento, es $85.9$ veces más rápido que la
   implementación anterior.
 
   Reducir el tiempo de entrenamiento permite que se pueda iterar más rápido y
-  experimentar sin esperar tanto tiempo. Además va de acuerdo con los objetivos
-  de desarrollo sostenible, menos tiempo de cómputo, menos energía consumida.
+  experimentar sin esperar tanto tiempo. Además está de acuerdo con los
+  objetivos de desarrollo sostenible, menos tiempo de cómputo, menos energía
+  consumida.
 
   Según el equipo de la Universidad de Málaga con el que se ha trabajado, los
   resultados son generiales y mejores de lo esperado. Así que, este primer
@@ -34,7 +35,7 @@ Los objetivos se describieron en la @sec:1-objetivos.
   Por lo que el objetivo se dio por completado. Sin embargo, el autor de este
   documento decidió experimentar cuánto se podría mejorar. Entre las razones,
   si computa más épocas por segundo, el sistema tiene más tiempo para descansar
-  y así puede llegar a consumir menos energía. Se implementón en Ada con punto
+  y así puede llegar a consumir menos energía. Se implementó en Ada con punto
   fijo y como se ve en la @sec:5-spark-realtime, los resultados son muchos
   mejores con un total de $10.36$ épocas por segundo en el peor de los casos
   contrastando con tres patrones distintos en la ESP32C3. De ahí también se
@@ -46,11 +47,11 @@ Los objetivos se describieron en la @sec:1-objetivos.
   código la ausencia de errores en tiempo de ejecución. Sin embargo, dado que
   demostrar cada uno de los teoremas demora mucho tiempo, no se pudieron
   demostrar todos y cada uno de ellos. Aun así, puesto que todas las pruebas,
-  pese no haber demostrado completamente el programa entero, se da por
+  a pesar de no haber demostrado completamente el programa entero, se da por
   completado el objetivo y se deja como trabajo futuro el demostrar el resto
   del algoritmo.
 
-Así pues, el trabajo se da por terminado.
+Por lo tanto, el trabajo se da por terminado.
 
 Se concluye que #cxx es _de facto_ más rápido que Python 3 o Ada, y que
 es preferible para desarrollar sistemas en los que el rendimiento es
@@ -64,7 +65,7 @@ que trabajar con SPARK es tedioso y costoso no está indicado para cualquier
 proyecto, únicamente para aquellos en los que el fallo sea la diferencia entre
 la vida y la muerte. Es preferible utilizarlo para punto específicos del
 programa más sensibles a fallos.  Ada sigue siendo un gran lenguaje de
-programación, pese a no ser tan rápido como #cxx, ya que permite describir
+programación, aunque no sea tan rápido como #cxx, ya que permite describir
 propiedades del programa mediante contratos.
 
 
@@ -77,13 +78,13 @@ familiarizado como #cxx, Python 3 y Ada.
 He aprendido mucho sobre compilación cruzada y he descubierto sobre todos los
 rinconcitos que tiene cada arquitectura y sobre cómo exprimirlos al máximo. He
 aplicado gran variedad de técnicas desde paralelismo, pasando por vectorización
-hasta metaprogramación y uso de la excelente bibliotecas de rangos de
+hasta metaprogramación y uso de la excelente biblioteca de rangos de
 #cxx. 
 
 Previamente he utilizado SPARK, pero esta es la primera vez que lo utilizo para
 un proyecto serio. He aplicado todo lo aprendido en lógica y matemáticas para
 demostrar propiedades de mi código fuente. Estoy muy orgulloso con los
-resultados y me dan ganas de continuar con ello.
+resultados y me gustaría de continuar con ello.
 
 
 == Trabajo futuro <sec:9-futuro>
@@ -94,8 +95,8 @@ la transformada de Fourier @welch2003fixed (que es el algoritmo que se ha
 implementado).
 
 Después de discutirlo con los investigadores de la Universidad de Málaga, como
-trabajo futuro queda: por su parte investigar cómo predecir en vez de
-clasificar ataques epilépticos, por nuestra parte quedaría permitir que el
+trabajo futuro queda: por su parte, investigar cómo predecir en vez de
+clasificar ataques epilépticos; por nuestra parte, quedaría permitir que el
 modelo se reentrene en tiempo real. Para ello era necesario conseguir hasta el
 milisegundo y por eso este trabajo se ha centrado tanto en la parte de
 optimización del algoritmo.

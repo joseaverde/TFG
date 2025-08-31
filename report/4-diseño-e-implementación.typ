@@ -6,8 +6,7 @@
 
 #import "@preview/algorithmic:1.0.0"
 #import algorithmic: algorithm
-#import "@preview/cetz:0.3.4"
-#import cetz.draw: *
+#import "@preview/cetz:0.3.4" as cetz
 #import "@preview/fletcher:0.5.7" as fletcher: diagram, node, edge, shapes
 #import "utility.typ": *
 
@@ -117,6 +116,7 @@ continua, se trabaja sobre una señal discreta como se muestra en la
 
 #figure(
   cetz.canvas({
+    import cetz.draw: *
     let width = 0.2
     let sample = 15
     let base_y = 0
@@ -273,7 +273,7 @@ fijo con un bit más de precisión en la parte fraccionaria como
 $"conv"_(32,-3) (a)$ se puede representar perfectamente como $2 dot.op 2^(-3)$,
 pues el numerador debe ser entero.
 
-Cuando $f < f'$, es decir hay más bits en la parte fraccionaria del tipo de
+Cuando $f < f'$, es decir, hay más bits en la parte fraccionaria del tipo de
 origen que el de destino, hay un error (que está acotado) en el rango
 $[0, 2^(-f'))$. De vuelta al ejemplo anterior, al convertirlo a uno con menos
 _bits_ en el denominador como $"conv"_(32,-1)$, no hay forma de representar el
@@ -455,7 +455,7 @@ bits:
   (que siempre es cierto), significaba que
   $z in bb(X)_(b+b'-1,2-b-b')$, luego su conversión
   $"conv"_(b'',1-b'') (z) in bb(X)_(b'',1-b'')$.
-  Es decir $x *_(b'') y in bb(X)_(b'', 1-b'')$. Lo único que es necesario
+  Es decir, $x *_(b'') y in bb(X)_(b'', 1-b'')$. Lo único que es necesario
   determinar para terminar de demostrar este teorema es que
   $exists.not x in bb(U)_b, exists.not y in bb(U)_(b'), x *_(b'') y = -1$.
 
@@ -597,7 +597,7 @@ uniformización. En primer lugar, la de un valor:
 #definition(title: [Uniformización de un valor])[
   La uniformización de un vector convierte un valor en punto fijo
   $x = p 2^f in bb(X)_(b,f) without {-2^(b-1) 2^f}$ a otro conjunto uniforme
-  $bb(U)_b$ sin perder precisión, es decir el numerador es el mismo, el
+  $bb(U)_b$ sin perder precisión, es decir, el numerador es el mismo, el
   denominador cambia para que sea uniforme. Se denota como $u = "unif"(x)$ y se
   define como:
 
@@ -664,7 +664,7 @@ uniformización. En primer lugar, la de un valor:
 ] <def:desunif-valor>
 
 #definition(title: [Desuniformización de un vector])[
-  Se exitiende la definición de la desuniformización a vectores pues por
+  Se extiende la definición de la desuniformización a vectores pues por
   razones similares al @thm:unif-biyectiva, la uniformización de un vector
   también es biyectiva y existe una función inversa. Dado un vector
   $v in bb(U)_b^n$ se denota la desuniformización como
@@ -737,10 +737,11 @@ mencionadas anteriormente:
 #pagebreak(weak:true)
 == Algoritmos
 /* ==== M A X _ D I S T A N C E ============================================ */
-=== `max distance` <algorithm-max-distance>
-`max_distance` es sin duda uno de los algoritmos más sencillos. Retorna la
-diferencia entre el valor máximo y el valor mínimo de una época.
-Sea $e in bb(R)^m$ una época de $m$ elementos, la entrada del algoritmo.
+=== _Max distance_ <algorithm-max-distance>
+_Max distance_ es sin duda uno de los algoritmos más sencillos. Retorna la
+distancia pico a pico de una señal, es decir, la diferencia entre el valor
+máximo y el valor mínimo de una época.  Sea $e in bb(R)^m$ una época de $m$
+elementos, la entrada del algoritmo.
 Obsérvese el diagrama de flujo siguiente (@fig:flujo-max-distance).
 
 #figure(
@@ -1086,7 +1087,7 @@ begin
 end Accumulate;
 ```]
 
-Se debe «instanciar» la función que `Generic_Accumulation`, es decir es
+Se debe «instanciar» la función que `Generic_Accumulation`, es decir, es
 genérica (sirve para distintos tipos de tipos) y por lo tanto está
 parametrizada (@lst:generic-accumulation-example:5). Se define una constante
 fantasma con el vector de entrada, pero esta vez contiene los valores con el
@@ -1378,13 +1379,13 @@ debe ser convertible desde $bb(X)_(b+2,f)$, pues:
 
   $ "energy"(v) = 4 q'' in bb(X)_(b+2,f) $
 
-Es decir si $bb(X)_(b',f')$ es el tipo del resultado según el
+Es decir, si $bb(X)_(b',f')$ es el tipo del resultado según el
 @thm:conv-bit-cond se debe cumplir que $b' >= b + 2 + (f - f')$ para que
 $"conv"_(b',f') ("energy"(v)) in bb(X)_(b',f')$.
 
 /* ==== S I M P S O N ====================================================== */
 #pagebreak(weak:true)
-=== Regla de _Simpson_
+=== Regla de _Simpson_ <sec:simpson>
 ==== Regla de Simpson para datos irregularmente espaciados
 La regla de Simpson, en honor de Thomas Simpson,  es un método para aproximar
 integrales, hay un caso específico para integrar datos irregularmente
@@ -1743,7 +1744,7 @@ donde $j = sqrt(-1) in bb(C)$ es la unidad imaginaria.
 Es un algoritmo del tipo «divide y vencerás» que se pude combinar el resultado
 de la transformada de Fourier del vector de los elementos en posiciones pares y
 los de posiciones impares. Sin embargo, solo funciona para vectores con $m$
-elementos donde $m = 2^k$ para algún $k in bb(N)$, es decir potencias de dos.
+elementos donde $m = 2^k$ para algún $k in bb(N)$, es decir, potencias de dos.
 Se deduce de la siguiente forma:
 
   $ X_k =& sum_(n=0)^(m-1) x_(n+1) e^((-2 pi j)/m k n) \
@@ -1872,7 +1873,7 @@ $(i : i equiv sum_(i=1)^(k) 2^(i-1) a_i ("mód" 2^k), i in 0, 1, ... m - 1)$.
   - *Pares*: El vector $w_(a_1,a_2,...,a_k,0)$, con $a_(k+1) = 0$ tiene los
     valores en posiciones pares del vector $w_(a_1,a_2,...,a_k) =
       (f, 2^k + f, 2 dot.c 2^k + f, 3 dot.c 2^k + f, ...)$.
-    Es decir los elementos $(f, 2 dot.c 2^k + f, 4 dot.c 2^k + f, ...)$
+    Es decir, los elementos $(f, 2 dot.c 2^k + f, 4 dot.c 2^k + f, ...)$
     $= (f, 1 dot.c 2^(k+1) + f, 2 dot.c 2^(k+1) + f, ...)$,
     Que cumplen el predicado:
 
@@ -1885,7 +1886,7 @@ $(i : i equiv sum_(i=1)^(k) 2^(i-1) a_i ("mód" 2^k), i in 0, 1, ... m - 1)$.
   - *Impares*: De manera similar el vector $w_(a_1,a_2,...,a_k,1)$, con
     $a_(k+1) = 1$ tiene los valores en posiciones impares del vector
     $w_(a_1,a_2,...,a_k) = (f, 2^k + f, 2 dot.c 2^k + f, 3 dot.c 2^k + f, 4 dot.c 2^k, ...)$.
-    Es decir los elementos
+    Es decir, los elementos
     $(1 dot.c 2^k + f, 3 dot.c 2^k + f, 5 dot.c 2^k + f, 7 dot.c 2^k, ...)$
     $= (2^k + f,
         1 dot.c 2^(k+1) + 2^k + f,
@@ -1919,6 +1920,7 @@ en la $k"-ésima"$ iteración.
   caption: [Relación entre el resto y la iteración en que está la transformada
             rápida de Fourier],
   cetz.canvas({
+    import cetz.draw: *
     let height = 1cm
     let v-space = 1cm
     let width = 1.5cm
@@ -1937,7 +1939,7 @@ en la $k"-ésima"$ iteración.
              ((col + 0.75) * width, y - height),
              mark: (end: "stealth"))
       }
-      content((count * width + 2cm, y + height / 2), [$k = #(4 - row)$])
+      content((count * width + 2cm, y + height / 2), [$k = #(rows - row)$])
       count = int(count / 2)
       width = width * 2
     }
@@ -1966,6 +1968,7 @@ siguiente era impar entonces tendría los elementos que sean $equiv 2^k + f
 #figure(
   caption: [Propuesta de índices para la transformada de Fourier],
   cetz.canvas({
+    import cetz.draw: *
     let height = 1cm
     let v-space = 1cm
     let width = 1.5cm
@@ -1982,7 +1985,7 @@ siguiente era impar entonces tendría los elementos que sean $equiv 2^k + f
              ((calc.rem(col, count) + 0.5) * width, y + height),
              mark: (end: "stealth"))
       }
-      content((count * width + 2cm, y + height / 2), [$k = #(1+row)$])
+      content((count * width + 2cm, y + height / 2), [$k = q - #(rows - row - 1)$])
       count = int(count / 2)
       width = width * 2
     }
@@ -2007,51 +2010,460 @@ $n"-ésimo"$ bloque de la iteración anterior («bloque izquierdo») y el $n +
 
 Esa es la clave para hacer que algoritmo deje de ser recursivo y sea iterativo.
 Véase el diagrama de flujo que muestra la @fig:algorithm-fft-iterative, para
-ver el resumen de cómo se podría implementar.
+ver el resumen de cómo se podría implementar. Nótese que cuando aparece el
+subíndice $w_i$ indexa desde cero $w_i = w(i+1)$.
 
 Nótese que esto también es necesario para la transformada discreta de Fourier
 del caso base cuando $p > 1$, en ese caso los elementos están separados $2^q$
 elementos.
 
-#figure(
-  diagram(
+#[
+  #set page(flipped: true)
+  #set align(horizon)
+  #let diagram = diagram(
     node-stroke: 1pt, {
-    let v-sep = 1
-    node((1,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
+      /* DTF */
+    node((2,1), [*1*: Inicio], shape: shapes.pill)
     edge("-|>")
-    node((1,v-sep), align(center)[*2*: \
-      $p, q:& p 2^q = m, p equiv 0 ("mód" 2)\
-       w, w' in& bb(C)^m \
-       "chunk" &<- 0 in bb(N)
-      $])
+    node((1,1), align(center)[*2*: \
+      $p, q:& p 2^q = m and\
+            & p equiv 0 ("mód" 2)\
+      w, w' in& bb(C)^m \
+      a &<- 0 in bb(N)
+      $], shape: shapes.rect)
     edge("-|>")
-    node((1,v-sep*2), name: <loop1>, [*3*: ¿$c < p$?], shape: shapes.parallelogram)
+    node((1,2), name: <loop1>, [*3*: ¿$a < 2^q$?], shape: shapes.parallelogram)
+    edge("l", "-|>", [No])
     edge("-|>", [Sí])
-    node((1,v-sep*3), [*4*: $c <- 0$])
+    node((1,3), [*4*: $b <- 0$])
     edge("-|>")
-    node((1,v-sep*4), name: <loop2>, [*5*: ¿$b < p$?], shape: shapes.parallelogram)
+    node((1,4), name: <loop2>, [*5*: ¿$b < p$?], shape: shapes.parallelogram)
     edge("-|>", [Sí])
-    edge("l,u,r", "-|>")
-    node((1,v-sep*5), [*4*: $c <- 0$])
-  }),
-  caption: [Algoritmo de la transformada rápida de Fourier iterativo]
-) <fig:algorithm-fft-iterative>
+    edge("r,u", "-|>", [No])
+    node((1,5), [*6*: $c <- 0$])
+    edge("-|>")
+    node((0,5), name: <loop3>, [*7*: ¿$c < p$?], shape: shapes.parallelogram)
+    edge("u", "-|>", [No])
+    edge("-|>", [Sí])
+    node((-1,5), [*8*: \
+      $ t <-& t + e^((-2 pi j)/p c) + v_(a + 2^q) \
+        c <-& c + 1 \
+      $], shape: shapes.rect)
+    edge("d,r,u", "-|>")
+    node((0,4), [*9*: \
+      $ w_(a p+b) <- t \
+        b <- b + 1 $], shape: shapes.rect)
+    edge("r", "-|>")
+    node((2,3), [*10*: $a <- a + 1$], shape: shapes.rect)
+    edge("u,l", "-|>")
+      /* FTF */
+    node((0,2), [*11*: ¿$2^q > 1$?], shape: shapes.parallelogram)
+    edge("u", "-|>", [No])
+    edge("d", "-|>", [Sí])
+    node((0,1), [*19*: Fin], shape: shapes.pill)
+    node((0,3), [*12*: \ $ q <-& q - 1\  a <-& 0 $], shape: shapes.rect)
+    edge("-|>")
+    node((-1,3), [*13*: ¿$a < 2^q$?], shape: shapes.parallelogram)
+    edge("u", "-|>", [No])
+    edge("l", "-|>", [Sí])
+    node((-2,3), [*14*: $b <- 0$], shape: shapes.rect)
+    edge("-|>")
+    node((-2,4), [*15*: ¿$b < p$?], shape: shapes.parallelogram)
+    edge("r", "-|>", [No])
+    edge("l", "-|>", [Sí])
+    node((-3,4), [*16*: \
+      $ E                    <-& w_(a p + b) \
+        O                    <-& w_((a + 2^q) p + b) \
+        w'_(2 a p + b)       <-& E + O e^((-2 pi j)/p b) \
+        w'_((2 a + 1) p + b) <-& E - O e^((-2 pi j)/p b) \
+        b                    <-& b + 1 \
+      $], shape: shapes.rect)
+    edge("d,r,u", "-|>")
+    node((-1,4), [*17*: $a <- a + 1$], shape: shapes.rect)
+    edge("u", "-|>")
+    node((-1,2), [*18*: \ $
+      p <-& 2 p \
+      q <-& q - 1 \
+      w <->& w' $], shape: shapes.rect)
+    edge("r", "-|>")
+  })
+  #figure(scale(y: 70%, x: 84%, reflow: true, diagram),
+    caption: [Diagrama de flujo de la transformada rápida de Fourier iterativa]
+  ) <fig:algorithm-fft-iterative>
+]
 
+==== Consideraciones para punto fijo <sec:fft-fixed>
+Para punto fijo, el algoritmo desborda en el *paso 8* y en el *paso 16*, se
+puede demostrar que en el resto de pasos no hay errores, pero se sale del
+alcance de la memoria de este trabajo. Sin embargo existe un estudio del doctor
+P. Welch @welch2003fixed que permite simplificar el desarrollo del algoritmo de
+la transformada de Fourier utilizando punto fijo.
 
+Este algoritmo permite eliminar el desbordamiento en el *paso 16* del algoritmo
+que se muestra en la @fig:algorithm-fft-iterative y sus técnicas se pueden
+aplicar para eliminar también el desbordamiento en el *paso 8*. Este algoritmo
+necesita que el vector esté uniformizada, es decir, con todos los elementos en
+el conjunto abierto $(-1, 1)$.
 
-==== Consideraciones para punto fijo
-Para punto fijo, el algoritmo desborda en casi todos los pasos, lo que complica
-bastante su implementación. Sin embargo existe un estudio del doctor P. Welch
-@welch2003fixed que permite simplificar el desarrollo del algoritmo de la
-transformada de Fourier utilizando punto fijo.
+#theorem[
+  Dados $x, y in bb(C)$, $abs(x y) = abs(x) abs(y)$.
+] <thm:abs-prod-prod-abs>
+
+#proof[
+  Dados $x = "Re"{x} + "Im"{x}j, x in bb(C)$ e
+  $y = "Re"{y} + "Im"{y}j, y in bb(C)$, donde $j=sqrt(-1)$ es la unidad
+  imaginaria.
+
+  $ x y = & ("Re"{x} + "Im"{x} j) ("Re"{y} + "Im"{y} j) \
+        = & ("Re"{x} "Re"{y} - "Im"{x} "Im"{y})
+          + ("Re"{x} "Im"{y} + "Im"{x} "Re"{x} j) \
+    "Re"{x y} =& ("Re"{x} "Re"{y} - "Im"{x} "Im"{y}) \
+    "Im"{x y} =& ("Re"{x} "Im"{y} + "Im"{x} "Re"{y})
+  $
+
+  $ abs(x) = sqrt("Re"{x}^2 + "Im"{x}^2) $
+  $ abs(y) = sqrt("Re"{y}^2 + "Im"{y}^2) $
+  $ abs(x) abs(y) = sqrt(("Re"{x}^2 + "Im"{x}^2) ("Re"{y}^2 + "Im"{y}^2)) $
+  $ abs(x y) =& sqrt("Re"{x y}^2 + "Im"{x y}^2) \
+             =& sqrt(("Re"{x} "Re"{y} - "Im"{x} "Im"{y})^2 +
+                     ("Re"{x} "Im"{y} + "Im"{x} "Re"{y})^2) \
+             =& sqrt(("Re"{x}^2 "Re"{y}^2 + "Im"{x}^2 "Im"{y}^2 +
+                     - 2 "Re"{x} "Re"{y} "Im"{x} "Im"{y} \
+                     + "Re"{x}^2 "Im"{y}^2 + "Im"{x}^2 "Re"{y}^2
+                     + 2 "Re"{x} "Re"{y} "Im"{x} "Im"{y})
+                   ) \
+             =& sqrt("Re"{x}^2 "Re"{y}^2 + "Im"{x}^2 "Im"{y}^2 +
+                     "Re"{x}^2 "Im"{y}^2 + "Im"{x}^2 "Re"{y}^2) \
+             =& sqrt("Re"{x}^2 ("Re"{y}^2 + "Im"{y}^2) +
+                      "Im"{x}^2 ("Re"{y}^2 + "Im"{y}^2)) \
+             =& sqrt("Re"{x}^2 abs(y)^2 + "Im"{x}^2 abs(y)^2) \
+             =& sqrt(abs(y)^2 + ("Re"{x}^2 + "Im"{x}^2)) \
+             =& sqrt(abs(y)^2 + abs(x)^2) \
+             =& abs(x) abs(y) $
+]
+
+#corollary[
+  Del @thm:abs-prod-prod-abs se obtiene que, dados $x, y in bb(C)$, si
+  $abs(x) < 1 and abs(y) < 1$ entonces $abs(x y) < 1$.
+] <thm:complex-uniform-product>
+
+#definition(title: [Fórmula de Euler])[
+  $ e^(j x) = cos(x) + j sin(x) $
+  $ e^(-j x) = cos(x) - j sin(x) $
+donde $j = sqrt(-1)$.
+] <def:euler>
+
+#theorem(title: [Relación pitagórica])[
+  $ sin^2(theta) + cos^2(theta) = 1 $
+] <thm:pythagoras>
+
+#lemma(title: [Raíz de la unidad])[
+  De la @def:euler y el @thm:pythagoras se obtiene que:
+
+  $ abs(e^(j x)) = 1, forall x in bb(R) $
+]
+
+#theorem[
+  Dado $x in bb(C)$, entonces
+  $abs(x) < a => abs("Re"{x}) < a and abs("Im"{x}) < a$, $a in bb(R), a >= 1$.
+] <thm:abs-parts>
+
+#proof[
+  Dado $x in bb(C)$, con $abs(x) < 1$:
+
+    $ abs(x) =& sqrt("Re"{x}^2 + "Im"{x}^2) < a \
+            =>& "Re"{x}^2 + "Im"{x}^2 < a^2
+    $
+
+  Por contradicción si $abs("Re"{x}) >= a$, entonces $"Re"{x}^2 >= a^2$ y
+  como $"Im"{x}^2 >= 0$, se llega a una contradicción porque entonces
+  $"Re"{x}^2 + "Im"{x}^2 >= a^2$. Lo mismo aplica si $"Im"{x} >= a$,
+  entonces es necesario que $abs("Re"{x}) < a$ y que $abs("Im"{x}) < a$.
+]
+
+#theorem(title: [Desigualdad triangular])[
+  Dados $x, y in bb(C)$, $abs(x + y) <= abs(x) + abs(y)$
+] <thm:triangular>
+
+En el *paso 16* se computa:
+
+  $ E plus.minus O e^((-2 pi j)/p b) $
+
+Supongamos que se cumple antes de ejecutar el *paso 16* que $abs(E) < 1$ y que
+$abs(O) < 1$. Entonces por el @thm:abs-prod-prod-abs se puede ver que
+
+  $ abs(O e^((-2 pi j)/p b)) = abs(O) abs(e^((-2 pi j)/p b)) = abs(O) < 1 $
+
+Como $abs(E) < 1$, se puede ver, por la desigualdad triangular
+(@thm:triangular), es cierto que:
+
+  $ abs(E plus.minus O e^((-2 pi j)/p b))
+      <=& abs(E) + abs(O e^((-2 pi j)/p b)) \
+      <=& abs(E) + abs(O) \
+       <& 2 $
+
+Es decir al final del *paso 16* el módulo del número complejo se duplica.
+Además si se aplica el @thm:abs-parts, se ve que la parte real y parte
+imaginaria se duplican. Esta propiedad es muy interesante de cara a ver cómo
+crecen los valores en punto fijo y es lo que aprovecha P. Welch para dar tres
+posibles aproximaciones, de las cuales se ha decidido utilizar la más sencilla,
+porque si no, las demostraciones para el probador de teoremas resultarían muy
+complicadas.
+
+Después del *paso 16*, se divide el número complejo entre dos, de esta manera
+se mantiene la invariante de que el módulo de $E$ y $O$ y por tanto de todos
+los elementos de $w$ están en el conjunto abierto $(-1, 1)$. Así se pueden
+utilizar el conjunto uniforme $bb(U)_b$, y al final se reescala el resultado.
+
 
 /* ==== W E L C H ========================================================== */
 #pagebreak(weak:true)
-=== _Welch_
+=== _Welch_ <sec:welch>
+El método de Welch, también conocido como el método de periodograma, se utiliza
+para estimar la densidad espectral y consiste en dividir la señal temporar en
+bloques sucesivo, formar el periodograma de cada bloque y hacer la media
+@SpectralAudioSignalProcessing.
+
+Se denota el $m$-ésimo marco al que se le ha aplicado una ventana $w$ y que ha
+sido rellenado con ceros de la señal $x$ como:
+
+  $ x_m (n) eq.delta w(n) x(n + m R), n = 0, 1, ..., M - 1, m=0,1,...,K-1 $
+
+donde $R$ es el solapamiento de la ventana, y sea $K$ el número de marcos
+disponibles @SpectralAudioSignalProcessing. Y donde $M$ es el tamaño del marco.
+Luego el periodograma del $m$-ésimo bloque viene dado por
+
+  $ P_(x_m,M) (omega_k) = 1/M abs("FFT"_(N,k) (x_m))^2
+              eq.delta 1/M abs(sum_(n=0)^(N-1) x_m (n) e^(-j 2 pi n k / N))^2 $
+
+el estimado de Welch para la densidad espectral viene dado por
+
+  $ hat(S)_x^W (omega_k) eq.delta 1/K sum_(m=0)^(K-1) P_(x_m,M) (omega_k) $
+
+en otras palabras, es la media de los periodogramas a lo largo del tiempo
+@SpectralAudioSignalProcessing.
+
+En este caso la ventana que la implementación de referencia ha utilizado es la
+ventana de Hann. Para ventana de $n$ elementos, se define la función de ventana
+de Hann $w_n (x)$ como:
+
+  $ w_n : bb(N) inter [0, n) -> bb(R) $
+  $ w_n (x) = 1/2 - 1/2 cos((2 pi x) / n) $
+
+En primer lugar, mencionar que la imagen de la función de ventana de Hann
+$w_n$ es el conjunto $[0, 1]$, porque $cos: bb(R) -> [-1, 1]$ y luego
+$-1/2 cos(x) in [-1/2, 1/2], forall x in bb(R)$. Así que no hay problemas al
+multiplicar por la ventana utilizando punto fijo.
+
+El algoritmo completo se encuentra en la @fig:algorithm-welch, dada una señal
+$x in bb(R)^l$ de $l in bb(N)^+$ elementos, una función ventana
+$w: bb(N) -> bb(R)$, un tamaño de marco $M in bb(N)^+, M < l$, un tamaño de
+solapamiento $R in bb(N)^+, R < M$ y la frecuencia de muestreo $f > 0$, $f in
+bb(R)$. Nótese que el vector $x$ se indexa desde 0 en vez de 1 para este caso.
+Además se extiende la definición de $x(i)$ para cuando $i >= l$, en cuyo caso
+$x(i) = 0, forall i >= l$.
+
+En el paso final además se aplica un factor de normalización que se va a llamar
+$mu_(w,n)$ que depende de la función de ventana y se calcula como:
+
+  $ mu_(w,n) = sum_(i=0)^n w(n) $
+
+#figure(
+  scale(100%, diagram(
+    node-stroke: 1pt, {
+    node((1,0), [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((1,1), align(center)[*2*:\
+      $ K     =& floor((l-M)/R) + 1 \
+       "Pxx" <-& (0, 0, ..., 0) in bb(R)^(floor(l/2)+1) \
+       m     <-& 0 in bb(N) $
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((1,2), [*3*: ¿$m < K$?], shape: shapes.parallelogram)
+    edge("r", "-|>", [No])
+    edge("d", "-|>", [Sí])
+    node((1,3), align(center)[*4*:\
+      $ x_m (n) eq.delta& w(n) x(n+m R), n=0,1,...,M-1 \
+        t             <-& "FFT"(x_m) \
+        "Pxx"(k)      <-& "Pxx"(k) + abs(t(k))^2, k=0,1,...,floor(l/2) \
+        m             <-& m + 1
+      $
+      ], shape: shapes.rect)
+    edge("l,u,r", "-|>")
+    node((2,2), align(center)[*5*: $"Pxx"(k) <- "Pxx"(k) 1 / (K f mu_(w,n))$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((2,3), [*6*: Fin], shape: shapes.pill)
+  })),
+  caption: [Diagrama de flujo del método de Welch]
+) <fig:algorithm-welch>
+
+==== Análisis de punto fijo
+Los dos pasos más problemáticos son el la suma del *paso 4* y la división del
+*paso 5*. Para solucionarlos se va a utilizar una técnica inspirada en la
+solución propuesta para la transformada rápida de Fourier de la @sec:fft-fixed.
+
+La señal que retorna la transformada de Fourier está uniformizada y está
+escalada, así que se puede suponer que el resultado de la transformada de
+Fourier es un vector de valores uniformes $bb(U)_b subset (-1, 1)$. Para no
+perder tanta precisión el tipo del vector $"Pxx"$ será uno uniforme con el
+doble de _bits_, es decir $bb(U)_(2 b)$.
+
+A partir de ahora se va a tener una variable de tipo entero $s in bb(I)_b$ que
+almacenará el valor de reescalado y que irá incrementando en cada iteración.
+Al final del algoritmo se reescalará multiplicando por $2^s$ y luego, como se
+explicará más adelante, desuniformizando dos veces. Para ello, la transformada
+de Fourier se define como:
+
+  $ "FFT"': bb(U)_b^n -> (bb(U)^n dot.c bb(N)) $
+  $ (r, s) = "FFT"'(x) $
+
+Retorna dos valores $r$, que es el vector resultante de la transformada de
+Fourier, y $s$ es el factor de escalado de la transformada de Fourier que dice
+que debe multiplicarse $2^s$ a cada uno de los elementos de $r$.
+Véase la @fig:algorithm-welch-fixed, con el algoritmo definitivo para punto
+fijo.
+
+#figure(
+  scale(85%, diagram(
+    node-stroke: 1pt, {
+    node((1,0), [*1*: Inicio], shape: shapes.pill)
+    edge("-|>")
+    node((1,1), align(center)[*2*:\
+      $ K     =& floor((l-M)/R) + 1 \
+       "Pxx" <-& (0, 0, ..., 0) in bb(U)_(2 b)^(floor(l/2)+1) \
+       m     <-& 0 in bb(I_b) \
+       s     <-& 0 in bb(I)_b
+       $
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((1,2), [*3*: ¿$m < K$?], shape: shapes.parallelogram)
+    edge("r", "-|>", [No])
+    edge("d", "-|>", [Sí])
+    node((1,3), align(center)[
+      *4*: $x_m (n) eq.delta& w(n) x(n+m R), n=0,1,...,M-1$], shape: shapes.rect)
+    edge("-|>")
+    node((1,4), align(center)[*5*: $(t, s') <-& "FFT"'(x_m)$])
+    edge("-|>")
+    node((2,4), align(center)[
+      *6*: \
+      $ N(k) <-& abs(t(k)/2)^2, k=0,1,...,floor(l/2) \
+        s'   <-& 2 s' + 2 $
+    ], shape: shapes.rect)
+    edge("-|>")
+    node((2,5), align(center)[
+      *7*: $ (e_l,e_r,s) <- cases(
+        (1, 0, s+1)     &", si " s = s' \
+        (s'-s+1,0,s'+1) &", si " s < s' \
+        (1, s-s', s+1)  &", si " s > s')
+      $
+    ], shape: shapes.rect)
+    edge("-|>")
+    node((1,5), align(center)[*8*: $
+        "Pxx"(k)      <-& "Pxx"(k) / 2^(e_l) + N(k) / 2^(e_r), k=0,1,...,floor(l/2) \
+        m             <-& m + 1
+      $
+      ], shape: shapes.rect)
+    edge("l,u,u,u,r", "-|>")
+    node((2,2), align(center)[*9*: $"Pxx"(k) <- "Pxx"(k) 2^s / (K f mu_(w,n))$
+      ], shape: shapes.rect)
+    edge("-|>")
+    node((2,3), [*10*: Fin], shape: shapes.pill)
+  })),
+  caption: [Diagrama de flujo del método de Welch]
+) <fig:algorithm-welch-fixed>
+
+Es una aproximación equivalente, pero sin desbordamientos.
+
+- *Paso 2*: $s <- 0 in bb(I)_b$, es el factor de escalado. La señal está
+  uniformizada, pero todavía no está escalada. Nótese que al inicio del
+  algoritmo se mantiene el predicado de que
+  $"Pxx"(i) in bb(U)_(2 b) subset [0, 1), forall i = 0, 1, ..., floor(l/2)$.
+- *Paso 4*: No puede haber desbordamientos porque la señal está normalizada
+  y al menos la ventana de Hann retorna un valor en el conjunto $[0, 1]$, luego
+  el producto también es uniforme.
+- *Paso 5*: Se computa la transformada de Fourier, el resultado se almacena
+  en la variable $t$ y el factor de escalado, en la variable $s'$. La señal
+  $x_m$ está uniformizada, así que se puede llamar a $"FFT"'$ sin problema,
+  el resultado de dicha transformada está uniformizado y escalado entre un
+  factor de $2^(s')$
+- *Paso 6*: En vez de calcular las normas al cuadrado de los números complejos
+  del vector resultado de la transformada de Fourier $t$, se calcula un cuarto
+  de la norma al cuadrado. Esto se debe a que $"Re"{t(k)}, "Im"{t(k)} in (-1, 1),
+  forall k = 0, 1, ..., floor(l/2)$, pero no sabemos si la norma es menor que
+  uno o no, así que $abs(t(K)) in [0, 2), forall k = 0, 1, ..., floor(l/2)$.
+  Si se divide entre dos sus elementos la norma está en $[0, 0.5)$.
+
+  Estos valores de los cuartos de las normas al cuadrado se almancenan en el
+  vector de las normas. El factor de escalado $s'$ ha cambiado, como se hace
+  el cuadrado el factor de escalado se cuadra, también se añade $2$, porque
+  se ha dividido entre $2^2$ y luego hay que reescalarlo. Nótese que se podría
+  obtener un mejor factor de escalado si en vez de utilizar el peor caso, se
+  tomara el valor absouto máximo de las normas y se escalara de acuerdo con él.
+- *Paso 7*: Los valores del vector $"Pxx"$ en este punto están divididos entre
+  el factor de escalado $2^s$, a la hora de sumar el valor antiguo de $"Pxx"$
+  con su norma $N$ es necesario que tengan el mismo factor de escalado. En este
+  paso se calculan el exponente del divisor de $"Pxx"$ ($e_l$) y el de $N$
+  ($e_r$), y se obtiene el factor de escalado del resultado:
+
+  - Si $s = s'$, recordemos que $N(k) in [0, 0.5)$, pero que $"Pxx"(k) in [0,
+    1)$. Así que $"Pxx"(k)$ se debe dividir entre $2$, por lo que $e_l = 1$ y
+    $e_r$. El resultado estará en el rango $[0, 1)$ y como se ha dividido
+    $"Pxx"(k)$ entre dos, el factor de escalado aumenta en uno.
+
+  - Si $s < s'$, significa que $N(k)$ está dividido entre una potencia más
+    grande de dos que $"Pxx"(k)$, por lo que hay que dividir $"Pxx"(k)$ entre
+    la diferencia. El factor de escalado es el mayor de los dos $s' + 1$,
+    porque $"Pxx"(k)$ se divide entre $2^(s'-s) dot.c 2$, luego su factor de
+    escalado será $s' - s + s + 1 = s' + 1$.
+
+  - Si $s > s'$, es el caso contrario $"Pxx"(k)$ se debe dividir entre dos para
+    que esté en $[0, 0.5)$, y, como está dividido entre una potencia más grande
+    que $N(k)$, hay que dividir este último para que tenga el mismo factor de
+    escalado.
+
+- *Paso 8*: El valor $"Pxx"(k)/(2^(e_i)) in [0, 0.5)$ y $N(k)/(2^(e_r)) in [0,
+  0.5)$, porque $e_i > 0$. Así que el nuevo valor de $"Pxx"(k)$ estará en
+  $[0, 1)$ y por consiguiente se mantiene la invariante del bucle.
+
+- *Paso 9*: Se aplica el factor de reescalado y se divide por los valores entre
+  los que se dividía antes para obtener el resultado definitivo. Para este paso
+  hay que asegurarse de que tipo del resultado pueda representarlo.
+
+Hay que tener en cuenta que en el paso *paso 9*, el resultado está uniformizado
+dos veces, porque en el *paso 6* se hizo el cuadrado y por consiguiente el
+factor de uniformización se cuadró.
+
+
 
 /* ==== D E N S I D A D _ E S P E C T R A L _ D E _ P O T E N C I A ======== */
-#pagebreak(weak:true)
 === Densidad espectral de potencia (PSD)
+Este algoritmo utiliza la función Welch (@sec:welch) para computarlo. Se trata
+de integrar la estimación espectral de potencia utilizando el método de Simpson
+(@sec:simpson) en distintos rangos de señales. La densidad integral de potencia
+se utiliza como una de las características estadísticas para determinar si una
+época es un ataque epiléptico o no.
+
+En el estudio se utilizaron los rangos de 2 a 12 Hz para la que llaman
+$"PSD"_1$, el rango de 12 a 18 Hz para la $"PSD"_2$ y el rango 18 a 35 Hz para
+la $"PSD"_3$. El rango del vector resultante del método de Welch que se debe
+integrar viene dado por la expresión:
+
+  $ (L, H) = "rangos"(l, h) = (floor(l M / s), floor(h M / s)) $
+
+Donde $M$ era el tamaño del marco o la ventan del método de Welch (@sec:welch)
+y $s$ es la frecuencia de lectura de la señal (en este caso 256 muestras por
+segundo). Luego:
+
+  $ "PSD"(x,l,h) = "unif"^(-1)("unif"^(-1)(
+      "simpson"("welch"(x,f:=s,M:=M,R:=M slash 2)))) $
+
+Donde:
+
+  $ "PSD"_1(x) = "PSD"(x,2,12) $
+  $ "PSD"_2(x) = "PSD"(x,12,18) $
+  $ "PSD"_3(x) = "PSD"(x,18,35) $
+
 
 /* ==== B A T C H _ N O R M A L I S A T I O N ============================== */
 #pagebreak(weak:true)
@@ -2132,7 +2544,7 @@ preferiblemente no desborde:
     nu &<= B d       && #h(1cm) [d > 0]                  & \
     nu / B &<= d     && #h(1cm) [B > 0]                  & $
 
-  Es decir si $nu > 0 and nu / B <= d$ entonces $nu / d <= B$.
+  Es decir, si $nu > 0 and nu / B <= d$ entonces $nu / d <= B$.
 
 - Si $nu < 0$ entonces:
 
@@ -2141,7 +2553,7 @@ preferiblemente no desborde:
     nu &>= -B d       && #h(1cm) [d > 0]                  & \
     nu / (-B) &<= d   && #h(1cm) [-B < 0]                 & $
 
-  Es decir si $nu < 0 and nu / (-B) <= d$ entonces $nu / d >= -B$.
+  Es decir, si $nu < 0 and nu / (-B) <= d$ entonces $nu / d >= -B$.
 
 El valor del resultado depende del signo y de los valores del numerador y del
 denominador:
@@ -2445,7 +2857,7 @@ $"band"_b$ son estrictamente positivos:
       forall k in 1, 2, ... m$ entonces $y >= 0$, $x >= 0$ y $z >= 0$ y por lo
       tanto $"mín"(x, y, z) >= 0$.
     - *Paso 9*: $d >= 0$ independientemente de si ha pasado por el *paso 8* y
-      por lo tanto $"band"_a(i + 1) >= 0$.
+      por lo tanto $"band"_a (i + 1) >= 0$.
     - *Paso 10*: Irrelevante.
 
     Si suponiendo que

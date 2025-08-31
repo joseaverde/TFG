@@ -1,9 +1,9 @@
 #import "utility.typ": *
 
 = Introducción <sec:1>
-Este capítulo describe brevemente la motivación detrás del proyecto
+Este capítulo describe brevemente la motivación que existe detrás del proyecto
 (@sec:1-motivación), los objetivos principales del mismo (@sec:1-objetivos) y
-se dan pequeñas pinceladas sobre el contenido de cada uno de los capítulos
+se resume brevemente el contenido de cada uno de los capítulos
 (@sec:1-estructura). El código y la documentación de este proyecto están
 alojados en https://github.com/joseaverde/TFG .
 
@@ -14,7 +14,7 @@ modelos de programación paralela y compiladores de la Universidad de Málaga
 utilizando patrones aumentados y características estadísticas @PaFESD, y la
 Universidad Carlos III de Madrid.
 
-El estudio obtuvo resultados prometedores y el foco tornó a ser la viabilidad
+El estudio obtuvo resultados prometedores y el foco pasó a ser la viabilidad
 de ejecución del algoritmo de detección en un dispositivo empotrado de bajo
 consumo en tiempo real. La detección de estos ataques es computacionalmente
 costosa, pero si fuera factible que funcionase en tales dispositivos abriría
@@ -61,12 +61,12 @@ debajo, para verificar formalmente el trabajo.
 El documento contiene los siguientes capítulos:
 
 - Capítulo 1 -- #link(label("sec:1"), [_Introducción_]), explica la motivación
-  que llevo a realizar este proyecto, los objetivos del mismo y la propia
+  que llevó a realizar este proyecto, los objetivos del mismo y la propia
   estructura.
 
 - Capítulo 2 -- #link(label("sec:2"), [_Estado del arte_]), un análisis del
   estado de la cuestión, qué temas son relevantes y qué estudios existen al
-  respecto. Sobrevuela estudios sobre detección de ataques epilépticos,
+  respecto. Analiza estudios sobre detección de ataques epilépticos,
   arquitecturas y juegos de instrucciones, representación de valores numéricos,
   demostraciones interactivas de teoremas y técnicas de programación.
 
@@ -77,15 +77,15 @@ El documento contiene los siguientes capítulos:
 
 - Capítulo 4 -- #link(label("sec:4"), [_Diseño e implementación_]), contiene
   el estudio de la solución final: define matemáticamente el problema, a base
-  de la cuál se justifican las decisiones de diseño del problema.
+  de la cual se justifican las decisiones de diseño del problema.
 
 - Capítulo 5 -- #link(label("sec:5"), [_Validación, verificación y
-  evaluación_]), efectua una validación y una verificación del programa final,
+  evaluación_]), efectúa una validación y una verificación del programa final,
   y hace una evaluación del rendimiento del mismo.
 
 - Capítulo 6 -- #link(label("sec:6"), [_Marco regulador_]), estudia la
   legislación aplicable sobre el mismo y las licencias de las herramientas
-  utilizadas y las dependencias con las que se enlaza la solución, además, se
+  utilizadas y las dependencias con las que se enlaza la solución, además se
   identifican los estándares técnicos relevantes para el desarrollo del
   proyecto.
 
@@ -99,5 +99,5 @@ El documento contiene los siguientes capítulos:
   momento empiezan y en qué momento terminan.
 
 - Capítulo 9 -- #link(label("sec:9"), [_Conclusiones y trabajo futuro_]),
-  conluye el proyecto, resume qué se hizo y estudia cómo se podría continuar y
+  concluye el proyecto, resume qué se hizo y estudia cómo se podría continuar y
   qué se podría mejorar.
