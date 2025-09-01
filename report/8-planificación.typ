@@ -42,7 +42,7 @@ En total fueron 34 semanas.
   determinar si corre o no en tiempo real.
   - *Tarea 4.1*: Portar código y dependencias al sistema de Espressif para
     compilar para la ESP32C3, ESP32C6 y ESP32C6.
-  - *Tarea 4.2*: Compilación cruzada a Aarch64: Raspberry Pi3 y Raspberry Pi 4.
+  - *Tarea 4.2*: Compilación cruzada a AArch64: Raspberry Pi3 y Raspberry Pi 4.
   - *Tarea 4.3*: Pruebas de rendimiento el empotrado
 - *Tarea 5*: _Implementación en Ada._
   Se reimplementan algunas funciones del algoritmo en Ada para probar si es

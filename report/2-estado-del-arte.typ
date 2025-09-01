@@ -69,49 +69,6 @@ sensibilidad del 99.6%, una especificidad del 100% y una precisión del 98.3%,
 mucho mejor que otros modelos que necesitan mucho más porcentaje de
 entrenamiento @PaFESD.
 
-/* ==== Representación de valores numéricos en un computador =============== */
-== Representación de valores numéricos fraccionarios en un computador
-Existen diversas técnicas para representar o codificar valores númericos de
-tipo fraccionario en un computador. Seleccionar una codificación adecuada para
-cada problema individual puede tener un gran impacto en su rendimiento.
-
-=== Racionales
-Patata
-
-=== Punto fijo
-Patata
-
-=== Punto flotante
-
-#let make-ieee(width, sign, exponent, fraction) = {
-  cetz.canvas({
-    let height = 0.8
-    let last = 0
-    for (size, colour, tag) in ((sign,     rgb("#c5fbfe"), [sign]),
-                                (exponent, rgb("#9ffeae"), [exponent]),
-                                (fraction, rgb("#fdaead"), [fraction])) {
-      let from = last
-      let to = last + size
-      last = to
-      for i in range(from, to) {
-        rect((i * width, 0), ((i + 1) * width, height), fill: colour)
-      }
-      big-brace(from * width, to * width, -0.1, -0.3)
-      content(((from + to) / 2 * width, -0.5), tag)
-    }
-  })
-}
-
-#figure(
-  make-ieee(0.4, 1, 8, 23),
-  caption: [IEEE 754 -- Punto flotante de simple precisión (32 bits)]
-)
-
-#figure(
-  make-ieee(0.2, 1, 11, 52),
-  caption: [IEEE 754 -- Punto flotante de doble precisión (64 bits)]
-)
-
 /* ==== Probadores de teoremas ============================================= */
 == Demostración interactiva de teoremas
 === _Rocq_
@@ -274,10 +231,73 @@ este sea cierto.
 /* ==== Técnicas de programación =========================================== */
 == Técnicas de programación
 === Diseño por contrato
+El diseño por contrato, término acuñado por Bertrand Meyer que está conectado
+con el diseño del lenguaje de programación _Eiffel_ @meyer2002applying.
+En contra de la llamada «programación defensiva», que obliga a los
+programadores a proteger todos y cada uno de los módulos para cualquier caso,
+que añade código redundante y que complica el código, propone la noción de
+contrato @meyer2002applying. Un contrato se divide en dos partes: una
+precondición, que la parte que ofrece el servicio espera que sea cierta; y una
+postcondición, las garantías que ofrece el servicio a la parte que lo utiliza
+@meyer2002applying.
+
+Varios lenguajes de programación dan soporte nativo para contratos, entre ellos
+Eiffel (el primer lenguaje) @EiffelDbC, Ada desde la versión 2012 del lenguaje
+@Ada2012PrePost y en #cxx hay una propuesta para la versión 26 del lenguaje,
+pero es controvertida @Cxx26Contracts.
 
 
 === Rangos
+La programación basada en rangos consiste en aplicar y combinar distintos
+operadores sobre secuencias y vistas de objetos. Desde #cxx 20 están en #cxx,
+la biblioteca de rangos es una extensión y generalización
+de las bibliotecas de algoritmos e iteradores que las hace más potentes al
+hacerlas combinables y menos propensas a errores @cppreferenceRanges.
 
+==== _range-v3_
+Es la biblioteca original en la que se basa la biblioteca de rangos del
+estándar de C++ se llama _range-v3_ y fue desarrollada por Eric Niebler
+@rangev3. Contiene más vistas y acciones que las que están estadarizadas en
+#cxx 23 y es compatible con las del estándar. Una parte de las funciones
+estandarizadas todavía no han sido implementadas en los compiladores de #cxx
+más relevantes @cxxcompilersupport, así que todavía sigue siendo útil.
+Un ejemplo de uso se puede ver en el @lst:2-cpp-range-v3.
+
+#code(
+  caption: [Ejemplo de uso de la biblioteca _range-v3_ para rangos.],
+  tag: "lst:2-cpp-range-v3"
+)[```cpp
+constexpr auto result = accumulate
+                      ( views::ints(0)
+                      | views::remove_if([](int i){return i % 2 == 1;})
+                      | views::transform([](int i){ return i * i; );
+                      | views::take(3)
+                      );
+
+static_assert(result == 12);
+```]
+
+
+
+==== _flux_
+Una biblioteca que utiliza un modelo alternativo para trabajar con rangos y
+vistas es _flux_, cuya implementación está alojada en
+https://github.com/tcbrindle/flux . En vez de utilizar el operador _pipe_
+(`|`) como hace el la biblioteca de rangos estandarizada y _range-v3_, utiliza
+notación punto (`.`), como se puede ver en el @lst:2-cpp-flux.
+
+#code(
+  caption: [Ejemplo de uso de la biblioteca _flux_ para rangos.],
+  tag: "lst:2-cpp-flux"
+)[```cpp
+constexpr auto result = flux::ints()                        // 0,1,2,3,...
+                         .filter(flux::pred::even)          // 0,2,4,6,...
+                         .map([](int i) { return i * 2; })  // 0,4,8,12,...
+                         .take(3)                           // 0,4,8
+                         .sum();                            // 12
+
+static_assert(result == 12);
+```]
 
 === Paralelismo
 El paralelismo es un conjunto de técnicas que permite realizar varias tareas de

@@ -1,15 +1,12 @@
 #import "layout/lib.typ": conf, azuluc3m
 
 // Glosario
-#import "@preview/glossarium:0.5.8": make-glossary, register-glossary, print-glossary, gls, glspl
-#show: make-glossary
-#import "./glosario.typ": entry-list
-#register-glossary(entry-list)
+#import "./glosario.typ": glosario
 
 #show: conf.with(
   title: "Procesamiento de señales de encefalograma para la detección de ataques epilépticos.",
   author: "José Antonio Verde Jiménez",
-  degree: "Grado en Ingeniería Informática",
+  degree: "Ingeniería Informática",
   advisors: ("José Daniel García Sánchez",),
   location: "Leganés, España,",
   thesis-type: "TFG",
@@ -101,7 +98,9 @@
 
     Igualmente, quiero dar las gracias a Luis Daniel, a Jorge Lázaro y a
     Eduardo Alarcón por sus contribuciones para preparar y mejorar la plantilla
-    de este mismo documento. Muchas Gracias.
+    de este mismo documento; y agradecer a Diego Díaz Huertas por su revisión
+    de las demostraciones, las convenciones y el estilo de los teoremas
+    matemáticos. Muchas Gracias.
 
     Finalmente, a esas personas que me han estado apoyando desde el principio,
     en mis peores y en mis mejores momentos, que siempre han estado ahí cuando
@@ -119,7 +118,7 @@
     generativa de ningún tipo: ni durante el desarrollo del proyecto ni durante
     la redacción de este documento. No considera que sea útil.
   ],
-  glossary: print-glossary(entry-list, show-all: true),
+  glossary: glosario,
   abbreviations: none)
 
 #set text(

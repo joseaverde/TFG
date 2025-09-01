@@ -403,9 +403,9 @@ dormir el dispositivo empotrado para disminuir el consumo energético.
     ylim: (0, mx * 1.25),
     legend: legend,
     xaxis: (ticks: ([#target],).enumerate(), subticks: none),
-    lq.bar(xs, (yss.at(0),), offset: -0.8, width: 0.4, label: [C++ ($bb(F)_32$)]),
-    lq.bar(xs, (yss.at(1),), offset: -0.4, width: 0.4, label: [Ada ($bb(F)_32$)]),
-    lq.bar(xs, (yss.at(2),), offset:  0.0, width: 0.4, label: [Ada$\* (bb(F)_32$)]),
+    lq.bar(xs, (yss.at(0),), offset: -0.8, width: 0.4, label: [C++ ($cal(F)_32$)]),
+    lq.bar(xs, (yss.at(1),), offset: -0.4, width: 0.4, label: [Ada ($cal(F)_32$)]),
+    lq.bar(xs, (yss.at(2),), offset:  0.0, width: 0.4, label: [Ada$\* (cal(F)_32$)]),
     lq.bar(xs, (yss.at(3),), offset:  0.4, width: 0.4, label: [SPARK ($bb(X)_32$)]),
     lq.bar(xs, (yss.at(4),), offset:  0.8, width: 0.4, label: [SPARK$\* (bb(X)_32$)]))
 }

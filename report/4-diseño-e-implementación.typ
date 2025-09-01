@@ -13,14 +13,18 @@
 #show math.equation.where(block: false): box
 
 = Diseño e implementación <sec:4>
-En este capítulo se describen tanto la implementación del algoritmo con todas
-sus peculiaridades matemáticas.
+En este capítulo se explican las decisiones de diseño que se han tomado para
+implementar cada una de las partes que componen el algoritmo de detección de
+ataques epilépticos _Patterns Augmented by Features Epileptic Seizure
+Detection_. Se hace un análisis matemático de cada uno de los algoritmos que
+lo componen y se estudia cómo se puede mejorar y cómo se pueden solucionar los
+errores del mismo.
 
 La parte de implementación se introduce con una lista de distintas convenciones
 matemáticas que se usan a lo largo del capítulo, se ofrece una descripción del
 algoritmo de manera global utilizando dichas convenciones, y termina con un
-análisis de todos los algoritmos que se consideran relevantes para el propio
-algoritmo.
+análisis de todos los algoritmos que se consideran relevantes para el
+desarrollo del proyecto.
 
 == Estudio de la solución final <sec:4-estudio-de-la-solución-final>
 La implementación original del algoritmo de detección de ataques epilépticos
@@ -32,7 +36,7 @@ del programa.
 
 Que la implementación original estuviera escrita en Python dificulta bastante
 la compilación cruzada. Esto es especialmente difícil para dispositivos
-empotrados como la ESP32-C3, que tiene pocos megabytes de memoria disponibles
+empotrados como la ESP32C3, que tiene pocos megabytes de memoria disponibles
 para almacenar el ejecutable, pues el tamaño de la suma de todas las
 dependencias superaba los cientos de megabytes. Además uno de los requisitos
 fundamentales del proyecto es que corriera en tiempo real. Por estas razones
@@ -59,38 +63,39 @@ se denotan de la siguiente manera:
 #let btrue = $top$
 #let bfalse = $bot$
 
-Los conjuntos clásicos se denotan como:
-
-
+- $bb(B) = {bfalse, btrue}$ es el conjunto de los valores lógicos falso
   ($bfalse$) y verdadero ($btrue$).
 - $bb(Z) = {0, 1, -1, 2, -2, ...}$ es el conjunto de los números enteros.
 - $bb(N) = {0, 1, 2, ...}$ es el conjunto de los números enteros no negativos.
 - $bb(N)^+ = {1, 2, 3, ...}$ es el conjunto de los números enteros positivos.
 - $bb(Q)$ es el conjunto de los números racionales.
 - $bb(R)$ es el conjunto de los números reales.
-- $bb(C)$ es el conjunto de los números complejos.
+- $bb(C)$ es el conjunto de los números complejos y $j = sqrt(-1)$ es la unidad
+  imaginaria.
 
 Como la implementación en el computador se trabaja con números con un tamaño
-fijo de _bits_, a continuación se definen ciertos conjuntos interesantes para
+fijo de bits, a continuación se definen ciertos conjuntos interesantes para
 ello. Se supone que los números enteros y en punto fijo se codifican en
 complemento a dos:
 
 - $bb(I)_n = bb(Z) inter [-2^(n-1), 2^(n-1)-1], n in bb(Z), n > 1$ es el
-  conjunto de enteros de computador de $n$ _bits_.
+  conjunto de enteros de computador de $n$ bits codificados en complemento a
+  dos.
 - $bb(M)_n = bb(Z) slash 2^n bb(Z)$ es el anillo de enteros módulo $2^n$.
 - $bb(X)_(b,f) = { 2^f x : x in bb(I)_b }, f in bb(Z)$ es el conjunto de números
-  racionales en punto fijo binario de $b$ _bits_ multiplicados por $2^f$.
+  racionales en punto fijo binario de $b$ bits multiplicados por $2^f$.
   Nótese que $bb(X)_(b,0) = bb(I)_b$. Se denota además el valor más pequeño no
   nulo en valor absoluto del conjunto como $delta_(b,f) = 2^(-f)$.
-- $bb(F)_32$ es el conjunto de valores codificados en el estándar de coma
+- $cal(F)_32$ es el conjunto de valores codificados en el estándar de coma
   flotante IEEE 754 de simple precisión.
-- $bb(F)_64$ es el conjunto de valores codificados en el estándar de coma
+- $cal(F)_64$ es el conjunto de valores codificados en el estándar de coma
   flotante IEEE 754 de doble precisión.
 
-Un vector $v in S^n$ es una secuencia de $n$ elementos del conjunto $S$:
-$v = (v_1, v_2, ..., v_n)$. Se denota por $v(i)$ o $v_i$ el i-ésimo elemento
-del vector $v$; donde $v_1$ o $v(1)$ es el primer elemento y $v_n$ o $v(n)$ es
-el último. No están definidos los elementos $v(k), k <= 0 or k > n$.
+Un vector $v in S^n$ es una secuencia de $n$ elementos de un conjunto $S$
+cualquiera: $v = (v_1, v_2, ..., v_n)$. Se denota por $v(i)$ o $v_(i-1)$ el
+i-ésimo elemento del vector $v$; donde $v_0$ o $v(1)$ es el primer elemento y
+$v_(n-1)$ o $v(n)$ es el último, excepto cuando se diga lo contrario. No están
+definidos los elementos $v(k), k <= 0 or k > n$.
 
   $ S^1 = S $
   $ S^n = S^(n-1) times S $
@@ -161,10 +166,12 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 === Conversión entre tipos en punto fijo binario
 #definition(title: [$"conv"_f (x)$])[
   *Conversión de punto fijo*: Dado un valor de punto fijo
-  $x = 2^f k, x in bb(X)_(b,f), k in bb(I)_b$, se define la operación de
-  conversión al tipo de punto fijo a
-  $x' = 2^(f') k, x' in bb(X)_(b',f'), k' in bb(I)_(b')$ (para alguna
-  $b' in bb(N)^+$ y se denota como $"conv"_(f') (x) = x'$ donde
+  $x = 2^f k$ con $x in bb(X)_(b,f)$ y con $k in bb(I)_b$, se define la
+  operación de conversión al $x' = k' 2^(f') in bb(Q)$ que aproxima el valor
+  $x$ en supuesto punto fijo que está multiplicado por el factor $2^(f')$.
+
+  Sea $x' = 2^(f') k$ con $x' in bb(Q)$ y con $k' in bb(Z)$ el valor al que se
+  quiere convertir $x$. Se denota como $"conv"_(f') (x) = x'$ donde
   $"conv"_(f'): bb(X)_(b,n) -> bb(Q)$ y donde:
 
   $ k' = cases(floor(2^(f - f') k)", " & "si" k >= 0,
@@ -175,11 +182,11 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 
 #note-box[
   Como dice más adelante el @thm:conv-bit-cond, si se cumple que
-  $b' >= b + (f - f')$ se puede demostrar que si
-  $x in bb(X)_(b,f)$ entonces $"conv"_(f') (x) in bb(X)_(b',f')$. La función original
-  no depende del número de _bits_ del tipo de punto fijo de retorno, pues
-  para las demostraciones es necesario trabajar sobre $bb(Q)$ y luego ya se
-  puede añadir la restricción.
+  $b' >= b + (f - f')$ se puede demostrar que si $x in bb(X)_(b,f)$ entonces se
+  cumple que $"conv"_(f') (x) in bb(X)_(b',f')$. La función original no depende
+  del número de bits del tipo de punto fijo de retorno, pues para las
+  demostraciones es necesario trabajar sobre $bb(Q)$ y luego ya se puede añadir
+  la restricción de que pertenzca o no a $bb(X)_(b',f')$.
 ]
 
 /* FLOOR PROOFS */
@@ -189,9 +196,10 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 ] <lem:floor-range>
 
 #corollary[
-  Si $b > 0$, $a - b < b floor(a / b) <= a$.
+  Si $b > 0$ entonces, $a - b < b floor(a / b) <= a$.
 ] <col:mult-floor-quot>
 #proof[
+
   Si $floor(a / b) = x$ entonces de acuerdo con el @lem:floor-range:
 
   $ x <= a / b < x + 1  $
@@ -210,10 +218,11 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 ] <lem:ceil-range>
 
 #corollary[
-  Si $b > 0$, $a <= b ceil(a / b) < a + b$
+  Si $b > 0$ entonces, $a <= b ceil(a / b) < a + b$
 ] <col:mult-ceil-quot>
 
 #proof[
+
   Si $ceil(a / b) = x$ entonces de acuerdo con el @lem:ceil-range:
 
   $ x - 1 < a / b <= x $
@@ -226,13 +235,13 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 /* CONVERSION THEOREM */
 
 #theorem[
-  Dados $x in bb(X)_(b,f)$ y $x' = "conv"_(f') (x) in bb(Q)$:
-  si $f >= f'$ entonces $x = x'$; si $f < f'$ y luego $k >= 0$ se cumple que
-  $0 <= x - x' < 2^(f')$ y si $f < f'$ y luego $k < 0$ se cumple que
-  $0 <= x' - x < 2^f'$.
+  Dados $x in bb(X)_(b,f)$ y $x' = "conv"_(f') (x) in bb(Q)$.
+  Si $f >= f'$ entonces, $x = x'$. Si $f < f'$ y $k >= 0$ se cumple que
+  $0 <= x - x' < 2^(f')$, pero si $k < 0$ se cumple que $0 <= x' - x < 2^f'$.
 ] <thm:conv-error>
 
 #proof[
+
   Dados $x = 2^f k$ y $x' = 2^(f') k'$, donde $x' = "conv"_(f') (x)$.
   El valor del suelo o techo depende del valor de la diferencia $f - f'$.
 
@@ -266,8 +275,8 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 ]
 
 Del @thm:conv-error se obtienen propiedades muy relevantes. En primer lugar,
-si se convierte de punto un fijo multiplicado por un coeficiente más grande
-a uno más pequeño, no se pierde hay error y por tanto no se pierde información.
+si se convierte de un punto fijo multiplicado por un coeficiente más grande
+a uno con uno más pequeño, no hay error y por tanto no se pierde información.
 Por ejemplo: $a = 1 dot.op 2^(-2) in bb(X)_(32,-2)$, al convertirlo a un punto
 fijo con un bit más de precisión en la parte fraccionaria como
 $"conv"_(32,-3) (a)$ se puede representar perfectamente como $2 dot.op 2^(-3)$,
@@ -276,48 +285,51 @@ pues el numerador debe ser entero.
 Cuando $f < f'$, es decir, hay más bits en la parte fraccionaria del tipo de
 origen que el de destino, hay un error (que está acotado) en el rango
 $[0, 2^(-f'))$. De vuelta al ejemplo anterior, al convertirlo a uno con menos
-_bits_ en el denominador como $"conv"_(32,-1)$, no hay forma de representar el
+bits en el denominador como $"conv"_(32,-1)$, no hay forma de representar el
 valor $1/4$ con un numerador entero y el denominador $2$. Así que la conversión
 da $0 dot.op 2^(-1)$, que está a como mucho $2^(-1)$ unidades del valor real.
 
-Otras propiedades importantes son que el número de _bits_ del tipo de punto
+Otras propiedades importantes son que el número de bits del tipo de punto
 fijo no influye en la conversión ni en el error. Además el error solamente
 depende del exponente $f'$ del coeficiente del tipo al que se convierte,
-no depende de cuál era el exponente $f$ del valor origen. Esto simplifica
-muchísimo el análisis del error.
+no depende de cuál era el exponente $f$ del coeficiente del valor origen. Esto
+simplifica considerablemente el análisis del error.
 
 #corollary[
-  Dado $x in bb(X)_(b,f)$: si $x >= 0$ entonces $0 <= "conv"_(b,f) (x) <= x$; y
-  si $x < 0$ entonces $0 >= "conv"_(b, f) (x) >= x$.
+  Dado $x in bb(X)_(b,f)$, su valor convertido $"conv"_(b,f)$ en valor absoluto
+  no puede ser mayor que el valor absoluto de $x$. Es decir, si $x >= 0$
+  entonces, $0 <= "conv"_(b,f) (x) <= x$; y si $x < 0$ entonces se cumple que
+  su valor convertido también es un punto fijo: $0 >= "conv"_(b, f) (x) >= x$.
 ] <cor:conv-order>
 
 #theorem[
-  Si $b' >= b + (f - f')$, dado $x in bb(X)_(b,f)$,
+  Si $b' >= b + (f - f')$ entonces, dado un $x in bb(X)_(b,f)$, se tiene que
   $"conv"_(b',f') (x) in bb(X)_(b',f')$
 ] <thm:conv-bit-cond>
 
 #proof[
-  Dado el conjunto $bb(Z)_(b,f)$ el valor máximo del conjunto es
+
+  Dado el conjunto $bb(X)_(b,f)$, el valor máximo del conjunto es
   $M = 2^f 2^(b - 1) - delta_(b,f)$ y el valor mínimo es $m = -2^f 2^(b-1)$.
-  La conversión se hace a $bb(Z)_(b',f')$:
+  La conversión se hace a $bb(X)_(b',f')$:
 
     $ m' = "conv"_(b',f') (m) = ceil(-2^(f-f') 2^(b - 1)) 2^(f') $
     $ M' = "conv"_(b',f') (M) = floor(2^(f-f') (2^(b - 1) - delta_(b,f))) 2^(f') $
 
   Para $m'$, si $f >= f'$ de acuerdo con el @thm:conv-error, $m' = m$, entonces
-  solo se puede representar $m'$ en $bb(Z)_(b',f')$ si
+  solo se puede representar $m'$ en $bb(X)_(b',f')$ si
   $f - f' + b - 1 <= b' - 1$ pues el valor mínimo de dicho conjunto es
-  $-2^(b' - 1)$. Se necesita que si $f >= f' => b' >= b + (f - f')$.
+  $-2^(b' - 1)$. Se necesita que si $f >= f'$ entonces $b' >= b + (f - f')$.
 
   Si por el contrario $f < f'$, se deben encontrar los valores que satisfagan
-  que $m' >= -2^(b' - 1)$. Por el @cor:conv-order sabemos que $0 >= m' >= m$,
+  que $m' >= -2^(b' - 1)$. Por el @cor:conv-order se sabe que $0 >= m' >= m$,
   luego el valor de la conversión no es positivo (así que el límite superior
   se puede ignorar) y no es menor que el valor original $m$. Luego la
   restricción debe ser que $m <= m' => 2^(b - 1) 2^f <= 2^(b' - 1) 2^(f')$.
   Luego $b - 1 + f <= b' - 1 + f' => b' >= b + (f - f')$.
 
   Para $M'$, si $f >= f'$, de acuerdo con el @thm:conv-error, $M' = M$, entonces
-  solo se puede representar $M'$ en $bb(Z)_(b',f')$ si 
+  solo se puede representar $M'$ en $bb(X)_(b',f')$ si 
 
   $ M = &floor(2^(f-f') (2^(b - 1) - delta_(b,f))) 2^(f')   \
       = &floor(2^(f-f'+b-1) - 2^(f')) 2^(f')                \
@@ -328,33 +340,33 @@ muchísimo el análisis del error.
   $ => f + b - 1 <= f' + b' - 1 => b' >= b + (f - f') $
 
   Finalmente, si $f < f'$, de acuerdo con el @cor:conv-order $0 <= M' <= M$.
-  Trabajamos con valores no negativos. Y como se vio arriba, la condición más
+  Se trabaja con valores no negativos y, como se vio arriba, la condición más
   fuerte de que $b' >= b + (f - f')$ se sigue manteniendo.
 ]
 
 === Subconjunto uniforme de $bb(X)_(b,1-b)$ <uniform>
-Para los siguientes algoritmos resulta bastante trabajar con un punto fijo
-con un exponente $f$ del coeficiente arbitrario, pues muchos de ellos necesitan
-utilizar multiplicaciones. Además, dado que hay un valor negativo más que
-valores positivos también añade complicaciones. Así que se define $bb(U)_b$
-como el subconjunto uniforme de $bb(X)_(b,1-b)$ o como conjunto uniforme de $b$
-bits:
+Para los siguientes algoritmos resulta bastante útil trabajar con un punto fijo
+que esté en el rango $(-1, 1)$, pues se utilizan muchas multiplicaciones.
+Además, dado que hay un valor negativo más que valores positivos también añade
+complicaciones. Así que se define $bb(U)_b$ como el subconjunto uniforme de
+$bb(X)_(b,1-b)$ o como conjunto uniforme de $b$ bits:
 
   $ bb(U)_b = bb(X)_(b,1-b) without {-1} $
 
 #lemma[
-  $abs(x) < 1, forall x in bb(U)_b, forall b > 1$
+  $abs(x) < 1, forall x in bb(U)_b forall b > 1$
 ] <lem:uniform-less-than-one>
 
 #theorem[
-  Dados $x = p 2^(1-b), x in bb(U)_b$ e $y = q 2^f, y in bb(U)_(b')$, su
-  producto $x y = p 2^(1-b) q 2^(1-b')$, también es uniforme
+  Dados $x = p 2^(1-b)$ con $x in bb(U)_b$ e $y = q 2^f$ con $y in bb(U)_(b')$,
+  se cumple que su producto $x y = p 2^(1-b) q 2^(1-b')$ también es uniforme
   $x y in bb(U)_(b+b'-1)$.
 ] <thm:uniform-product>
 
 #proof[
-  Dados $x = p 2^(1-b), x in bb(U)_b$ e $y = q 2^f, q in bb(U)_(b')$. Por
-  definición $p in bb(I)_b without {-2^(b-1)}$ y
+
+  Dados $x = p 2^(1-b)$ con $x in bb(U)_b$ e $y = q 2^f$ con $y in bb(U)_(b')$.
+  Por definición $p in bb(I)_b without {-2^(b-1)}$ y
   $q in bb(I)_b' without {-2^(b'-1)}$. O que es lo mismo $abs(p) < 2^(b-1)$ y
   $abs(q) < 2^(b'-1)$. Eso quiere decir que:
 
@@ -371,10 +383,10 @@ bits:
   $-2^(b+b'- 1 - 1) 2^(2-b-b') = -1$) y que $-1 in.not bb(U)_(b+b'-1)$.
 
   Suponiendo que existiera un $x in bb(U)_b$ y un $y in bb(U)_(b')$ de forma
-  que $x y = -1$, implicaría que $exists p in bb(I)_b$, $exists q in bb(I)_q$
+  que $x y = -1$, implicaría que $exists p in bb(I)_b$, $exists q in bb(I)_(b')$
   de forma que $p q = -2^(b+b'-2)$ para que $x y = p q 2^(2-b-b')
   = -2^(b+b'-2) 2^(2-b-b') = -1$. Sin embargo, $exists.not p in bb(I)_b$,
-  $exists.not q in bb(I)_(b')$ de forma que $p q = -2^(b+b'-2)$ porque
+  $exists.not q in bb(I)_(b')$ de forma que $p q = -2^(b+b'-2)$, porque
   contradice que $abs(p q) < 2^(b+b'-2)$. Luego
   $exists.not x in bb(U)_b$, $exists.not y in bb(U)_(b')$ tales que $x y = -1$.
   Y por ende:
@@ -383,28 +395,26 @@ bits:
     $ x y in bb(U)_(b+b'-1) $
 ]
 
-#theorem(title: [Producto de enteros de computador])[
+#lemma(title: [Producto de enteros de computador])[
   Dados dos enteros $x in bb(I)_b$ e $y in bb(I)_(b')$. Su producto es un
   entero de $b + b' - 1$ bits: $x y in bb(I)_(b+b'-1)$.
 ] <thm:integer-product>
 
-#proof[
-  // Dados $x in bb(I)_b$ e $y in bb(I)_b'$. $x in [-2^(b-1)
-]
-
 #theorem(title: [Producto de punto fijo])[
-  Dados $x = p 2^f, x in bb(X)_(b,f)$ e $y = q 2^(f'), y in bb(X)_(b',f')$, su
-  producto $x y = p q 2^(f+f')$ es otro punto fijo: $x y in bb(X)_(b+b'-1,f+f')$.
+  Dados $x = p 2^f$ con $x in bb(X)_(b,f)$ e $y = q 2^(f')$ con
+  $y in bb(X)_(b',f')$, su producto $x y = p q 2^(f+f')$ es otro punto fijo:
+  $x y in bb(X)_(b+b'-1,f+f')$.
 ] <thm:fixed-product>
 
 #proof[
+
   Dados dos conjuntos de punto fijo $bb(X)_(b,f)$ y $bb(X)_(b',f')$. Por
   definición:
 
     $ bb(X)_(b,f) = { k 2^f : k in bb(I)_b } $
     $ bb(X)_(b',f') = { k 2^(f') : k in bb(I)_(b') } $
 
-  Sea el conjunto $P$ el conjunto que contiene todos los posibles productos
+  Sea $P$ el conjunto que contiene todos los posibles productos
   entre los elementos del primer conjunto por los elementos del segundo:
 
     $ P &= { x y : x in bb(X)_(b,f), y in bb(X)_(b',f') } \
@@ -420,25 +430,30 @@ bits:
 ]
 
 #definition(title: [Conversión del producto])[
-  Dados $x in bb(X)_(b,f)$ e $y in bb(X)_(b',f')$ se denota como:
+  Dados $x in bb(X)_(b,f)$ e $y in bb(X)_(b',f')$, se denomina «conversión del
+  producto de ambos en otro punto fijo» a la conversión ($"conv"_(b,f)$) del
+  producto de $x$ e $y$, y se denota como
 
     $ x *_(b'',f'') y = "conv"_(b'',f'') (x y) $
 
-  Y si $x in bb(U)_(b)$ e $y in bb(X)_(b')$, también se denota como:
+  Por otro lado, si $x in bb(U)_(b)$ e $y in bb(U)_(b')$, denotaremos
 
     $ x *_(b'') y = "conv"_(b'',1-b'') (x y) $
 
-  A la conversión del producto de ambos en otro punto fijo.
+  a la conversión del producto de ambos en otro punto fijo, pero uniforme.
 ] 
 
+// NOTE: Se define/denomina/llama ___ como ____ y se denota como ____
+
 #theorem(title: [Conversión del producto de uniformes es uniforme])[
-  Si $x in bb(U)_b$ e $y in bb(U)_(b')$. Entonces $x *_(b'') y in bb(U)_(b'')$.
+  Si $x in bb(U)_b$ e $y in bb(U)_(b')$ entonces, $x *_(b'') y in bb(U)_(b'')$.
 ] <thm:uniform-conv-product>
 
 #proof[
+
   Dados $x in bb(U)_b$ e $y in bb(U)_(b')$. Sea su producto $z = x y$, que
-  según el @thm:uniform-product se sabe que $z in bb(U)_(b+b'-1)$. Finalmente
-  aplicamos el @thm:conv-bit-cond con:
+  según el @thm:uniform-product se sabe que $z in bb(U)_(b+b'-1)$, se aplica
+  el @thm:conv-bit-cond con:
 
   - $b := b+b'-1$
   - $f := 1 - (b+b'-1) = 2-b-b'$
@@ -454,20 +469,21 @@ bits:
 
   (que siempre es cierto), significaba que
   $z in bb(X)_(b+b'-1,2-b-b')$, luego su conversión
-  $"conv"_(b'',1-b'') (z) in bb(X)_(b'',1-b'')$.
-  Es decir, $x *_(b'') y in bb(X)_(b'', 1-b'')$. Lo único que es necesario
+  $"conv"_(b'',1-b'') (z) in bb(X)_(b'',1-b'')$,
+  es decir, $x *_(b'') y in bb(X)_(b'', 1-b'')$. Lo único que es necesario
   determinar para terminar de demostrar este teorema es que
-  $exists.not x in bb(U)_b, exists.not y in bb(U)_(b'), x *_(b'') y = -1$.
+  $exists.not x in bb(U)_b, exists.not y in bb(U)_(b')$ tales que
+  $x *_(b'') y = -1$.
 
-  Supongamos que $exists x = p 2^(1-b) in bb(U)_(b)$ y
+  Supongamos que sí $exists x = p 2^(1-b) in bb(U)_(b)$ y sí
   $exists y = q 2^(1-b') in bb(U)_(b')$, para los que $z = x *_(b'') y = -1$.
   Según la @def:fixed-point-conversion, $z = k 2^(1-b'')$, donde $k$ es:
 
     $ k = cases(floor(2^((2 - b - b') - (1 - b'')) p q)", " & "si" p q >= 0,
                 ceil(2^((2 - b - b') - (1 - b'')) p q)", "  & "si" p q < 0) $
 
-  Estamos intentando buscar una $k$ para que $z = -1 = k 2^(1-b'') =>
-  k = -2^(b''-1) in bb(I)_(b'')$. Como $k < 0 => p q < 0$.
+  Se busca una $k$ para que $z = -1 = k 2^(1-b'')$ implique que
+  $k = -2^(b''-1) in bb(I)_(b'')$. Como $k < 0 => p q < 0$.
 
     $ k = ceil(2^((2 - b - b') - (1 - b'')) p q) = -2^(b''-1) $
 
@@ -479,7 +495,7 @@ bits:
       0 &&> 2^((2-b-b') - (1-b'')) p q >&& -2^(b''-1)
     $
 
-  Sabemos que $ceil(-2^(b''-1)) = -2^(b''-1)$ porque $b'' > 1, b'' in bb(N)$.
+  Se sabe que $ceil(-2^(b''-1)) = -2^(b''-1)$, porque $b'' > 1, b'' in bb(N)$.
   Según el @lem:ceil-range:
 
     $ ceil(-2^(b''-1)) = -2^(b''-1) <=> -2^(b''-1) - 1 < -2^(b''-1) <=
@@ -492,21 +508,22 @@ bits:
 ]
 
 === Uniformización de un vector $bb(X)_(b,f)^n, n in bb(N)^+$
-Antes de definir en qué consiste uniformizar un vector. Es necesario definir
+Antes de definir en qué consiste uniformizar un vector, es necesario definir
 la división para el punto fijo. La división de dos números racionales:
-$x = a/b$ e $y = p/q$, $x, y in bb(Q)$ y $a,b,p,q in bb(Q)$, es otro número
+$x = a/b$ e $y = p/q$, $x, y in bb(Q)$ y $a,b,p,q in bb(Q)$, es el siguiente
+número
 racional:
 
   $ x/y = (a/b)/(p/q) = (a q)/(b p) in bb(Q) $
 
-Trabajando con números en punto fijo sigue siendo similar, dados dos números
+Trabajar con números en punto fijo es similar, dados dos números
 en punto fijo $x = p 2^f, x in bb(X)_(b,f)$ e $y = q 2^(f') in bb(X)_(b',f')$.
 Su cociente también es un número en punto fijo:
 
   $ x / y = (p 2^f) / (q 2^(f')) = p/q 2^(f-f') $
 
 Sigue pareciendo un número en punto fijo multiplicado por $2^(f-f')$, la única
-diferencia es que $p/q in.not bb(Z), forall p, q$, lo cual complica bastante
+diferencia es que $exists p exists q, p/q in.not bb(Z)$, lo cual complica bastante
 tratarlo como un punto fijo.
 
 #definition(title: [División de punto fijo])[
@@ -528,6 +545,7 @@ tratarlo como un punto fijo.
 ] <thm:fixed-division-set>
 
 #proof[
+
   Sean $x = p 2^f in bb(X)_(b,f)$ e $y = q 2^(f') in bb(X)_(b',f')$ con
   $y != 0$, por definición $p in bb(I)_b$ y $q in bb(I)_(b')$.
   Sea $z = x div y$.
@@ -547,7 +565,7 @@ tratarlo como un punto fijo.
 
     - Si $-2^(b'-1) <= q < 0$ implica que $-2^(b-1) <= p < 0$. Cuando $q = -1$,
       el cociente $floor(p/q) = floor(-p) = -p$ , es decir, igual que el caso
-      anterior obtenemos un nuevo límite superior $2^(b-1)$.  Sin embargo, si
+      anterior se obtiene un nuevo límite superior $2^(b-1)$.  Sin embargo, si
       $q != -1 and p != -2^(b-1)$, el límite superior es
       distinto pues:
 
@@ -608,7 +626,7 @@ uniformización. En primer lugar, la de un valor:
 #definition(title: [Uniformización de un vector])[
   La uniformización de un vector convierte un vector $v in bb(X)_(b,f)^n$ a
   otro vector escalado $v' in bb(U)_b^n$ y se expande la definición de la
-  función $"unif"$ para vectores:
+  función _unif_ para vectores:
 
   $ "unif"_(b,f): bb(X)_(b,f)^n -> bb(U)_b^n $
   $ v' = "unif"_(b,f) (v) $
@@ -616,7 +634,12 @@ uniformización. En primer lugar, la de un valor:
 ] <def:unif-vector>
 
 #theorem(title: [Uniformización es biyectiva])[
-  La uniformización es inyectiva porque. Por contradicción, supongamos que no
+  La función $"unif"_(b,f)$ es biyectiva.
+]<thm:unif-biyectiva>
+
+#proof[
+
+  La uniformización es inyectiva porque, por contradicción, supongamos que no
   es inyectiva y que
   $exists x = p 2^f in bb(X)_(b,f) without {-2^(b-1) 2^f},
    exists y = q 2^f in bb(X)_(b,f) without {-2^(b-1) 2^f}$ con
@@ -645,7 +668,7 @@ uniformización. En primer lugar, la de un valor:
   Como la función es a la vez inyectiva y suprayectiva, se dice que la función
   es *biyectiva*.
 
-]<thm:unif-biyectiva>
+]
 
 #corollary[
   Como la función $"unif"_(b,f)$ es biyectiva (@thm:unif-biyectiva), existe una
@@ -751,17 +774,18 @@ Obsérvese el diagrama de flujo siguiente (@fig:flujo-max-distance).
 
     node((0,0), name: <A1>, [*1*: Inicio], shape: shapes.pill)
     edge("-|>")
-    node((0,v-sep), align(center)[*2*:
-      $"mín"_v <- e(1)$\
-      $"máx"_v <- e(1)$\ $i <- 2$
+    node((0,v-sep), align(center)[*2*: \
+      $ "mín"_v <-& e(1) \
+        "máx"_v <-& e(1) \
+        i       <-& 2 $
       ], shape: shapes.rect)
     edge("-|>")
     node((0,v-sep*2), name: <loop>, align(center)[*3*: ¿$i <= m$?], shape: shapes.parallelogram)
     edge("-|>", [Sí])
     node((0,v-sep*3), align(center)[
-      *4*:
-      $"mín"_v <- "mín"("mín"_v, e(i))$\
-      $"máx"_v <- "máx"("máx"_v, e(i))$)],
+      *4*: \
+      $ "mín"_v <-& "mín"("mín"_v, e(i)) \
+        "máx"_v <-& "máx"("máx"_v, e(i)) $],
       shape: shapes.rect)
     edge("-|>")
     node((0,v-sep*4), name: <endloop>, align(center)[*5*: $i <- i + 1$])
@@ -803,8 +827,10 @@ $e in bb(X)_(b_e,f_e)^m$. Las variables $"mín"_v, "máx"_v in bb(X)_(b_e,f_e)$,
 también pertenecen al conjunto de entrada. $i in bb(I)_b$ para un $b > 1$
 cualquiera.
 
-Para simplificar el problema, se va a utilizar valores de entrada de 32 _bits_
-y la salida también será de 32 _bits_. Así que $b_e = b_s = 32$. Para
+==== Soluciones
+
+Para simplificar el problema, se va a utilizar valores de entrada de 32 bits
+y la salida también será de 32 bits. Así que $b_e = b_s = 32$. Para
 solucionar el problema que existía en la resta se debe convertir primero los
 valores al tipo de retorno. De acuerdo con el @thm:conv-bit-cond
 $b_s >= b_e + (f_e - f_s) => 32 >= 32 + (f_e - f_s) => f_s >= f_e$ para que
@@ -815,16 +841,14 @@ Pues el valor se maximiza cuando $"máx"_v = (2^(31) - 1) 2^f_e$ y
 $"mín"_v = -2^(31) 2^f_e$ entonces $"máx"_v - "mín"_v = 2^(32) - 1$. Nótese
 que se pierde información como consecuencia del @thm:conv-error, se minimiza
 la pérdida de información cuando más pequeño sea $f_s$. Así que $f_e + 1 = f_s$.
-
-==== Precondiciones
+Las *precondiciones* son:
 
 - $m > 0$, el vector debe tener al menos un elemento.
 - $m < "máx"{bb(I)_b}$, la longitud del vector debe ser menor que el máximo del
   número entero que se utilice para indexar.
 - $f_s = f_e + 1$, para poder operar y minimizar la pérdida de información.
 
-==== Postcondiciones
-
+Y las *postcondiciones* son:
 - El resultado es no negativo, pues $"máx"_v >= "mín"_v$.
 
 /* ==== A C U M U L A C I Ó N ============================================== */
@@ -832,7 +856,7 @@ la pérdida de información cuando más pequeño sea $f_s$. Así que $f_e + 1 = 
 #pagebreak(weak:true)
 === Acumulación <sec:acumulación>
 Varios algoritmos tienen algún paso que consiste en suma una secuencia de
-elementos. El algoritmo es similar al algoritmo `max-distance`
+elementos. El algoritmo es similar al algoritmo _max distance_
 (@algorithm-max-distance) en que es una reducción. Dado un vector $v in bb(R)^m$
 el algoritmo acumuación computa: $sum_(i=1)^m v(i)$, de acuerdo con el
 siguiente diagrama de flujo:
@@ -867,7 +891,7 @@ siguiente diagrama de flujo:
 )
 
 ==== Problemas <algorithm-accumulation-problems>
-Se siguen viendo similitudes con `max-distance`, y se ve que comparte sus
+Se siguen viendo similitudes con _max distance_, y se ve que comparte sus
 dos primeros problemas @algorithm-max-distance-problems:
 
 - En el paso *2*, $v(1)$ falla si $m = 0$.
@@ -892,6 +916,7 @@ consecuencia del @thm:accumulation.
 ] <thm:accumulation>
 
 #proof[
+
   Si $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$. Sea la
   función de acumulación $g(v,m)=sum_(i=1)^(m) v(i)$, como $bb(X)_(b,f)$ y
   $bb(I)_B$ son finitos, el codominio de $g$ también es finito y tiene un valor
@@ -1156,12 +1181,12 @@ vector:
 
 Sin embargo, nótese que esta condición no es cierta al trabajar con punto
 flotante por problemas de precisión. Es bien conocido que trabajando con un
-computado de punto flotante de 64 bits ($bb(F)_64$), por ejemplo, la suma
+computado de punto flotante de 64 bits ($cal(F)_64$), por ejemplo, la suma
 $0.1 + 0.2$ no da exactamente $0.3$, da $0.30000000000000004$; porque ni $0.1$
 ni $0.2$ se pueden respresentar en binario con un número finito de dígitos
 binarios: $0.1_(10) = 0.00overline(0011)_2$ y $0.2_(10) = 0.0overline(0011)$.
 Luego no se puede hacer dicha suposición cuando se trabaja en cualquier
-$bb(F)_b$.
+$cal(F)_b$.
 
 
 ==== Soluciones <algorithm-mean-solutions>
@@ -1172,7 +1197,7 @@ utilizan para implementar la acumulación y se ve que si
 - $i in bb(I)_k$
 - $v in bb(X)_(b,f)^m$
 
-Entonces la variable para acumular $"res"$ como dice @thm:accumulation debe
+Entonces la variable para acumular _res_ como dice @thm:accumulation debe
 pertenecer a $bb(X)_(b+k-1,f)$. La división del final es una división de punto
 fijo que pierde precisión pues se divide entre $m in bb(N)^+$
 como dice el @thm:fixed-division-set. Como $m > 1$, se sabe que:
@@ -1194,7 +1219,7 @@ Luego $"res" div m in [-2^(b-1), 2^(b-1)-1]$ y además $"res" div m in bb(X)_(b,
 
 #pagebreak(weak:true)
 /* ==== V A R I A N Z A ==================================================== */
-=== Varianza <algorithm-variance>
+=== Varianza <sec:algorithm-variance>
 La varianza se define como:
 
   $ "Var"(v, m) = sum_(i=1)^m (x - mu (v, m))^2 $
@@ -1246,12 +1271,12 @@ Sin contar los numerosos problemas que acarrea utilizar punto flotante:
   $"res" + (v(i) - mu')^2$.
 
 ==== Soluciones <algorithm-variance-solutions>
-Cuando los números son uniformes @uniform tenemos propiedades interesantes.
+Cuando los números son uniformes (@uniform) se derivan propiedades interesantes.
 Por ejemplo, en el supuesto en que $v(i) - mu'$ fuera uniforme, su cuadrado
 también lo será según el @thm:uniform-conv-product.
 
-Además como se vio en la función media es (@algorithm-mean-problems), su
-resultado también está en el conjunto que los elementos del vector:
+Además, como se vio en la función media (@algorithm-mean-problems), su
+resultado también está en el mismo conjunto que los elementos del vector:
 
   $ mu: bb(X)_(b,f)^m -> bb(N)^+ -> bb(X)_b $
 
@@ -1259,8 +1284,8 @@ De esta manera si estamos trabajando en $bb(U)_b$, también se sigue cumpliendo:
 
   $ mu: bb(U)_b^m -> bb(N)^+ -> bb(U)_b $
 
-Se decide entonces trabajar con $v in bb(U)_b^m, m > 0$ e $i in bb(I)_B$.
-Entonces $mu' in bb(U)_b$. El problema es que:
+Se decide entonces trabajar con $v in bb(U)_b^m, m > 0$ e $i in bb(I)_B$,
+entonces $mu' in bb(U)_b$. El problema es que:
 
   $ v(i) - mu' in (-2, 2) $
 
@@ -1278,7 +1303,7 @@ Y por tanto:
   $ (v(i) div 2 - mu' div 2)^2 in (0, 1) $
 
 En este caso se va a definir la función «cuarto de la varianza», que computa
-la cuarta parte de la varianza y sin desunifromizar. Esto se debe a que varios
+la cuarta parte de la varianza y sin desuniformizar. Esto se debe a que varios
 algoritmos utilizan esta función y aprovechan que está dividida entre cuatro
 para aplicar optimizaciones. El diagrama de flujo se muestra en la
 @fig:flujo-varianza-final, del cual las variables son:
@@ -1288,7 +1313,7 @@ para aplicar optimizaciones. El diagrama de flujo se muestra en la
 - $v' in bb(U)_b^m$ (Por @def:unif-vector).
 - $"res" in bb(U)_(b+k-1)$ (Por el @thm:accumulation)
 
-La variable $"res"$ almacena lo que es el cuarto de la varianza. En el sexto
+La variable _res_ almacena lo que es el cuarto de la varianza. En el sexto
 paso del algoritmo se divide entre el número de elementos similar a como lo
 hace la media (@algorithm-mean-solutions):
 
@@ -1334,11 +1359,12 @@ en punto fijo binario uniforme.
 #pagebreak(weak:true)
 /* ==== E N E R G Y ======================================================== */
 === _Energy_ <sec:energy>
-La función _energy_ la define la función de referencia como la propia varianza
-que se define en la <algorithm-variance>. En este caso se extiende el algoritmo
+La función _energy_ la define la implementación de referencia como la propia
+varianza, que su vez se define en la @sec:algorithm-variance. En este caso se
+extiende el algoritmo
 del cuarto de la varianza para desuniformizar el resultado y multiplicarlo por
 cuatro. Nótese que con la implementación de punto flotante no hay problema
-porque no calcula el cuarto de la varianza, solo la de la punto fijo.
+porque no calcula el cuarto de la varianza, solo la de punto fijo.
 
 En este caso no es necesario definir el diagrama de flujo, pues es una
 única expresión dada por partes:
@@ -1346,7 +1372,7 @@ En este caso no es necesario definir el diagrama de flujo, pues es una
   $ q = "conv"_(b,1-b) ("quarter_variance"(v)), v in bb(U)_b $
 
 $q$ es el cuarto de la varianza, se ha convertido a un tipo en punto fijo
-uniforme de $b$ _bits_, una operación que puede hacer que se pierda
+uniforme de $b$ bits, una operación que puede hacer que se pierda
 información, pero por razones prácticas se va a ignorar.
 
 Este valor no es el real, además de estar dividido entre cuatro, está
@@ -1355,7 +1381,7 @@ el cuadrado del valor uniformizado:
 
   $ (v(i) div 2 - mu' div 2)^2 in (-1, 1) $
 
-Por <def:unif-valor> el valor $v(i)$ que está uniformizado está implícitamente
+Por la @def:unif-valor el valor $v(i)$ que está uniformizado está implícitamente
 multiplicado por $1 / 2^(f+b-1)$, de igual manera la media $mu'$ también está
 implícitamente multiplicada por el mismo valor. Suponiendo
 $mu' = mu'' / 2^(f+b-1)$ y que $v(i) = v''(i) / 2^(f+b-1)$, la expresión:
@@ -1369,8 +1395,8 @@ dos veces.
   $ q'' = "unif"_(b,f)^(-1) ("unif"_(b,f)^(-1) (q)) in bb(X)_(b,f) $
 
 Finalmente, el resultado hay que multiplicarlo por cuatro, es decir, son
-necesarios dos _bits_ addicionales para almacenar el valor. Se puede ver que
-$4 in bb(X)_(3,0)$ y según el @thm:conv-bit-cond:
+necesarios dos bits addicionales para almacenar el valor. Se puede ver que
+como $4 in bb(X)_(3,0)$ y según el @thm:conv-bit-cond:
 
   $ 4 q'' in bb(X)_(b+3-1,f+0) = bb(X)_(b+2,f) $
 
@@ -1379,8 +1405,8 @@ debe ser convertible desde $bb(X)_(b+2,f)$, pues:
 
   $ "energy"(v) = 4 q'' in bb(X)_(b+2,f) $
 
-Es decir, si $bb(X)_(b',f')$ es el tipo del resultado según el
-@thm:conv-bit-cond se debe cumplir que $b' >= b + 2 + (f - f')$ para que
+Es decir, si $bb(X)_(b',f')$ es el tipo del resultado, según el
+@thm:conv-bit-cond, se debe cumplir que $b' >= b + 2 + (f - f')$ para que
 $"conv"_(b',f') ("energy"(v)) in bb(X)_(b',f')$.
 
 /* ==== S I M P S O N ====================================================== */
@@ -1388,7 +1414,7 @@ $"conv"_(b',f') ("energy"(v)) in bb(X)_(b',f')$.
 === Regla de _Simpson_ <sec:simpson>
 ==== Regla de Simpson para datos irregularmente espaciados
 La regla de Simpson, en honor de Thomas Simpson,  es un método para aproximar
-integrales, hay un caso específico para integrar datos irregularmente
+integrales; existe un caso específico para integrar datos irregularmente
 espaciados @simpson.
 
 Sean el límite de integración inferior $a in bb(R)$ y el límite de integración
@@ -1449,11 +1475,11 @@ luego
                 &", si " N equiv 1 ("mód" 2),
                 0 & ", si no") $
 
-Además los valores $f_k$ vienen dados por el vector de valores uniformememente
+Además, los valores $f_k$ vienen dados por el vector de valores uniformememente
 espaciados de entrada $v (k+1) = f_k$, $v in bb(R)^(N-1)$.
 
 ==== Algoritmo
-El algoritmo es similar al de una acumulación, dado un vector de $m$ elementos
+El algoritmo es similar al de una acumulación. Dado un vector de $m$ elementos
 $v in bb(Q)^m$ con elementos igualmente espaciados en $h in bb(Q)$ unidades,
 se deduce el algoritmo de la @fig:algorithm-simpson. Nótese que el paso *7*
 comprueba que $m$ es par en vez de impar, porque si hay $m$ valores hay $m - 1$
@@ -1504,12 +1530,12 @@ intervalos.
 Nótese en la @fig:algorithm-simpson que en vez de indexar en el paso *4* con
 $v(i)$, $v(i+1)$ y $v(i+2)$, se empeiza a contar en $3$ y se indexa en
 $v(i-2)$, $v(i-1)$ y $v(i)$ respectivamente. Esto se debe a que comprobar que
-no desborda en el límite superior del vector es más complicado que empezar más
+no desborda en el límite superior del vector es más complicado que empezar
 después. Se pueden ver las propiedades del bucle utilizando inducción:
 
 1. *Caso base*: Al inicio del bucle $i = 3$, y el indexado del vector está
    definido para $v(i-2) = v(1)$, $v(i-1) = v(2)$ y $v(i) = v(3)$. Porque
-   además sabemos que $i <= m$.
+   además se sabe que $i <= m$.
 2. *Hipótesis inductiva*: En la $n"-ésima"$ iteración, $i = 3 + 2 n <= m$ y los
    valores $v(i-2) = v(2 n + 1)$, $v(i-1) = v(2 n + 2)$ y $v(i) = v(2 n + 3)$
    suponemos que están definidos.
@@ -1607,8 +1633,8 @@ La suma de ambas sumas también está acotada:
         in [-6 s 2^(b-1) 2^f, 6 s (2^(b-1)-1) 2^f] $
 
 Los sumandos que faltan son $v(1) + v(n') + 4 v(n'')$, como
-$v in bb(X)_(b,f)^m$, se puede ver las suma de esos tres valores como
-$6 x, x in bb(X)_(b,f)$, como $6 in bb(X)_(3,0)$ de acuerdo con el
+$v in bb(X)_(b,f)^m$, se puede ver las suma de esos tres valores como si fuera
+$6 x$ para algún $x in bb(X)_(b,f)$, como $6 in bb(X)_(3,0)$ de acuerdo con el
 @thm:conv-bit-cond:
 
   $ v(1) + v(n') + 4 v(n'') in [-6 dot.c 2^(b-1) 2^f, 6 (2^(b-1)-1) 2^f] $
@@ -2110,6 +2136,7 @@ el conjunto abierto $(-1, 1)$.
 ] <thm:abs-prod-prod-abs>
 
 #proof[
+
   Dados $x = "Re"{x} + "Im"{x}j, x in bb(C)$ e
   $y = "Re"{y} + "Im"{y}j, y in bb(C)$, donde $j=sqrt(-1)$ es la unidad
   imaginaria.
@@ -2164,12 +2191,13 @@ donde $j = sqrt(-1)$.
 ]
 
 #theorem[
-  Dado $x in bb(C)$, entonces
-  $abs(x) < a => abs("Re"{x}) < a and abs("Im"{x}) < a$, $a in bb(R), a >= 1$.
+  Sea $x in bb(C)$ tal que $abs(x) < a$ entonces
+  $abs("Re"{x}) < a and abs("Im"{x}) < a$, $a in bb(R), a >= 1$.
 ] <thm:abs-parts>
 
 #proof[
-  Dado $x in bb(C)$, con $abs(x) < 1$:
+
+  Dado $x in bb(C)$, con $abs(x) < a$:
 
     $ abs(x) =& sqrt("Re"{x}^2 + "Im"{x}^2) < a \
             =>& "Re"{x}^2 + "Im"{x}^2 < a^2
@@ -2182,7 +2210,7 @@ donde $j = sqrt(-1)$.
 ]
 
 #theorem(title: [Desigualdad triangular])[
-  Dados $x, y in bb(C)$, $abs(x + y) <= abs(x) + abs(y)$
+  Dados $x, y in bb(C)$, se cumple que $abs(x + y) <= abs(x) + abs(y)$.
 ] <thm:triangular>
 
 En el *paso 16* se computa:
@@ -2221,7 +2249,7 @@ utilizar el conjunto uniforme $bb(U)_b$, y al final se reescala el resultado.
 === _Welch_ <sec:welch>
 El método de Welch, también conocido como el método de periodograma, se utiliza
 para estimar la densidad espectral y consiste en dividir la señal temporar en
-bloques sucesivo, formar el periodograma de cada bloque y hacer la media
+bloques sucesivos, formar el periodograma de cada bloque y hacer la media
 @SpectralAudioSignalProcessing.
 
 Se denota el $m$-ésimo marco al que se le ha aplicado una ventana $w$ y que ha
@@ -2299,15 +2327,15 @@ $mu_(w,n)$ que depende de la función de ventana y se calcula como:
 ) <fig:algorithm-welch>
 
 ==== Análisis de punto fijo
-Los dos pasos más problemáticos son el la suma del *paso 4* y la división del
+Los dos pasos más problemáticos son el de la suma del *paso 4* y la división del
 *paso 5*. Para solucionarlos se va a utilizar una técnica inspirada en la
 solución propuesta para la transformada rápida de Fourier de la @sec:fft-fixed.
 
 La señal que retorna la transformada de Fourier está uniformizada y está
 escalada, así que se puede suponer que el resultado de la transformada de
 Fourier es un vector de valores uniformes $bb(U)_b subset (-1, 1)$. Para no
-perder tanta precisión el tipo del vector $"Pxx"$ será uno uniforme con el
-doble de _bits_, es decir $bb(U)_(2 b)$.
+perder tanta precisión el tipo del vector _Pxx_ será uno uniforme con el
+doble de bits, es decir $bb(U)_(2 b)$.
 
 A partir de ahora se va a tener una variable de tipo entero $s in bb(I)_b$ que
 almacenará el valor de reescalado y que irá incrementando en cada iteración.
@@ -2400,10 +2428,10 @@ Es una aproximación equivalente, pero sin desbordamientos.
   se ha dividido entre $2^2$ y luego hay que reescalarlo. Nótese que se podría
   obtener un mejor factor de escalado si en vez de utilizar el peor caso, se
   tomara el valor absouto máximo de las normas y se escalara de acuerdo con él.
-- *Paso 7*: Los valores del vector $"Pxx"$ en este punto están divididos entre
-  el factor de escalado $2^s$, a la hora de sumar el valor antiguo de $"Pxx"$
+- *Paso 7*: Los valores del vector _Pxx_ en este punto están divididos entre
+  el factor de escalado $2^s$, a la hora de sumar el valor antiguo de _Pxx_
   con su norma $N$ es necesario que tengan el mismo factor de escalado. En este
-  paso se calculan el exponente del divisor de $"Pxx"$ ($e_l$) y el de $N$
+  paso se calculan el exponente del divisor de _Pxx_ ($e_l$) y el de $N$
   ($e_r$), y se obtiene el factor de escalado del resultado:
 
   - Si $s = s'$, recordemos que $N(k) in [0, 0.5)$, pero que $"Pxx"(k) in [0,
@@ -2769,7 +2797,7 @@ $
 $
 
 Conocer cuánto valen $i$, $F$ y $L$ en cada iteración nos permite identificar
-cuál es el dominio de $"col"$ en el bucle de iteración más anidado, pues
+cuál es el dominio de _col_ en el bucle de iteración más anidado, pues
 depende de los valores de $L$ y de $F$:
 
 $
@@ -2783,6 +2811,7 @@ $
 Además se puede demostrar que $L - F in [w, 2 w]$, por casos:
 
 #proof[
+
 - *$"row" < w + 1$:* Como $L - F = "row" + w - 1$ y como $1 <= "row" < w$
   $=> 1 + w <= "row" + w < 2 w$ $=> w <= "row" + w - 1 < 2 w - 1$.
 - *$"row" = w + 1$:* Como $L - F = "row" + w - 1 = w + w + 1 - 1 = 2 w in [w, 2 w]$
@@ -2796,6 +2825,7 @@ valor que tendría $i$ al final del bucle en el *paso 10*. Se puede demostrar
 por casos que $i in [1 .. w]$ y que $i + L - F in [w + 1, 2 w + 1]$.
 
 #proof[
+
 - *$"row" < w + 1$*:
   1. $i = w - "row" + 2$, como $1 <= "row" < w + 1$ $=> -1 < w - "row" <= w - 1 $
     $=> 1 < w - "row" + 2 <= w + 1 $. $i in [2, w+1] subset [1, w+1]$
