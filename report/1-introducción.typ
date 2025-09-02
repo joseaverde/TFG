@@ -23,7 +23,7 @@ un paciente en tiempo real.
 
 Finalmente se quería estudiar cuál es el impacto del paralelismo en el tiempo
 de ejecución del programa de entrenamiento del modelo, pues consume mucha
-energía y tiempo ejecutarlo y cualquier mejora es disponible; y también qué
+energía y tiempo ejecutarlo y cualquier mejora es necesaria; y también qué
 técnicas se podrían aplicar a los algoritmos para mejorar su rendimiento en
 máquinas de bajas características computacionales.
 
@@ -67,7 +67,6 @@ El documento contiene los siguientes capítulos:
 - Capítulo 2 -- #link(label("sec:2"), [_Estado del arte_]), un análisis del
   estado de la cuestión, qué temas son relevantes y qué estudios existen al
   respecto. Analiza estudios sobre detección de ataques epilépticos,
-  arquitecturas y juegos de instrucciones, representación de valores numéricos,
   demostraciones interactivas de teoremas y técnicas de programación.
 
 - Capítulo 3 -- #link(label("sec:3"), [_Análisis_]), estudia y analiza los

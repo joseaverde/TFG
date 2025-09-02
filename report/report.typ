@@ -90,7 +90,7 @@
     Universidad Carlos III de Madrid, por haber estado a mi lado y por haberme
     ayudado cuando lo necesitaba. A Santiago, por haberme ayudado con partes
     más técnicas del desarrollo, por haberse quedado conmigo horas y horas
-    depurando el programa. Gracias a él funciona mi `CMakeFiles.txt`. A Álvaro
+    depurando el programa. Gracias a él funciona mi `CMakeLists.txt`. A Álvaro
     Guerrero y a Lucía por haberme ayudado con varias demostraciones y a
     depurar y discutir distintas soluciones para varios problemas. Y al resto
     de compañeros del laboratorio de ARCOS: a Diego, a Álvaro, a Daniel y a

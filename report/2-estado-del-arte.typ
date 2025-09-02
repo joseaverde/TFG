@@ -15,26 +15,27 @@ Según la Organización Mundial de la Salud, la epilepsia es una enfermedad
 crónica que afecta al cerebro y a gente de todas las edades. Se calcula que
 alrededor de 50 millones de personas en todo el mundo la padecen,
 lo que la posiciona como una de las afecciones neurológicas más comunes de todo
-el mundo. El riesgo de muerte prematura es tres veces mayor a resto de
-la población.
+el mundo @WHOEpilepsy. El riesgo de muerte prematura es tres veces mayor a
+resto de la población @WHOEpilepsy.
 
 Además los ataques epilépticos se pueden controlar, alrededor del 70% de la
 gente que sufre de epilepsia puede vivir sin experimentar ninguno con las
-medicación apropiada. Una etiología documentada de la epilpsia o patrones
-anormales de encefalografía son los predictores más consitentes de epilepsia
-@WHOEpilepsy.
+medicación apropiada @WHOEpilepsy. Una etiología documentada de la epilpsia o
+patrones anormales de encefalografía son los predictores más consitentes de
+epilepsia @WHOEpilepsy.
 
 Una evaluación de detección de ataques epilépticos utilizando clasificadores de
 apredizaje automático explica que aplicar aprendizaje automático directamente
 sobre el conjunto de datos de encefalografía en bruto puede no producir
-patrones sensatos. Por lo tanto, seleccionar las características estadísticas
-de la señal de encefalograma es crucial, entre ellas se encuentran distintas
-técnicas de transformación como: transformaciones de ondículas discretas
-(_discrete wavelet transformation_ o DWT), transformaciones de ondículas
-continuas (_continuous wavelet transformation_ o CWT), transformadas de Fourier
-(_Fourier transformation_, FT), transformaciones de conseno discretas
-(_discrete cosine transformation_ o DCT), descomposición en valores singulares
-(_singular value decomposition_ o SVD) entre otras @siddiqui2020review.
+patrones sensatos  @siddiqui2020review. Por lo tanto, seleccionar las
+características estadísticas de la señal de encefalograma es crucial, entre
+ellas se encuentran distintas técnicas de transformación como: transformaciones
+de ondículas discretas (_discrete wavelet transformation_ o DWT),
+transformaciones de ondículas continuas (_continuous wavelet transformation_ o
+CWT), transformadas de Fourier (_Fourier transformation_, FT), transformaciones
+de conseno discretas (_discrete cosine transformation_ o DCT), descomposición
+en valores singulares (_singular value decomposition_ o SVD) entre otras
+@siddiqui2020review.
 
 === PaFESD: _Patterns Augmented by Features Epileptic Seizure Detection_
 O patrones aumentados por características de detección de ataques epilépticos,
@@ -85,12 +86,13 @@ grupo fundamental de un círculo en teoría de tipos homotópicos
 @FundamentalGroupOfTheCircle.
 
 === _Lean_
-_Lean_ es a la vez un probador de teoremas y un lenguaje de programación, que
+_Lean_ es a la vez un probador de teoremas y un lenguaje de programación, cuyo
+compilador está escrito en #cxx y en el propio _Lean_, que
 permite escribir código correcto, mantenible y verificado formalmente
-@LeanLang. Hoy en día el su desarrollo está apoyado por la organización sin
+@LeanLang. Hoy en día su desarrollo está apoyado por la organización sin
 ánimo de lucro _Lean Focused Research Organization_ (FRO) @LeanFRO. Un ejemplo
 de cómo definir los números naturales (cero incluido) basándose en los axiomas
-de Peano en Lean se ve en la @fig:LeanPeano:
+de Peano en _Lean_ se ve en la @fig:LeanPeano:
 
 #code(
   caption: [Axiomas de Peanno en Lean],
@@ -113,9 +115,10 @@ políticas de seguridad @SPARKBook.
 SPARK 2014 está basado en un subconjunto del lenguaje de programación Ada. Ada
 es particularmente apto para la verificación formal pues fue diseñado para
 desarrollo de _software_ crítico, el cual usa de base. Ada 2012 introdujo el
-uso de aspectos que se pueden utilizar para denotar contratos en subrutinas.
-Además SPARK 2014 también añade sus propios aspectos para extender la capacidad
-de análisis estático @learnSPARK, como se muestra en la @fig:vennspark
+uso de aspectos que se pueden utilizar para denotar contratos en subrutinas
+@Ada2012PrePost.  Además SPARK 2014 también añade sus propios aspectos para
+extender la capacidad de análisis estático @learnSPARK, como se muestra en la
+@fig:vennspark
 
 #figure(
   image("img/01_spark_ada.png", width: 60%),
@@ -131,7 +134,8 @@ realizar demostraciones interactivas de teoremas @SPARKaltprovers.
 Por ejemplo, el siguiente programa en SPARK (@lst:2-example-1), que también es
 compatible con Ada y puede compilarse utilizando un compilador de Ada, tiene
 varios problemas: que las funciones `Get` y `Put` pueden lanzar excepciones
-inesperadas y que `X + Y` puede desbordar. Y SPARK es capaz de reconocerlos.
+de entrada y salida, y que `X + Y` puede desbordar. Y SPARK es capaz de
+reconocerlos.
 
 #code(
   caption: [Ejemplo de programa válido en Ada y SPARK, pero en el que pueden
@@ -158,8 +162,8 @@ end Program;
 ```]
 
 Para solucionar el problema de las excepciones basta con añadir un bloque para
-tratar excepciones inesperadas con `exception when others =>`. Para la suma
-es más complicado, pues es la entrada del usuario y este puede introducir
+tratar excepciones entrada y salida con `exception when others =>`. Para la
+suma es más complicado, pues es la entrada del usuario y este puede introducir
 cualquier valor. Una opción es utilizar un tipo más grande para almacenar el
 resultado; otra opción sería utilizar un subrango de valores válidos para `X`
 e `Y`; y otra opción podría ser identificar el desbordamiento o
@@ -206,7 +210,7 @@ se define implícitamente para el tipo entero (`Integer`). Sin embargo, hay uno 
 dos posibles puntos de fallo: el primero, y más obvio, es que la división entre
 cero no está definida; el segundo, y solamente en ciertos computadores que por
 ejemplo codifican los valores enteros en complemento a dos, es que la división
-entre $-1$ deborda no está definida cuando el numerador es $-2^(n-1)$ en un
+entre $-1$ desborda, no está definida cuando el numerador es $-2^(n-1)$ en un
 entero de $n$ bits, pues $(-2^(n-1))/(-1) = 2^(n-1)$ no se puede codificar en un
 entero de $n$ bits. En SPARK y en Ada se puede definir dicha propiedad como
 se muestra en el @lst:spark-div-pre.
@@ -256,7 +260,7 @@ hacerlas combinables y menos propensas a errores @cppreferenceRanges.
 
 ==== _range-v3_
 Es la biblioteca original en la que se basa la biblioteca de rangos del
-estándar de C++ se llama _range-v3_ y fue desarrollada por Eric Niebler
+estándar de C++, se llama _range-v3_ y fue desarrollada por Eric Niebler
 @rangev3. Contiene más vistas y acciones que las que están estadarizadas en
 #cxx 23 y es compatible con las del estándar. Una parte de las funciones
 estandarizadas todavía no han sido implementadas en los compiladores de #cxx
@@ -269,7 +273,7 @@ Un ejemplo de uso se puede ver en el @lst:2-cpp-range-v3.
 )[```cpp
 constexpr auto result = accumulate
                       ( views::ints(0)
-                      | views::remove_if([](int i){return i % 2 == 1;})
+                      | views::remove_if([](int i){ return i % 2 == 1; })
                       | views::transform([](int i){ return i * i; );
                       | views::take(3)
                       );
@@ -290,24 +294,24 @@ notación punto (`.`), como se puede ver en el @lst:2-cpp-flux.
   caption: [Ejemplo de uso de la biblioteca _flux_ para rangos.],
   tag: "lst:2-cpp-flux"
 )[```cpp
-constexpr auto result = flux::ints()                        // 0,1,2,3,...
-                         .filter(flux::pred::even)          // 0,2,4,6,...
-                         .map([](int i) { return i * 2; })  // 0,4,8,12,...
-                         .take(3)                           // 0,4,8
-                         .sum();                            // 12
+constexpr auto result = flux::ints()
+                         .filter(flux::pred::even)
+                         .map([](int i) { return i * 2; })
+                         .take(3)
+                         .sum();
 
 static_assert(result == 12);
 ```]
 
 === Paralelismo
 El paralelismo es un conjunto de técnicas que permite realizar varias tareas de
-manera simultánea para mejorar su eficiencia. En aplicaciones hay básicamente
-dos tipos de paralelismo:
+manera simultánea para mejorar su eficiencia @ComputerArchitecture. En
+aplicaciones hay básicamente dos tipos de paralelismo:
 
 1. Paralelismo a nivel de datos (_data-level parallelism_ o DLP): nace de la
-   posibilidad de operar muchos datos al mismo tiempo.
+   posibilidad de operar muchos datos al mismo tiempo @ComputerArchitecture.
 2. Paralelismo a nivel de tarea (_task-level parallelism_ o TLP): aparece
-   porque distintos trabajos pueden operar de manera independiente.
+   porque distintos trabajos pueden operar de manera independiente @ComputerArchitecture.
 
 A nivel de _hardware_ se pueden explotar esos dos tipos de paralelismo en
 aplicaciones de cuatro maneras distintas:
@@ -315,15 +319,16 @@ aplicaciones de cuatro maneras distintas:
 1. Paralelismo a nivel de instrucción (_instruction-level parallelism_ o ILP):
    que explota el paralelismo a nivel de datos modestamente con ayuda del
    compilador y utiliza ideas como el _pipeline_ (cadena de montaje) y a veces
-   utilizando ejecución especulativa.
+   utilizando ejecución especulativa @ComputerArchitecture.
 2. Arquitecturas vectoriales (_vector architectures_), unidades de
    procesamiento gráfico (_graphic processor units_ o GPU) y juegos de
    instrucciones multimedia (_multimedia instruction sets_): que explotan el
    paralelismo a nivel de datos al aplicar una única instrucción a una
-   colección de datos en paralelo.
+   colección de datos en paralelo @ComputerArchitecture.
 3. Paralelismo a nivel de hilo (_thread-level parallelism_): que explota tanto
    paralelismo a nivel de datos o a nivel de tarea en un modelo de _hardware_
-   fuertemente acoplado que permite la interacción entre hilos paralelos.
+   fuertemente acoplado que permite la interacción entre hilos paralelos
+   @ComputerArchitecture.
 4. Paralelismo a nivel de petición (_request-level parallelism_): que explota
    el paralelismo entre tareas fuertemente desacopladas especificadas por el
    programador o el sistema operativo @ComputerArchitecture.
@@ -435,10 +440,10 @@ std::for_each(std::execution::par, std::begin(a), std::end(a), [&](int)
 La ejecución de un programa en Ada consiste en la ejecución de una o más
 tareas. Cada tarea representa una actividad separable que procede
 independientemente y concurrentemente entre puntos en los que interactúa con
-otras tareas. Una única tarea, en el contexto de una construcción paralela,
-puede representar múltiples hilos lógicos de control que pueden proceder en
-paralelo; en otros contextos, cada tarea representa un hilo lógico de control
-@ISOAda2022. Véase el @lst:2-ada-task.
+otras tareas @ISOAda2022. Una única tarea, en el contexto de una construcción
+paralela, puede representar múltiples hilos lógicos de control que pueden
+proceder en paralelo; en otros contextos, cada tarea representa un hilo lógico
+de control @ISOAda2022. Véase el @lst:2-ada-task.
 
 #code(
   caption: [Implementación de la suma paralela de los elementos de un vector
