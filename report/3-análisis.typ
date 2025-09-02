@@ -55,15 +55,17 @@ paciente, que quiere detectar sus propios ataques epilépticos; y el doctor,
 que puede ser un médico o un investigador que se encarga de entrenar el modelo
 para posteriormente detectar ataques epilépticos.
 
-#srs.show-template(reqs, srs.make-tag("CU"))
+#srs.show-template(reqs, srs.make-tag("CU"), "cu-template")
 
-#srs.show-items(reqs, srs.make-tag("CU"),
+#srs.show-items(
+  reqs,
+  srs.make-tag("CU"),
   // custom formatter bc use cases are ✨special✨
   formatter: srs.defaults.table-item-formatter-maker(
-    namer: srs.defaults.field-namer-maker("Nombre"),
-    tagger: srs.defaults.item-tagger-maker(prefix: none), // e.g.: @srs:uc-detect
     style: (columns: (8em, 1fr), align: left),
-    breakable: true))
+    breakable: true,
+  ),
+)
 
 #figure(
   image("uml/casos-de-uso.svg", width: 70%),
@@ -90,27 +92,28 @@ formato:
 - *Requisitos no funcionales*: `RNF-XX`, donde `XX` es un valor numérico de dos
   cifras, que comienza en `01` y que crece monótonamente de uno en uno.
 
-La @srs:requisito-funcionales-template muestra el formato de los requisitos
-funcionales y la @srs:requisito-no-funcional-template de los no funcionales.
+La @srs:rf-template muestra el formato de los requisitos
+funcionales y la @srs:rnf-template de los no funcionales.
 
 === Requisitos funcionales
-#srs.show-template(reqs, srs.make-tag("R", "F"))
-#srs.show-items(reqs, srs.make-tag("R", "F")) // e.g.: @srs:rf-binding
+#srs.show-template(reqs, srs.make-tag("R", "F"), "rf-template")
+#srs.show-items(reqs, srs.make-tag("R", "F"))
 
 === Requisitos no funcionales
-#srs.show-template(reqs, srs.make-tag("R", "N"))
-#srs.show-items(reqs, srs.make-tag("R", "N")) // e.g.: @srs:rnf-better
+#srs.show-template(reqs, srs.make-tag("R", "N"), "rnf-template")
+#srs.show-items(reqs, srs.make-tag("R", "N"))
 
 == Análisis de requisitos <sec:3-análisis-de-requisitos>
 Finalmente, las siguientes dos matrices de trazabilidad nos permiten ver la
 relación de cada requisito con cada caso de uso para determinar la cobertura y
-el grado de dependencia entre ambos.
+el grado de dependencia entre ambos. La primera (@srs:R-F-traceability) relaciona los
+requisitos funcionales con los casos de uso, las segunda (@srs:R-N-traceability)
+relaciona los requisitos no funcionales con los casos de uso. Se puede ver
+que todos los requisitos cubren todos los casos de uso, y no hay requisitos sin
+relación con ningún caso de uso.
 
-// La @tab:matrix-rf relaciona requisitos funcionales con casos de uso y la
-// @tab:matrix-rnf relaciona requisitos no funcionales con casos de uso. Como se
-// puede ver todos los casos de uso están cubiertos.
-// TODO: Decir más cosas, no sé
-// TODO: Añadir orígenes.
+#srs.show-traceability(reqs, srs.make-tag("R", "F"))
+#srs.show-traceability(reqs, srs.make-tag("R", "N"))
 
 == Arquitectura <sec:3-arquitectura>
 La arquitectura se del sistema se puede separar en cuatro componentes
@@ -128,15 +131,16 @@ principales:
 El diagrama UML se resume en la @arquitectura, donde se pueden ver los
 distintos componentes y su relación entre ellos.
 
-#srs.show-template(reqs, srs.make-tag("C"))
+#srs.show-template(reqs, srs.make-tag("C"), "comp-template")
 
-#srs.show-items(reqs, srs.make-tag("C"),
-  // custom formatter bc use cases are ✨special✨
+#srs.show-items(
+  reqs,
+  srs.make-tag("C"),
   formatter: srs.defaults.table-item-formatter-maker(
-    namer: srs.defaults.field-namer-maker("Nombre"),
-    tagger: srs.defaults.item-tagger-maker(prefix: none), // e.g.: @srs:c-detector
     style: (columns: (8em, 1fr), align: left),
-    breakable: false))
+    breakable: false,
+  ),
+)
 
 #[
   #set page(flipped: true)

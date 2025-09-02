@@ -28,14 +28,21 @@ que es correcto el programa.
 Puesto que como se ve en la @sec:3-análisis-de-requisitos, todos los requisitos
 cubren todos los casos de uso. Solo basta con demostrar que todos los
 requisitos están cubiertos para validar y verificar el programa. La
-@srs:test-template muestra la plantilla que van a seguir los tests. La única
+@srs:t-template muestra la plantilla que van a seguir los tests. La única
 prueba que no se puede realizar es la relacionada al requisito de la
 @srs:rnf-f1, pues no hay forma de asegurarse de que el modelo que va a la placa
 tiene esa mínima puntuación.
 
-#srs.show-template(reqs, srs.make-tag("T"))
-#srs.show-items(reqs, srs.make-tag("T")) // e.g.: @srs:t-no-fallo
+#srs.show-template(reqs, srs.make-tag("T"), "t-template")
+#srs.show-items(reqs, srs.make-tag("T"))
 
+#srs.show-traceability(reqs, srs.make-tag("T"), comparing-tag: srs.make-tag("R", "F"))
+
+#[
+  #set page(flipped: true)
+  #set align(horizon)
+  #srs.show-traceability(reqs, srs.make-tag("T"), comparing-tag: srs.make-tag("R", "N"))
+]
 
 #pagebreak()
 

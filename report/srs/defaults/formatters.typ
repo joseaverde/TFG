@@ -1,69 +1,39 @@
+//! Default formatters and auxiliar functions
+
+
 #import "../utils.typ": *
 #import "locale.typ" as locale
+#import "../items.typ": (
+  get-all-items, get-class, get-class-namer-identifier, get-full-class,
+  get-item, get-item-name-id, tag-to-class-tree,
+)
 
 
 
-/// This function creates a dummy item from a FULL class specification, where
-/// the values are just the default values.
+/// This function returns a labeled table with the specified `contents`.
 ///
-/// - class (dictionary): The class.
-/// -> dictionary
-#let _class-as-template-item(class) = {
-  return (
-    fields: class
-      .fields
-      .map(field => {
-        (
-          field.name,
-          if type(field.value) == dictionary [
-            // for enumerated value types, include their default values
-            #field.description (#for (i, v) in (
-              field.value.values().enumerate()
-            ) [#emph(v)#if i != field.value.len() - 1 { ", " }])
-          ] else {
-            field.description
-          },
-        )
-      })
-      .to-dict(),
-  )
-}
-
-/// This function returns a labeled table for the given `item` associated to
-/// the given `class`.
+/// The label will be `srs:<id>`.
 ///
-/// The table's label will take the form `srs:<tag>`.
-///
-/// - class (dictionary): The FULL class
-/// - item (dictionary): The item
-/// - tag (str): Item tag, used to identify it.
+/// - contents (array): The table's contents.
+/// - id (str): Unique item ID, used in the label.
 /// - caption (content, str): The table's caption
 /// - language (str): Language to use.
 /// - breakable (bool): Whether the table can span multiple pages.
+/// - justify (array): Justification of the two columns, e.g. (true, false)
 /// - style (dictionary): Parameters to pass to the table, e.g. `(columns: (1fr, 1fr), gutter: 1em)`
 /// -> content
 #let table-formatter(
-  class,
-  item,
-  tag,
+  contents,
+  id,
   caption,
   language,
-  breakable,
+  breakable: false,
+  justify: (false, true),
   style: (columns: 2),
 ) = {
   show figure: set block(breakable: breakable)
-  show table.cell.where(x: 0): set par(justify: false)
-
-  let contents = ()
-  for field in class.fields {
-    contents.push([*#field.name*])
-    let value = item.fields.at(field.name, default: [])
-    if field.value == "content" or type(value) == content {
-      contents.push(value)
-    } else {
-      contents.push([#field.value.at(value)])
-    }
-  }
+  show table.cell.where(x: 0): set par(justify: justify.at(0))
+  show table.cell.where(x: 1): set par(justify: justify.at(1))
 
   [
     #figure(
@@ -77,33 +47,128 @@
         ..contents,
       ),
     )
-    #label("srs:" + tag)
+    #label("srs:" + id)
   ]
 }
+
+#let traceability-table-formatter(
+  contents,
+  id,
+  caption,
+  language,
+  breakable: false,
+  rotation-angle: 0deg,
+  displacement: -0em,
+  style: none,
+  column_size: auto,
+) = {
+  if rotation-angle == 0deg {
+    displacement = 0em
+  }
+  // Wrap traceability matrix in a figure with label
+  show figure: set block(breakable: breakable)
+  // Center all cells for matrix layout
+  show table.cell: set align(center)
+  // Determine number of columns from header row
+  let ncols = contents.at(0).len()
+  // Build an array of 1fr repeated for each column
+  let columns = ()
+  for _ in range(ncols) {
+    columns.push(column_size) // 1fr or 8em, for a good fit
+  }
+  let header-row = contents.at(0)
+  let processed-headers = header-row
+    .enumerate()
+    .map(pair => {
+      let (i, header) = pair
+      if i > 0 {
+        table.cell(
+          align: center,
+          inset: auto,
+        )[#move(
+          dy: displacement,
+        )[#rotate(rotation-angle)[#header]]]
+      } else if i == 0 {
+        // First cell gets no top/left borders
+        table.cell(stroke: (
+          top: none,
+          left: none,
+        ))[#header]
+      } else {
+        header
+      }
+    })
+  [
+    #figure(
+      caption: caption,
+      table(
+        stroke: (x, y) => {
+          let default_stroke = 1pt + black
+          if x == 0 and y == 0 {
+            // Top-left cell: no top or left borders
+            (
+              top: none,
+              left: none,
+              right: default_stroke,
+              bottom: default_stroke,
+            )
+          } else if x == 0 and y > 0 {
+            // First column (row headers): no left border
+            (
+              top: default_stroke,
+              left: none,
+              right: default_stroke,
+              bottom: default_stroke,
+            )
+          } else if y == 0 and x > 0 {
+            // First row (column headers): no top border
+            (
+              top: none,
+              left: default_stroke,
+              right: default_stroke,
+              bottom: default_stroke,
+            )
+          } else {
+            default_stroke
+          }
+        },
+        ..style,
+        columns: columns,
+        // First row of contents is header
+        table.header(
+          ..processed-headers,
+        ),
+        // Remaining rows are data rows - flatten them
+        ..contents.slice(1).flatten(),
+      ),
+    )
+    #label("srs:" + id)
+  ]
+}
+/* FORMATTERS */
+
+
 
 /// Returns an item formatter that formats the item as a table.
 ///
 /// The table's label will have the form `srs:<tag>`, where `<tag>` is the result of calling `tagger`.
 ///
-/// - namer (function): Function to format the item's name, of form `(class, item, id, index) -> str`.
-/// - tagger (function): Function to format the item's tag, of form `(class, item, id, index) -> str`.
 /// - language (str, auto): Language of the captions. If `auto`, it will use the one in `config.language`
 /// - breakable (bool): If the table can be broken in several pages.
-/// - style (dictionary): Parameters to pass to the table, e.g. `(columns: (1fr, 1fr), gutter: 1em)`
+/// - justify (array): Justification of the two columns, e.g. (true, false)
+/// - style (dictionary): Parameters to pass to the table, e.g. `(columns: (1fr, 1fr), align: left, gutter: 1em)`
 /// -> function
 #let table-item-formatter-maker(
-  namer: none,
-  tagger: none,
   language: auto,
   breakable: false,
+  justify: (false, true),
   style: (columns: 2),
 ) = {
-  assert(namer != none, message: "Missing argument 'namer'")
-  assert(tagger != none, message: "Missing argument 'tagger'")
-  (class, item, id, index, conf-language) => {
+  (class-tag, id, item, index, config, items) => {
     // handle automatic language
     let lang = language
     if language == auto {
+      let conf-language = config.at("language", default: none)
       assert(
         conf-language != none,
         message: "Can't set `language` to `auto`. Found no `language` in the configuration",
@@ -111,13 +176,60 @@
       lang = conf-language
     }
 
+    let cls = get-full-class(config, class-tag)
+
+    // fields
+    let contents = ()
+    for class-field in cls.fields {
+      contents.push([#strong(class-field.name)])
+
+      let value = item.fields.at(class-field.name, default: [])
+      if class-field.value == "content" {
+        contents.push(value)
+      } else if type(class-field.value) == dictionary {
+        // enum
+        contents.push([#class-field.value.at(value)])
+      }
+    }
+
+    // origins
+    if cls.origins.len() != 0 {
+      contents.push([#strong(locale.ORIGINS.at(lang))])
+
+      contents.push(
+        item
+          .origins
+          .map(origin-tag => {
+            let (origin-name, origin-id) = get-item-name-id(
+              config,
+              items,
+              origin-tag,
+            )
+            [#link(label("srs:" + origin-id), origin-name)]
+          })
+          .join([, ]),
+      )
+    }
+
+    // namer/identifier
+    let (namer, identifier) = get-class-namer-identifier(config, class-tag, cls)
+    let data = (
+      class-tag,
+      id,
+      item.fields,
+      index,
+      cls.root-class-name,
+      cls.name,
+    )
+
+
     table-formatter(
-      class,
-      item,
-      tagger(class, item, id, index),
-      [#class.root-class-name "#namer(class, item, id, index)"],
+      contents,
+      identifier(..data),
+      [#cls.root-class-name "#namer(..data)"], // TODO: extract this as arg
       lang,
-      breakable,
+      breakable: breakable,
+      justify: justify,
       style: style,
     )
   }
@@ -129,21 +241,22 @@
 /// The table's label will have the form `srs:<tag>`, where `<tag>` is the result of calling `tagger`.
 ///
 /// - tagger (function): Function to format the item's tag, of form `(class, item, id, index) -> str`.
-/// - breakable (bool): If the table can be broken in several pages.
 /// - language (str, auto): Language of the captions. If `auto`, it will use the one in `config.language`
-/// - style (dictionary): Parameters to pass to the table, e.g. `(columns: (1fr, 1fr), gutter: 1em)`
+/// - breakable (bool): If the table can be broken in several pages.
+/// - justify (array): Justification of the two columns, e.g. (true, false)
+/// - style (dictionary): Parameters to pass to the table, e.g. `(columns: (1fr, 1fr), align: left, gutter: 1em)`
 /// -> function
 #let table-template-formatter-maker(
-  tagger: none,
-  breakable: false,
   language: auto,
-  style: (columns: (8em, 1fr)),
+  breakable: false,
+  justify: (false, true),
+  style: (columns: 2),
 ) = {
-  assert(tagger != none, message: "Missing argument 'tagger'")
-  (class, conf-language) => {
+  (config, tag, id) => {
     // handle automatic language
     let lang = language
     if language == auto {
+      let conf-language = config.at("language", default: none)
       assert(
         conf-language != none,
         message: "Can't set `language` to `auto`. Found no `language` in the configuration",
@@ -151,17 +264,138 @@
       lang = conf-language
     }
 
+    let class = get-full-class(config, tag)
+
+    // fields
+    let contents = class
+      .fields
+      .map(field => (
+        // field name
+        [#strong(field.name)],
+        // field description
+        if type(field.value) == dictionary [
+          // for enumerated value types, include their default values
+          #field.description (#for (i, v) in (
+            field.value.values().enumerate()
+          ) [#emph(v)#if i != field.value.len() - 1 { ", " }])
+        ] else {
+          [#field.description]
+        },
+      ))
+      .flatten()
+
+    // origins
+    // TODO: non-terminal classes...
+    if class.origins.len() != 0 {
+      contents += (
+        [#strong(locale.ORIGINS.at(lang))],
+        [#class.origins.description],
+      )
+    }
+
     table-formatter(
-      class,
-      _class-as-template-item(class),
-      tagger(class),
-      locale.TEMPLATE.at(lang)(class.name, lower(class.root-class-name)),
+      contents,
+      id,
+      locale.TEMPLATE.at(lang)(class.name, lower(class.root-class-name)), // TODO: extract this as arg
       lang,
-      breakable,
+      breakable: breakable,
+      justify: justify,
       style: style,
     )
   }
 }
+
+
+
+#let table-traceability-formatter-maker(
+  language: auto,
+  breakable: false,
+  marker: sym.checkmark,
+  rotation-angle: 0deg,
+  style: none,
+  column_size: auto,
+) = {
+  (reqs, tag, comparing-tag) => {
+    // Handle automatic language - early return pattern
+    let lang = if language == auto {
+      let conf-language = reqs.config.at("language", default: none)
+      assert(
+        conf-language != none,
+        message: "Can't set `language` to `auto`. Found no `language` in the configuration",
+      )
+      conf-language
+    } else {
+      language
+    }
+
+    // Get classes and items once
+    let class = get-full-class(reqs.config, tag)
+    let comparing-class = get-full-class(reqs.config, comparing-tag)
+    let class-items = get-all-items(reqs.items, tag)
+    let comparing-items = get-all-items(reqs.items, comparing-tag)
+
+    // Pre-compute all column data
+    let column-data = comparing-items
+      .keys()
+      .map(col-id => {
+        let col-tag = (..comparing-tag, col-id)
+        let (name, id) = get-item-name-id(reqs.config, reqs.items, col-tag)
+        (tag: col-tag, name: name, id: col-id)
+      })
+
+    // Pre-compute all row data
+    let row-data = class-items
+      .keys()
+      .map(row-id => {
+        let row-tag = (..tag, row-id)
+        let (name, id) = get-item-name-id(reqs.config, reqs.items, row-tag)
+        let item = class-items.at(row-id)
+        let origins = if "origins" in item and item.origins != none {
+          item.origins
+        } else { () }
+        (tag: row-tag, name: name, id: id, item: item, origins: origins)
+      })
+
+    // Building the header row
+    let header-row = ([],) + column-data.map(col => col.name)
+
+    // Build data rows
+    let data-rows = row-data.map(row => {
+      let row-cells = (link((label("srs:" + row.id)), row.name),)
+
+      // Check relationships for all columns at once
+      for col in column-data {
+        let has-relationship = row.origins.contains(col.tag)
+        row-cells.push(if has-relationship [#marker] else [])
+      }
+
+      row-cells
+    })
+
+    // Generate matrix ID and caption
+    let matrix-id = (
+      tag.join("-") + "-traceability"
+    )
+    let caption = [
+      #locale.TRACEABILITY_MATRIX.at(lang), #class.name vs #comparing-class.name
+    ]
+
+    // Return formatted table
+    traceability-table-formatter(
+      (header-row,) + data-rows,
+      matrix-id,
+      caption,
+      lang,
+      breakable: breakable,
+      rotation-angle: rotation-angle,
+      style: style,
+      column_size: column_size,
+    )
+  }
+}
+
+
+/* NAMERS */
 
 
 /// Returns a namer function that names the item by the specified field name.
@@ -169,14 +403,16 @@
 /// - field-name (str): Class field to get the item name from.
 /// -> function
 #let field-namer-maker(field-name) = {
-  (class, item, id, index) => { item.fields.at(field-name) }
+  (tag, id, fields, index, root-class-name, class-name) => {
+    fields.at(field-name)
+  }
 }
 
 
 
 /// Returns a namer function that names the item with an incremental name, e.g. `<prefix><separator>0X`.
 ///
-/// - prefix (function, str, none): Prefix to use. Can be dynamic, if a function `(class: dictionary, separator: str) -> str` is supplied, or static, if string, or `none`, in which case the tag will be just the ID.
+/// - prefix (function, str, none): Prefix to use. Can be dynamic, if a function `(tag: array, root-class-name: str, class-name: str, separator: str) -> str` is supplied, or static, if string, or `none`, in which case the tag will be just the ID.
 /// - separator (str): Separator between the prefix and name. If `prefix` is a function, this will be the argument passed.
 /// - start (int): Starting index.
 /// - width (int): Width of the index, which will be padded with zeroes.
@@ -186,74 +422,48 @@
   separator: "-",
   start: 1,
   width: 2,
+  fillchar: "0",
 ) = {
   if type(prefix) == function {
-    return (class, item, id, index) => {
+    return (tag, id, fields, index, root-class-name, class-name) => {
       (
-        prefix(class, separator)
+        prefix(tag, root-class-name, class-name, separator)
           + separator
-          + left-pad(str(index + start), 2, "0")
+          + left-pad(str(index + start), width, fillchar)
       )
     }
   }
-  (class, item, id, index) => {
-    let id = left-pad(str(index + start), 2, "0")
+  (tag, id, fields, index, root-class-name, class-name) => {
+    let id = left-pad(str(index + start), width, fillchar)
     if prefix == none { id } else { prefix + separator + id }
   }
 }
 
 
 
-/// Returns a tagger function, which creates tags of form `<prefix><separator><id>`.
+
+/* LABLERS */
+
+
+/// Returns a identifier function, which creates tags of form `<prefix><separator><id>`.
 ///
-/// - prefix (function, str, none): Prefix to use. Can be dynamic, if a function `(class: dictionary, separator: str) -> str` is supplied, or static, if string, or `none`, in which case the tag will be just the ID.
+/// - prefix (function, str, none): Prefix to use. Can be dynamic, if a function `(tag: array, root-class-name: str, class-name: str, separator: str) -> str` is supplied, or static, if string, or `none`, in which case the tag will be just the ID.
 /// - separator (str): Separator between the prefix and name. If `prefix` is a function, this will be the argument passed.
 /// -> function
-#let item-tagger-maker(
+#let identifier-maker(
   prefix: none,
   separator: "-",
 ) = {
   if type(prefix) == function {
-    return (class, item, id, index) => {
-      (prefix(class, separator) + separator + id)
+    return (tag, id, fields, index, root-class-name, class-name) => {
+      (
+        prefix(tag, root-class-name, class-name, separator) + separator + id
+      )
     }
   }
 
-  (class, item, id, index) => {
+  (tag, id, fields, index, root-class-name, class-name) => {
     if prefix == none { id } else { prefix + separator + id }
   }
 }
 
-/// Returns a tagger function, which creates tags of form `<class-name><separator>template`.
-///
-/// - separator (str):
-/// -> function
-#let template-tagger-maker(separator: "-") = {
-  class => {
-    lower(class.name.replace(" ", separator)) + separator + "template"
-  }
-}
-
-
-/// Basic item formatter, which creates tables.
-///
-/// Each table has a label and can be referenced with its class path and id, separated by `-`.
-///
-/// -> function
-#let basic-item-formatter = table-item-formatter-maker(
-  namer: incremental-namer-maker(
-    prefix: (class, separator) => { class.tag.slice(1).join(separator) },
-  ),
-  tagger: item-tagger-maker(
-    prefix: (class, separator) => { class.tag.join(separator) },
-  ),
-  breakable: false,
-)
-
-
-/// Basic template formatter, which creates tables.
-/// Each table has a label and can be referenced as `<class-name>-template`. Note that the class name will be in lowercase.
-/// -> function
-#let basic-template-formatter = table-template-formatter-maker(
-  tagger: template-tagger-maker(),
-)

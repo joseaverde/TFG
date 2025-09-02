@@ -6,14 +6,14 @@
 
 #let TEMPLATE = (
   en: (name, root-class) => {
-    if root-class == name {
+    if lower(name).contains(lower(root-class)) {
       ["#name" template]
     } else ["#name" #root-class template]
   },
   es: (name, root-class) => {
-    if root-class == name {
-      [Plantilla de #root-class "#name"]
-    } else [Plantilla de "#name"]
+    if lower(name).contains(lower(root-class)) {
+      [Plantilla de "#name"]
+    } else [Plantilla de #root-class "#name"]
   },
 )
 
@@ -25,4 +25,14 @@
 #let DESCRIPTION = (
   en: "Description",
   es: "Descripción",
+)
+
+#let ORIGINS = (
+  en: "Origins",
+  es: "Orígenes",
+)
+
+#let TRACEABILITY_MATRIX = (
+  en: "Traceability Matrix",
+  es: "Matriz de Trazabilidad",
 )

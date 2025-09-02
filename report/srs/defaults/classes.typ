@@ -1,4 +1,8 @@
+//! Default classes
+
+
 #import "../config.typ": *
+#import "formatters.typ": *
 
 
 #let _scale-type = make-enum-field(
@@ -12,6 +16,23 @@
   c: "Constant",
   i: "Inconstant",
   vu: "Very unstable",
+)
+
+
+#let basic-item-namer = incremental-namer-maker(
+  prefix: (tag, root-class-name, class-name, separator) => {
+    tag.join(separator)
+  },
+  separator: "-",
+  start: 1,
+  width: 2,
+)
+
+#let basic-item-identifier = identifier-maker(
+  prefix: (tag, root-class-name, class-name, separator) => {
+    tag.join(separator)
+  },
+  separator: "-",
 )
 
 
@@ -39,6 +60,8 @@
   make-class(
     "R",
     "Requirement",
+    namer: basic-item-namer,
+    identifier: basic-item-identifier,
     fields: (
       make-field(
         "Description",
@@ -103,6 +126,8 @@
   make-class(
     "U",
     "Use Case",
+    namer: basic-item-namer,
+    identifier: basic-item-identifier,
     fields: (
       make-field(
         "Name",
@@ -134,6 +159,8 @@
   make-class(
     "C",
     "Component",
+    namer: basic-item-namer,
+    identifier: basic-item-identifier,
     fields: (
       make-field(
         "Role",
@@ -165,6 +192,8 @@
   make-class(
     "T",
     "Test",
+    namer: basic-item-namer,
+    identifier: basic-item-identifier,
     fields: (
       make-field(
         "Description",
@@ -198,15 +227,15 @@
           make-tag("R", "S", "NF"),
         ),
       ),
-    ),
-  ),
-  make-class(
-    "VET",
-    "Verification Test",
-    origins: make-origins(
-      [Requirement that originated this test.],
-      make-tag("R", "U", "CA"),
-      make-tag("R", "U", "RE"),
+      make-class(
+        "VET",
+        "Verification Test",
+        origins: make-origins(
+          [Requirement that originated this test.],
+          make-tag("R", "U", "CA"),
+          make-tag("R", "U", "RE"),
+        ),
+      ),
     ),
   ),
 )
@@ -226,6 +255,8 @@
   make-class(
     "R",
     "Requirements",
+    namer: basic-item-namer,
+    identifier: basic-item-identifier,
     fields: (
       make-field(
         "Description",

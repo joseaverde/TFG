@@ -1,7 +1,154 @@
 //! Functions for creating and managing items
 
+
 #import "config.typ": validate-config
 
+
+/* QUERY FUNCTIONS */
+
+/// Returns the class matching the tag.
+///
+/// - config (dictionary): Main config.
+/// - tag (array): Tag of the class to find.
+/// -> dictionary
+#let get-class(config, tag) = {
+  let current = config
+
+  for subtag in tag {
+    current = current.classes.find(x => x.id == subtag)
+    assert(
+      current != none,
+      message: "Couldn't find tag '" + tag.join("-") + "'.",
+    )
+  }
+
+  return current
+}
+
+
+/// This function returns an array of all the classes and subclasses of
+/// `config` following the path described by `tag`. For instance: if `tag`
+/// is `("R", "F")`, then the result will be an array of two elements: the
+/// class "R" and its child class "F".
+///
+/// - config (dictionary): The configuration lol
+/// - tag (array): The tag
+/// -> array
+#let tag-to-class-tree(config, tag) = {
+  let iter = config
+  let result = ()
+  for subtag in tag {
+    let found = none
+    for class in iter.classes { if class.id == subtag { found = class } }
+    assert(found != none, message: "Class tree couldn't be created")
+    iter = found
+    result.push(found)
+  }
+  return result
+}
+
+
+/// Obtains the namer and identifier for a class, taking into account autos.
+///
+/// - config (dictionary): The full config
+/// - class (dictionary): The class
+/// -> array
+#let get-class-namer-identifier(config, tag, class) = {
+  if class.namer == auto or class.identifier == auto {
+    // inherit from ancestors
+    let namer = none
+    let identifier = none
+    for c in tag-to-class-tree(config, tag).rev() {
+      if class.namer == auto and c.namer != auto { namer = c.namer }
+      if class.identifier == auto and c.identifier != auto {
+        identifier = c.identifier
+      }
+      if namer != none or identifier != none { break }
+    }
+    return (namer, identifier)
+  } else { return (class.namer, class.identifier) }
+}
+
+
+
+/// This function merges all the fields of a class and subclasses identified
+/// by the `tag` into a big class which contains all the fields. The name of
+/// the resulting class is the name of the youngest child. This is a helper
+/// function.
+///
+/// - config (dictionary): Guess what?! The configuration! lmao
+/// - tag (array): Tag
+/// -> dictionary
+#let get-full-class(config, tag) = {
+  let classes = tag-to-class-tree(config, tag)
+  let cls = classes.last()
+  return (
+    name: cls.name,
+    root-class-name: classes.first().name,
+    tag: tag,
+    fields: classes.map(class => class.fields).flatten(),
+    namer: cls.namer,
+    identifier: cls.identifier,
+    origins: cls.origins,
+    terminal: cls.classes.len() == 0,
+  )
+}
+
+
+/// Returns all the items that belong to the given class given by the `tag`.
+///
+/// - items (dictionary): The item tree.
+/// - tag (array): The tag
+/// -> array
+#let get-all-items(items, tag) = {
+  let iter = items
+  for subtag in tag { iter = iter.at(subtag) }
+  return iter
+}
+
+/// Returns all the items that belong to the given class given by the `tag`.
+///
+/// - items (dictionary): The item tree.
+/// - class-tag (array): The item's class.
+/// - id (str): The item's ID.
+/// -> array
+#let get-item(items, class-tag, id) = get-all-items(items, class-tag).at(id)
+
+
+/// Returns the name and label of the specified item.
+///
+/// - config (dictionary): Full config.
+/// - items (dictionary): Full item tree.
+/// - tag (array): Full item tag, including its ID.
+/// -> array
+#let get-item-name-id(config, items, tag) = {
+  let class-tag = tag.slice(0, -1)
+  let id = tag.last()
+  let class-items = get-all-items(items, class-tag)
+
+  let class = get-class(config, class-tag)
+
+  let data = (
+    class-tag, // class-tag
+    id, // id
+    class-items.at(id).fields, // fields
+    class-items.keys().position(x => x == id), // index
+    get-class(config, tag.slice(0, count: 1)).name, // root-class-name
+    class.name, // class-name
+  )
+
+  let (namer, identifier) = get-class-namer-identifier(
+    config,
+    class-tag,
+    class,
+  )
+
+  (namer(..data), identifier(..data))
+}
+
+
+
+/* CREATION */
 
 /// Creates an item belonging to the specified class. The specified fields are
 /// the ones belonging to the class.
@@ -23,6 +170,7 @@
 /// - id (str): Item ID. This must be unique inside the class.
 /// - class (array): Item class, expressed as the class hierarchy
 /// - origins (array): Array of tags of items that give origin to this one.
+/// - fields (arguments): Fields of the item, according to the class, e.g. `Name: "Potato"`.
 /// -> dictionary
 #let make-item(id, class, origins: (), ..fields) = (
   id: id,
@@ -33,7 +181,7 @@
 
 
 
-/// Validates an item's fields are valid.
+/// Validates an item's fields.
 ///
 /// It returns a result. That is, a pair `(ok, err)` where `ok` is the result of
 /// the operation and `err` is the error message in case of error.
@@ -53,7 +201,7 @@
       false,
       "Missing fields ("
         + class_fields
-          .filter(f => not item_fields.keys().contains(f.name))
+          .filter(f => not f.name in item_fields)
           .map(f => f.name)
           .join(", ")
         + ").",
@@ -69,9 +217,7 @@
 
     if field.value == "content" and type(value) != content {
       return (false, "Field '" + field.name + "' is not of type `content`.")
-    } else if (
-      type(field.value) == dictionary and not field.value.keys().contains(value)
-    ) {
+    } else if (type(field.value) == dictionary and not value in field.value) {
       return (
         false,
         "Invalid value for field '"
@@ -173,6 +319,12 @@
     return (false, "Invalid format. `origins` is not an array.")
   }
 
+  // validate ID (no spaces)
+  if " " in item.id {
+    return (false, "Invalid ID. Spaces are not allowed in the ID.")
+  }
+
+
   // traverse config collecting the fields
   // we also validate the class is correct
   let class_fields = ()
@@ -269,7 +421,7 @@
 
       if not overwrite {
         assert(
-          not current.at(class_id).keys().contains(item.id),
+          not item.id in current.at(class_id),
           message: "ID '"
             + item.id
             + "' already exists for class '"
@@ -325,6 +477,8 @@
   let (ok, err) = validate-config(config)
   assert(ok, message: "Invalid configuration: " + err)
 
+  // TODO: expand autos here instead of in formatters
+
   let tree = _create-tree-from-config(config)
 
   // add items
@@ -344,3 +498,4 @@
     config: config,
   )
 }
+

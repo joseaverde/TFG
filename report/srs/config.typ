@@ -12,8 +12,9 @@
 ///
 /// - class (dictionary): Class to validate.
 /// - config (dictionary): Configuration object tree.
+/// - root (boolean): Whether it's a root class
 /// -> array
-#let _validate-class(class, config) = {
+#let _validate-class(class, config, root: false) = {
   // check object format (duck typing)
 
   if (
@@ -22,6 +23,8 @@
         != (
           "id",
           "name",
+          "namer",
+          "identifier",
           "classes",
           "fields",
           "origins",
@@ -73,6 +76,44 @@
       "Invalid class '"
         + class.id
         + "': Invalid format. `origins` is not a dictionary.",
+    )
+  }
+
+  // identifier/namer
+
+  if class.namer == auto and root {
+    return (
+      false,
+      "Invalid class '"
+        + class.id
+        + "': Invalid format. `namer` can't be set to `auto` for a root class.",
+    )
+  }
+
+  if type(class.namer) != function and class.namer != auto {
+    return (
+      false,
+      "Invalid class '"
+        + class.id
+        + "': Invalid format. `namer` is not a function.",
+    )
+  }
+
+  if class.identifier == auto and root {
+    return (
+      false,
+      "Invalid class '"
+        + class.id
+        + "': Invalid format. `identifier` can't be set to `auto` for a root class.",
+    )
+  }
+
+  if type(class.identifier) != function and class.namer != auto {
+    return (
+      false,
+      "Invalid class '"
+        + class.id
+        + "': Invalid format. `identifier` is not a function.",
     )
   }
 
@@ -134,6 +175,15 @@
   if template-formatter != none and type(template-formatter) != function {
     return (false, "Invalid 'template-formatter'.")
   }
+  let traceability-formatter = config.at(
+    "traceability-formatter",
+    default: none,
+  )
+  if (
+    traceability-formatter != none and type(traceability-formatter) != function
+  ) {
+    return (false, "Invalid 'traceability-formatter'.")
+  }
 
   // TODO: more in-depht formatter validation, perhaps testing the function?
 
@@ -146,14 +196,14 @@
       + "'.",
   )
   assert(
-    lang == none or SUPPORTED-LANGUAGES.contains(lang),
+    lang == none or lang in SUPPORTED-LANGUAGES,
     message: "Unsupported language '" + lang + "'.",
   )
 
 
   // validate classes
   for class in config.classes {
-    let (ok, err) = _validate-class(class, config)
+    let (ok, err) = _validate-class(class, config, root: true)
     if not ok { return (false, err) }
   }
 
@@ -165,19 +215,21 @@
 ///
 /// Each class must be generated using `make-class`.
 /// - language (str, none):
-/// - item-formatter (function, none): Default formatter for items, of form `(class: dictionary, item: dictionary, id: str, index: int) -> content`.
-/// - template-formatter (function, none): Default formatter for templates, of form `(class: dictionary) -> content`
+/// - item-formatter (function, none): Default item formatter, of form `(class-tag: array, id: str, item: dictionary, index: int, config: dict, items: dictionary) -> content`.
+/// - template-formatter (function, none): Default template formatter, of form `(config: dict, tag: array, id: str) -> content`.
 /// - classes (array): Classes to use.
 /// -> dictionary
 #let make-config(
-  language: none,
   item-formatter: none,
   template-formatter: none,
+  traceability-formatter: none,
+  language: none,
   classes: (),
 ) = (
   language: language,
   item-formatter: item-formatter,
   template-formatter: template-formatter,
+  traceability-formatter: traceability-formatter,
   classes: classes,
 )
 
@@ -232,6 +284,8 @@
 ///
 /// - id (str): Class short identifier. Typically the first letter of the name, e.g. `"R"`.
 /// - name (str): Class name.
+/// - namer (function, auto): Function that gives a display name to the items of the class, of form `(class-tag: array, id: str, fields: dictionary, index: int, root-class-name: str, class-name: str) -> str`. If `auto`, it inherits from its ancestors (root classes can't set it as `auto`).
+/// - identifier (function, auto): Function that gives an unique identifier to each item of the class, of form `(class-tag: array, id: str, fields: dictionary, index: int, root-class-name: str, class-name: str) -> str`. If `auto`, it inherits from its ancestors (root classes can't set it as `auto`).
 /// - fields (dictionary): Set of fields that apply to the class. Generate them using `make-field`.
 /// - classes (dictionary): sub-classes belonging to this class. Fields belonging to this class are inherited by classes. Generate them using `make-class`.
 /// - origins (dictionary): List of classes that are the origin to this class. Note that *only* a "terminal class", that is, a *class without classes* can have origins. Generate them using `make-origins`.
@@ -239,6 +293,8 @@
 #let make-class(
   id,
   name,
+  namer: auto,
+  identifier: auto,
   fields: (),
   classes: (),
   origins: (:),
@@ -253,6 +309,14 @@
   assert(
     type(classes) == array,
     message: "Invalid format. `classes` is not an array.",
+  )
+  assert(
+    namer == auto or type(namer) == function,
+    message: "Invalid format. `namer` is not a function",
+  )
+  assert(
+    namer == auto or type(identifier) == function,
+    message: "Invalid format. `identifier` is not a function",
   )
 
   // check origins
@@ -272,6 +336,8 @@
   (
     id: id,
     name: name,
+    namer: namer,
+    identifier: identifier,
     classes: classes,
     fields: fields,
     origins: origins,
