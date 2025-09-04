@@ -51,6 +51,21 @@
   ]
 }
 
+
+/// This function returns a labeled table with the specified `contents` for an n*m sized matrix.
+///
+/// The label will be `srs:<id>`.
+///
+/// - contents (array): The table's contents.
+/// - id (str): Unique item ID, used in the label.
+/// - caption (content, str): The table's caption
+/// - language (str): Language to use.
+/// - breakable (bool): Whether the table can span multiple pages.
+/// - rotation-angle (angle): Rotation angle for the table headers.
+/// - displacement (length): Displacement for the table headers (used normally in conjunction with rotate).
+/// - style (dictionary): Parameters to pass to the table, e.g. `(columns: (1fr, 1fr), gutter: 1em)`
+/// - column-size (length): Size of the columns in the table.
+/// -> content
 #let traceability-table-formatter(
   contents,
   id,
@@ -60,7 +75,7 @@
   rotation-angle: 0deg,
   displacement: -0em,
   style: none,
-  column_size: auto,
+  column-size: auto,
 ) = {
   if rotation-angle == 0deg {
     displacement = 0em
@@ -74,7 +89,7 @@
   // Build an array of 1fr repeated for each column
   let columns = ()
   for _ in range(ncols) {
-    columns.push(column_size) // 1fr or 8em, for a good fit
+    columns.push(column-size) // 1fr or 8em, for a good fit
   }
   let header-row = contents.at(0)
   let processed-headers = header-row
@@ -240,7 +255,6 @@
 ///
 /// The table's label will have the form `srs:<tag>`, where `<tag>` is the result of calling `tagger`.
 ///
-/// - tagger (function): Function to format the item's tag, of form `(class, item, id, index) -> str`.
 /// - language (str, auto): Language of the captions. If `auto`, it will use the one in `config.language`
 /// - breakable (bool): If the table can be broken in several pages.
 /// - justify (array): Justification of the two columns, e.g. (true, false)
@@ -306,14 +320,24 @@
 }
 
 
-
+/// Returns a traceability matrix formatter that formats the relationship between two classes as a table.
+///
+/// This formatter will create a table that shows the relationships between the fields of the two classes,
+/// indicating which fields in the first class are related to which fields in the second class.
+/// - language (str, auto): Language of the captions. If `auto`, it will use the one in `config.language`
+/// - breakable (bool): If the table can be broken in several pages.
+/// - marker (symbol): Symbol to use for marking related fields.
+/// - rotation-angle (angle): Rotation angle for the table headers.
+/// - style (dictionary): Parameters to pass to the table, e.g. `(align: center, gutter: 0em)`
+/// - column-size (length): Size of the columns in the table.
+/// -> function
 #let table-traceability-formatter-maker(
   language: auto,
   breakable: false,
   marker: sym.checkmark,
   rotation-angle: 0deg,
   style: none,
-  column_size: auto,
+  column-size: auto,
 ) = {
   (reqs, tag, comparing-tag) => {
     // Handle automatic language - early return pattern
@@ -340,7 +364,7 @@
       .map(col-id => {
         let col-tag = (..comparing-tag, col-id)
         let (name, id) = get-item-name-id(reqs.config, reqs.items, col-tag)
-        (tag: col-tag, name: name, id: col-id)
+        (tag: col-tag, name: name, id: id)
       })
 
     // Pre-compute all row data
@@ -356,8 +380,10 @@
         (tag: row-tag, name: name, id: id, item: item, origins: origins)
       })
 
-    // Building the header row
-    let header-row = ([],) + column-data.map(col => col.name)
+    // Building the header row with links
+    let header-row = (
+      ([],) + column-data.map(col => link(label("srs:" + col.id), col.name))
+    )
 
     // Build data rows
     let data-rows = row-data.map(row => {
@@ -376,9 +402,8 @@
     let matrix-id = (
       tag.join("-") + "-traceability"
     )
-    let caption = [
-      #locale.TRACEABILITY_MATRIX.at(lang), #class.name vs #comparing-class.name
-    ]
+    let caption = [#locale.TRACEABILITY_MATRIX.at(lang), #class.name vs
+      #comparing-class.name]
 
     // Return formatted table
     traceability-table-formatter(
@@ -389,7 +414,7 @@
       breakable: breakable,
       rotation-angle: rotation-angle,
       style: style,
-      column_size: column_size,
+      column-size: column-size,
     )
   }
 }

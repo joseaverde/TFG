@@ -21,10 +21,10 @@ lo componen y se estudia cómo se puede mejorar y cómo se pueden solucionar los
 errores del mismo.
 
 La parte de implementación se introduce con una lista de distintas convenciones
-matemáticas que se usan a lo largo del capítulo, se ofrece una descripción del
-algoritmo de manera global utilizando dichas convenciones, y termina con un
-análisis de todos los algoritmos que se consideran relevantes para el
-desarrollo del proyecto.
+matemáticas que se usan a lo largo del capítulo. En ella se ofrece una
+descripción del algoritmo de manera global utilizando dichas convenciones y
+termina con un análisis de todos los algoritmos que se consideran relevantes
+para el desarrollo del proyecto.
 
 == Estudio de la solución final <sec:4-estudio-de-la-solución-final>
 La implementación original del algoritmo de detección de ataques epilépticos
@@ -107,12 +107,12 @@ Además la notación $S^+$, inspirada por la clausura de Kleene, denota:
 Además, si se se define $S^0 != {}$, se puede extender la notación de
 $S^* = S^0 union S^+$. Estas notaciones son útiles para definir vectores.
 
-Una muestra $m in bb(R)$ es un valor que ha sido leido por un sensor de
+Una muestra $m in bb(R)$ es un valor que ha sido leído por un sensor de
 encefalograma en un instante de tiempo, el valor puede ser tanto negativo, como
 positivo, como nulo. Una señal $S_r (t), S: bb(R)->bb(R)$ es una función que
 asocia para un sensor cualquiera $r$ en un instante de tiempo $t$ una muestra.
 
-Un sensor $r$ lee a una razón de $s in bb(N)^+$ muestras por segundo, a esa
+Un sensor $r$ lee a una razón de $s in bb(N)^+$ muestras por segundo. A esa
 constante se denomina _stride_. Así que en vez de trabajar sobre una señal
 continua, se trabaja sobre una señal discreta como se muestra en la
 @fig:signal.
@@ -165,10 +165,12 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 
 === Conversión entre tipos en punto fijo binario
 #definition(title: [$"conv"_f (x)$])[
-  *Conversión de punto fijo*: Dado un valor de punto fijo
-  $x = 2^f k$ con $x in bb(X)_(b,f)$ y con $k in bb(I)_b$, se define la
-  operación de conversión al $x' = k' 2^(f') in bb(Q)$ que aproxima el valor
-  $x$ en supuesto punto fijo que está multiplicado por el factor $2^(f')$.
+  *Conversión de punto fijo*: Dado un valor en punto fijo
+  $x = 2^f k$ con $x in bb(X)_(b,f)$ y con $k in bb(I)_b$, se denomina
+  operación
+  de conversión de punto fijo a la aplicación  $x' = k' 2^(f') in bb(Q)$ que
+  aproxima el valor $x$ en un supuesto punto fijo que está multiplicado por el
+  factor $2^(f')$.
 
   Sea $x' = 2^(f') k$ con $x' in bb(Q)$ y con $k' in bb(Z)$ el valor al que se
   quiere convertir $x$. Se denota como $"conv"_(f') (x) = x'$ donde
@@ -235,8 +237,8 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 /* CONVERSION THEOREM */
 
 #theorem[
-  Dados $x in bb(X)_(b,f)$ y $x' = "conv"_(f') (x) in bb(Q)$.
-  Si $f >= f'$ entonces, $x = x'$. Si $f < f'$ y $k >= 0$ se cumple que
+  Sean $x in bb(X)_(b,f)$ y $x' = "conv"_(f') (x) in bb(Q)$.
+  Si $f >= f'$ entonces $x = x'$. Si $f < f'$ y $k >= 0$ se cumple que
   $0 <= x - x' < 2^(f')$, pero si $k < 0$ se cumple que $0 <= x' - x < 2^f'$.
 ] <thm:conv-error>
 
@@ -277,10 +279,10 @@ de las muestras suelen estar en el rango $-10000$ a $10000$.
 Del @thm:conv-error se obtienen propiedades muy relevantes. En primer lugar,
 si se convierte de un punto fijo multiplicado por un coeficiente más grande
 a uno con uno más pequeño, no hay error y por tanto no se pierde información.
-Por ejemplo: $a = 1 dot.op 2^(-2) in bb(X)_(32,-2)$, al convertirlo a un punto
-fijo con un bit más de precisión en la parte fraccionaria como
-$"conv"_(32,-3) (a)$ se puede representar perfectamente como $2 dot.op 2^(-3)$,
-pues el numerador debe ser entero.
+Por ejemplo, si consideramos $a = 1 dot.op 2^(-2) in bb(X)_(32,-2)$, al
+convertirlo a un punto fijo con un bit más de precisión en la parte
+fraccionaria como $"conv"_(32,-3) (a)$ se puede representar perfectamente como
+$2 dot.op 2^(-3)$, pues el numerador debe ser entero.
 
 Cuando $f < f'$, es decir, hay más bits en la parte fraccionaria del tipo de
 origen que el de destino, hay un error (que está acotado) en el rango
@@ -298,7 +300,7 @@ simplifica considerablemente el análisis del error.
 #corollary[
   Dado $x in bb(X)_(b,f)$, su valor convertido $"conv"_(b,f)$ en valor absoluto
   no puede ser mayor que el valor absoluto de $x$. Es decir, si $x >= 0$
-  entonces, $0 <= "conv"_(b,f) (x) <= x$; y si $x < 0$ entonces se cumple que
+  entonces $0 <= "conv"_(b,f) (x) <= x$; y si $x < 0$ entonces se cumple que
   su valor convertido también es un punto fijo: $0 >= "conv"_(b, f) (x) >= x$.
 ] <cor:conv-order>
 
@@ -348,18 +350,18 @@ simplifica considerablemente el análisis del error.
 Para los siguientes algoritmos resulta bastante útil trabajar con un punto fijo
 que esté en el rango $(-1, 1)$, pues se utilizan muchas multiplicaciones.
 Además, dado que hay un valor negativo más que valores positivos también añade
-complicaciones. Así que se define $bb(U)_b$ como el subconjunto uniforme de
+complicaciones. Así, se define $bb(U)_b$ como el subconjunto uniforme de
 $bb(X)_(b,1-b)$ o como conjunto uniforme de $b$ bits:
 
   $ bb(U)_b = bb(X)_(b,1-b) without {-1} $
 
 #lemma[
-  $abs(x) < 1, forall x in bb(U)_b forall b > 1$
+  $abs(x) < 1 forall x in bb(U)_b, forall b > 1$
 ] <lem:uniform-less-than-one>
 
 #theorem[
   Dados $x = p 2^(1-b)$ con $x in bb(U)_b$ e $y = q 2^f$ con $y in bb(U)_(b')$,
-  se cumple que su producto $x y = p 2^(1-b) q 2^(1-b')$ también es uniforme
+  se cumple que su producto $x y = p 2^(1-b) q 2^(1-b')$ también es uniforme:
   $x y in bb(U)_(b+b'-1)$.
 ] <thm:uniform-product>
 
@@ -396,8 +398,8 @@ $bb(X)_(b,1-b)$ o como conjunto uniforme de $b$ bits:
 ]
 
 #lemma(title: [Producto de enteros de computador])[
-  Dados dos enteros $x in bb(I)_b$ e $y in bb(I)_(b')$. Su producto es un
-  entero de $b + b' - 1$ bits: $x y in bb(I)_(b+b'-1)$.
+  El producto de dos $x in bb(I)_b$ e $y in bb(I)_(b')$ es un entero de
+  $b + b' - 1$ bits: $x y in bb(I)_(b+b'-1)$.
 ] <thm:integer-product>
 
 #theorem(title: [Producto de punto fijo])[
@@ -446,7 +448,7 @@ $bb(X)_(b,1-b)$ o como conjunto uniforme de $b$ bits:
 // NOTE: Se define/denomina/llama ___ como ____ y se denota como ____
 
 #theorem(title: [Conversión del producto de uniformes es uniforme])[
-  Si $x in bb(U)_b$ e $y in bb(U)_(b')$ entonces, $x *_(b'') y in bb(U)_(b'')$.
+  Si $x in bb(U)_b$ e $y in bb(U)_(b')$ entonces $x *_(b'') y in bb(U)_(b'')$.
 ] <thm:uniform-conv-product>
 
 #proof[
@@ -516,9 +518,9 @@ racional:
 
   $ x/y = (a/b)/(p/q) = (a q)/(b p) in bb(Q) $
 
-Trabajar con números en punto fijo es similar, dados dos números
-en punto fijo $x = p 2^f, x in bb(X)_(b,f)$ e $y = q 2^(f') in bb(X)_(b',f')$.
-Su cociente también es un número en punto fijo:
+Trabajar con números en punto fijo es similar: dados dos números
+en punto fijo $x = p 2^f in bb(X)_(b,f)$ e $y = q 2^(f') in bb(X)_(b',f')$,
+su cociente también es un número en punto fijo:
 
   $ x / y = (p 2^f) / (q 2^(f')) = p/q 2^(f-f') $
 
@@ -527,8 +529,8 @@ diferencia es que $exists p exists q, p/q in.not bb(Z)$, lo cual complica bastan
 tratarlo como un punto fijo.
 
 #definition(title: [División de punto fijo])[
-  Dados dos números en punto fijo $x = p 2^f in bb(X)_(b,f)$ e
-  $y = q 2^(f') in bb(X)_(b,f')$ con *$y != 0$*, se define la división de punto
+  Sean $x = p 2^f in bb(X)_(b,f)$ e $y = q 2^(f') in bb(X)_(b,f')$ con
+  *$y != 0$* dos números en punto fijo. Se define la división de punto
   fijo de $x$ entre $y$ y se denota como $x div y$ a:
 
     $ x div y = cases(floor(p/q) 2^(f-f') & ", si " p/q >= 0,
@@ -609,8 +611,8 @@ Una forma de minimizar dicho impacto es multiplicar primero el numerador y
 luego dividir.
 
 La idea es poder trabajar con valores escalados en un conjunto uniforme
-$bb(U)_b$ sin perder precisión, a este proceso le vamos a denominar
-uniformización. En primer lugar, la de un valor:
+$bb(U)_b$ sin perder precisión. A este proceso le vamos a denominar
+uniformización.
 
 #definition(title: [Uniformización de un valor])[
   La uniformización de un vector convierte un valor en punto fijo
@@ -705,7 +707,7 @@ la división entre un número entero, cabe recordar que $bb(X)_(b,0) = bb(I)_b$
 #corollary[
   Del @thm:fixed-division-set se deduce que dados $x = p 2^f in bb(X)_(b,f)$ y
   $n in bb(I)_(b') = bb(X)_(b',0)$, la división de un número en punto fijo
-  entre un número entero está en el mismo conjunto excepto el cuando
+  entre un número entero está en el mismo conjunto excepto cuando
   $n = -1$ y $x = -2^(b-1) 2^f$:
 
   $ x div n in bb(X)_(b,f) ", si " x != -2^(b-1) 2^f " y " n != -1 $
@@ -906,12 +908,12 @@ sin duda utilizar un tipo de punto fijo más grande para el resultado,
 consecuencia del @thm:accumulation.
 
 #lemma[
-  Si $a >= 2$ y $b >= 2$, entonces $a b >= a + b$
+  Si $a >= 2$ y $b >= 2$ entonces $a b >= a + b$
 ] <lem:product-greater-than-sum>
 
 #theorem[
   Dados $i in bb(I)_B$ y $v(i) in bb(X)_(b,f) forall i = 1, 2, ..., m$,
-  entonces el resultado de $sum_(k=1)^i v(k)$ está en $bb(X)_(b+B-1,f)$ y
+  entonces se tiene que $sum_(k=1)^i v(k)$ está en $bb(X)_(b+B-1,f)$ y
   está en el intervalo $[-i 2^(b - 1) 2^f, i (2^(b - 1) - 1) 2^f]$
 ] <thm:accumulation>
 
@@ -2132,7 +2134,7 @@ necesita que el vector esté uniformizada, es decir, con todos los elementos en
 el conjunto abierto $(-1, 1)$.
 
 #theorem[
-  Dados $x, y in bb(C)$, $abs(x y) = abs(x) abs(y)$.
+  $abs(x y) = abs(x) abs(y)$, para cualesquiera $x, y in bb(C)$.
 ] <thm:abs-prod-prod-abs>
 
 #proof[

@@ -2,7 +2,7 @@
 #import cetz.draw: *
 #import "utility.typ": *
 
-= Estado del arte <sec:2>
+= Estado de la cuestión <sec:2>
 Este capítulo presenta las distintas tecnologías que guardan una estrecha
 relación con el proyecto en cuestión: desde las técnicas para el procesamiento
 de señales de encefalograma, hasta cuestiones relacionadas con la parte de
@@ -248,7 +248,7 @@ postcondición, las garantías que ofrece el servicio a la parte que lo utiliza
 Varios lenguajes de programación dan soporte nativo para contratos, entre ellos
 Eiffel (el primer lenguaje) @EiffelDbC, Ada desde la versión 2012 del lenguaje
 @Ada2012PrePost y en #cxx hay una propuesta para la versión 26 del lenguaje,
-pero es controvertida @Cxx26Contracts.
+pero es controvertida @Cxx26ContractsPaper @Cxx26Contracts.
 
 
 === Rangos

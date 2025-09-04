@@ -23,8 +23,10 @@ como:
 #let meses = 9
 #let horas-diarias = 3
 #let coste-hora = 10.42
-#let total-horas = horas-diarias * semanas * 7
-#let personal = total-horas * coste-hora
+#let total-horas = horas-diarias * semanas * 5
+#let bruto = total-horas * coste-hora
+#let p-social = 0.3
+#let personal = (p-social + 1) * bruto
 
   $ 20000"€"/"año"
     dot.c (1 "año")/((52 - 4) "semanas laborales")
@@ -39,9 +41,12 @@ se ve en la @tab:7-costes-humanos.
 #figure(
   caption: [Costes humanos],
   table(
-    columns: (auto, auto, auto),
-    table.header([Horas totales], [€/Hora], [Coste total (€)]),
-    [$#total-horas$], [$#coste-hora$], [*$#euros(personal)$*]))
+    columns: (auto, auto, auto, auto, auto),
+    table.header([Horas totales], [€/Hora], [Salario bruto (€)], [Seguros
+    sociales (€)], [Coste total (€)]),
+    [$#total-horas$], [$#coste-hora$],
+    [$#euros(bruto)$], [#euros(p-social * bruto)], [*$#euros(personal)$*]
+  ))
     <tab:7-costes-humanos>
 
 === Recursos materiales

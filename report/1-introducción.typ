@@ -64,7 +64,7 @@ El documento contiene los siguientes capítulos:
   que llevó a realizar este proyecto, los objetivos del mismo y la propia
   estructura.
 
-- Capítulo 2 -- #link(label("sec:2"), [_Estado del arte_]), un análisis del
+- Capítulo 2 -- #link(label("sec:2"), [_Estado de la cuestión_]), un análisis del
   estado de la cuestión, qué temas son relevantes y qué estudios existen al
   respecto. Analiza estudios sobre detección de ataques epilépticos,
   demostraciones interactivas de teoremas y técnicas de programación.
