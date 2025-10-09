@@ -78,16 +78,20 @@
 == Motivación
 // grupo de investigación de modelos de programación paralela y compiladores de
 // la Universidad de Málaga
-- Colaboración entre dos grupos de investigación de dos universidades (PPCM y ARCOS).
+- Colaboración entre dos grupos de investigación (PPCM y ARCOS) de dos
+  universidades (UMA y UC3M).
+#pause
 - Tema interesante y relevante.
   - Optimización.
   - Paralelismo.
   - Sistema en tiempo real duro.
+#pause
 - Un reto personal.
   - Aplicar lo aprendido.
   - Resolver un problema difícil.
   - Investigar.
-- Poner mi granito de arena.
+#pause
+- Aportar algo.
 
 == Objetivos del proyecto
 1. Módulo de Python 3 escrito en C++ para minimizar el tiempo de entrenamiento.
@@ -98,8 +102,48 @@
 3. Verificación formal.
 
 = Estado de la cuestión
+== PaFESD: _Patterns Augmented by Features Epileptic Seizure Detection_
+Tres características estadísticas que deben estar en rango:
+
+- Distancia pico a pico.
+- Energía de la época (varianza).
+- Potencia integrada de la banda espectral de la señal de encefalograma en las
+  bandas:
+  - $2.5$ a $12$ Hz ($P S D_1$)
+  - $12$ a $18$ Hz ($P S D_2$)
+  - $18$ a $35$ Hz ($P S D_3$)
+
+Se usa la distancia utilizando el algoritmo de la deformación dinámica del
+tiempo (DTW) para discriminar ataques.
+
 == Demostración interactiva de problemas
+- Rocq
+  - Antes conocido como Coq
+- Lean
+  - Escrito en C++
+  - Turing completo
+- SPARK
+  - Utiliza otros probadores (`Alt-Ergo`, `Colibri`, `cvc5`, `Z3`, `Coq`...).
+  - Subconjunto de Ada con anotaciones adicionales.
+  - Permite demostrar propiedades de un programa.
+  - Detecta errores en tiempo de compilación.
+
+
 == Técnicas de programación
+- *Diseño por contrato*
+  - Ada y SPARK
+  - Eiffel
+  - \* C++ 26
+- *Rangos*
+  - `range-v3`
+  - `flux`
+  - Estándar
+- *Paralelismo*:
+  - Hilos (C++ y Python 3) y tareas (Ada).
+  - OneTBB.
+  - OpenMP.
+  - C++ y políticas de ejecución.
+
 = Análisis
 == Casos de uso
 #slide[
@@ -414,11 +458,13 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
 - Desbordamiento y subdesbordamiento de enteros con signo.
   - En C++ es comportamiento no definido (_undefined behaviour_).
   - En Ada es `Constraint_Error`.
+#pause
 - Precisión
   - 32 bits: `float` ($23+1+1$) y `double` ($52+1+1$).
   - Variabilidad del exponente.
   - Productos y divisiones usan el doble de bits.
   - Divisiones ($49.2%$ del tiempo total en punto fijo de 64 bits).
+#pause
 - Errores
   - En C++ son silenciosos.
   - En Ada lanzan excepciones. No capturables con la configuración de la
@@ -613,19 +659,26 @@ end Generic_Accumulation; ```]
 = Conclusiones
 == Conclusiones del proyecto
 Objetivos cumplidos:
-1. Visto bueno del equipo de investigación de la Universidad de Málaga.
-2. Tiempo real
+1. Entrenamiento más rápido. Visto bueno del equipo de investigación de la UMA.
+2. Tiempo real.
   1. ESP32C3
     1. C++ 1.64 épocas por segundo
     2. Ada 10.36 épocas por segundo
   2. Dependiendo de la calidad de la FPU mejora el rendimiento de punto
      flotante (vectorización, optimizaciones, ...).
-3. A falta de Welch y la transformada de Fourier se ha verificado formalmente
+  3. A falta de FPU, punto fijo puede llegar a ser más rápido que punto
+     flotante.
+  4. Trabajar con punto fijo es tedioso y requiere demostraciones.
+3. Exceptuando Welch y la transformada de Fourier, se ha verificado formalmente
    todo el proyecto con un probador de teoremas.
 
 == Conclusiones personales
 1. Varios lenguajes de programación.
 2. SPARK en un proyecto real.
+3. Aprendido
+   1. Compilación cruzada
+   2. Probadores de teoremas
+   3. Dispositivos empotrados
 
 == Trabajo futuro
 1. Terminar de demostrar funciones.

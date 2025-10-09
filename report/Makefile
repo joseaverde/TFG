@@ -4,6 +4,7 @@ UMLIMGS := uml/casos-de-uso.svg uml/gantt.svg uml/arquitectura.svg
 
 all: $(UMLIMGS)
 	typst compile report.typ
+	typst compile traspas.typ
 
 $(UMLIMGS) : %.svg : %.uml
 	plantuml -tsvg $< -o .

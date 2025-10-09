@@ -84,7 +84,7 @@ hasta metaprogramación y uso de la excelente biblioteca de rangos de
 Previamente he utilizado SPARK, pero esta es la primera vez que lo utilizo para
 un proyecto serio. He aplicado todo lo aprendido en lógica y matemáticas para
 demostrar propiedades de mi código fuente. Estoy muy orgulloso con los
-resultados y me gustaría de continuar con ello.
+resultados y me gustaría continuar con ello.
 
 
 == Trabajo futuro <sec:9-futuro>
