@@ -1,4 +1,4 @@
-package body Detector.Numerics.Elementary_Functions with SPARK_Mode is
+package body Detector.Numerics.Elementary_Functions with SPARK_Mode => Off is
 
    -->> Trigonometric Functions <<--
 
