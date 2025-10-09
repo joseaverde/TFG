@@ -23,7 +23,7 @@ BUILD_MODE = "release"
 
 [configuration.values]
 seizure_detector_fixed.Parallel = "False"
-seizure_detector_fixed.Target = "rpi4"
+seizure_detector_fixed.Target = "native"
 
 [build-switches]
 "*".ada_version    = "Ada2022"
