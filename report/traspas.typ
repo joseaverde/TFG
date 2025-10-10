@@ -20,7 +20,7 @@
   config-info(
     title: [Procesamiento de señales de encefalograma para la detección de ataques epilépticos.],
     subtitle: [Trabajo fin de grado],
-    author: [José Antonio Verde Jiménez\
+    author: [Autor: José Antonio Verde Jiménez\
              Tutor: José Daniel García Sánchez],
     date: [13 de octubre de 2025],
     institution: [Grado en Ingeniería Informática -- Universidad Carlos III de Madrid],
@@ -51,7 +51,7 @@
 
 #show table: block.with(stroke: (y: 0.7pt))
 #set table(
-  row-gutter: -0.1em,   // Row separation
+  row-gutter: 0.2em,   // Row separation
   stroke: (_, y) => if y == 0 { (bottom: 0.2pt) }
 )
 
@@ -176,7 +176,7 @@ tiempo (DTW) para discriminar ataques.
 
 = Implementación en C++
 == Módulo de Python 3
-#code(caption: [Eliminar copias con `pybind11`.])[```cpp
+#code(caption: [Trucos de C++ con `pybind11`.])[```cpp
 template <typename T>
 constexpr std::span<T const> pyspan(pybind11::array_t<T> const & y) {
   return std::span{y.data(), static_cast<std::size_t>(y.size())};
@@ -463,7 +463,8 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
   - 32 bits: `float` ($23+1+1$) y `double` ($52+1+1$).
   - Variabilidad del exponente.
   - Productos y divisiones usan el doble de bits.
-  - Divisiones ($49.2%$ del tiempo total en punto fijo de 64 bits).
+#pause
+  - *Divisiones ($49.2%$ del tiempo total en punto fijo de 64 bits).*
 #pause
 - Errores
   - En C++ son silenciosos.
@@ -480,7 +481,7 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
 - Probadores de teoremas: `Alt-Ergo`, `Colibri`, `cvc5`, `Z3`, `Coq`...
 - Uniformizar valores porque: $x, y in (-1, 1) -> x y in (-1, 1)$.
 - Hacer iterativa la transformada de Fourier.
-- Punto fijo 64 bits de manera dispersa.
+- Punto fijo de 64 bits de manera dispersa.
 - SPARK _Gold_: _*Division*, *Index*, *Length*, *Overflow*, *Range*, Tag,
   Elaboration and *Flow* checks_.
 
@@ -653,7 +654,7 @@ end Generic_Accumulation; ```]
 
 == Planificación
 #figure(
-  caption: [Diagrama gantt del proyecto],
+  caption: [Diagrama Gantt del proyecto],
   image("uml/gantt.svg", height: 95%))
 
 = Conclusiones
