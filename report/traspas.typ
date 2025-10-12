@@ -104,6 +104,11 @@
 
 == Objetivos del proyecto
 #slide[
+// Optimización del código para la clasificación de épocas de una señal en
+// pertenecia o no pertenencia a un ataque epiléptico.
+Detectar en una señal de encefalograma qué épocas pertenecen a un ataque
+epiléptico y optimizar el código que lo hace.
+
 1. Módulo de Python 3 escrito en C++ para minimizar el tiempo de entrenamiento.
 2. Sistema en tiempo real duro en un dispositivo empotrado.
   1. RISC-V
@@ -164,28 +169,18 @@ tiempo (DTW) para discriminar ataques.
 ]
 
 = Análisis
-== Casos de uso
+== Casos de uso y requisitos
 #slide[
-- Craig Larman: _Applying UML and Patterns: An Introduction to Object-Oriented
-  Analysis and Design and Iterative Development_.
-- Desarrollo en cascada.
-][
 #figure(
   caption: [Casos de uso],
   image("uml/casos-de-uso.svg", height: 80%))
-]
-
-== Requisitos
-#slide[
-- Requisitos funcionales (*5*)
-- Requsistos no funcionales (*13*)
-#figure(
-  caption: [Matriz de trazabilidad:\ Requisitos funcionales],
-  image("img/requisitos-funcionales.png"))
 ][
 #figure(
-  caption: [Matriz de trazabilidad:\ Requisitos no funcionales],
-  image("img/requisitos-no-funcionales.png"))
+  caption: [Requisitos funcionales y\ requisitos no funcionales],
+  grid(
+    columns: 1,
+    image("img/requisitos-funcionales.png", height: 28%),
+    image("img/requisitos-no-funcionales.png", height: 60%)))
 ]
 
 == Arquitectura
@@ -213,7 +208,7 @@ auto pymove(C && y) -> pybind11::array_t<typename C::value_type> {
 #pagebreak(weak: true)
 */
 
-#code(caption: [Facilidad de `pybind11` y C++.])[```cpp
+#code(caption: [Integración de C++ en Python 3 con `pybind11`.])[```cpp
 PYBIND11_MODULE(signals, m) {
   m.doc() = "Signals library for Seizure Algorithm";
   m.def("simpson", simpson, pybind11::arg("y"), pybind11::arg("dx"));
@@ -405,13 +400,14 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
 = Implementación en Ada
 == ¿Por qué?
 - Pese a ser en general más lento que C++.
+- Prototipo rápido.
 - Punto fijo en el estándar.
-- Comportamiento no definido en C++ es comportamiento erróneo en Ada.
-- Traducción rápida de C++ a Ada.
-- GNAT pertenece al juego de compiladores de GCC
+  - GNAT pertenece al juego de compiladores de GCC
   - Intrínsecos del compilador para punto fijo.
-  - Compilación cruzada.
-- SPARK y contratos.
+- *Verificación formal del algoritmo.*
+  - Comportamiento no definido en C++ es comportamiento erróneo en Ada.
+  - Contratos en todas las operaciones.
+  - *SPARK*.
 
 == Pruebas preliminares (punto flotante)
 #figure(
@@ -437,7 +433,7 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
   table(
     columns: 3,
     align: (left, left, horizon),
-    table.header([*Checks*], [*Tipo*], [*épocas/s*]),
+    table.header([*_Checks_*], [*Tipo*], [*épocas/s*]),
     [Activados], [$bb(X)_(32,-8)$],  [`Constraint_Error`],
     [Activados], [$bb(X)_(64,-16)$], [$1.08$],
     [Desactivados], [$bb(X)_(32,-8)$],  [*$21.04$*],
@@ -469,14 +465,14 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
     biblioteca de tiempo de ejecución (_runtime_) del dispositivo empotrado
     (`No_Exception_Propagation`).
 
-== SPARK
 #focus-slide[
   SPARK
 ]
 
+== Soluciones
 - Subconjunto de Ada con anotaciones adicionales.
 - Probadores de teoremas: `Alt-Ergo`, `Colibri`, `cvc5`, `Z3`, `Coq`...
-- Uniformizar valores porque: $x, y in (-1, 1) -> x y in (-1, 1)$.
+- Uniformizar valores, porque: $x, y in (-1, 1) -> x y in (-1, 1)$.
 - Hacer iterativa la transformada de Fourier.
 - Punto fijo de 64 bits de manera dispersa.
 - SPARK _Gold_: _*Division*, *Index*, *Length*, *Overflow*, *Range*, Tag,
@@ -551,13 +547,14 @@ end Generic_Accumulation; ```]
   table(
     columns: 4,
     align: (left, left, left, horizon),
-    table.header([*Compilador*], [*Checks*], [*Máquina*], [*épocas/s*]),
+    table.header([*Compilador*], [*_Checks_*], [*Máquina*], [*épocas/s*]),
     ..(results.filter((x) => (x.real == "fixed32" and x.language == "Ada"))
            .map((x) => (
              [#x.compiler],
              if x.checks { [Activados] } else { [Desactivados] },
              [#x.target],
-             [$#x.performance$]))
+             (if x.compiler == "GNAT 14" and not x.checks and x.target == "ESP32C3"
+               [*$#x.performance$*] else [$#x.performance$])))
            .flatten())
   )) <tab:pruebas-finales-ada>
 
@@ -675,22 +672,22 @@ Objetivos cumplidos:
 == Conclusiones personales y trabajo futuro
 #slide[
 === Conclusiones personales
-1. Varios lenguajes de programación.
-2. SPARK en un proyecto real.
-3. Aprendido
-   1. Compilación cruzada
-   2. Probadores de teoremas
-   3. Dispositivos empotrados
+- Varios lenguajes de programación.
+- SPARK en un proyecto real.
+- Aprendido
+  - Compilación cruzada
+  - Probadores de teoremas
+  - Dispositivos empotrados
 ][
 === Trabajo futuro
-1. Terminar de demostrar funciones.
-2. Reentrenamiento en tiempo de ejecución.
-3. Limpiado de señal y artefactos.
+- Terminar de demostrar funciones.
+- Reentrenamiento en tiempo de ejecución.
+- Limpiado de señal y artefactos.
+- Publicación de resultados.
 ]
 
 
 #focus-slide[
   ¡Muchas gracias por su atención!
-
-  Preguntas
 ]
+// Con esto concluyo mi presentación y quedo a disposición del tribunal.
