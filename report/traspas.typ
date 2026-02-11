@@ -78,31 +78,60 @@
 == Motivación
 // grupo de investigación de modelos de programación paralela y compiladores de
 // la Universidad de Málaga
-- Colaboración entre dos grupos de investigación (PPCM y ARCOS) de dos
+#slide[
+- Colaboración entre dos grupos de investigación (PPMC y ARCOS) de dos
   universidades (UMA y UC3M).
-#pause
 - Tema interesante y relevante.
   - Optimización.
   - Paralelismo.
-  - Sistema en tiempo real duro.
-#pause
+  - Sistema en tiempo real.
 - Un reto personal.
   - Aplicar lo aprendido.
   - Resolver un problema difícil.
   - Investigar.
-#pause
 - Aportar algo.
+][
+   #figure(
+      grid(
+         columns: 2,
+         gutter: 10%,
+         image("img/LogoPPMC.png", width: 70%),
+         image("img/logo-arcos.png", width: 90%),
+         image("img/uma.jpeg", width: 110%),
+         image("img/uc3m_logo.svg", width: 120%)),
+      caption: [PPCM y ARCOS])
+]
 
 == Objetivos del proyecto
+#slide[
+// Optimización del código para la clasificación de épocas de una señal en
+// pertenecia o no pertenencia a un ataque epiléptico.
+Detectar en una señal de encefalograma qué épocas pertenecen a un ataque
+epiléptico y optimizar el código que lo hace.
+
 1. Módulo de Python 3 escrito en C++ para minimizar el tiempo de entrenamiento.
-2. Sistema en tiempo real en un dispositivo empotrado.
+2. Sistema en tiempo real duro en un dispositivo empotrado.
   1. RISC-V
   2. Bajo consumo
   3. *ESP32C3*
 3. Verificación formal.
+][
+   #figure(
+      caption: [ESP32C3],
+      image("img/esp32c3.jpg", width: 60%))
+]
+
 
 = Estado de la cuestión
 == PaFESD: _Patterns Augmented by Features Epileptic Seizure Detection_
+
+#figure(
+  caption: [PaFESD: Patterns augmented by Features Epileptic Seizure Detection],
+  image("img/concepto.png", height: 95%))
+
+/*
+#pagebreak(weak: true)
+
 Tres características estadísticas que deben estar en rango:
 
 - Distancia pico a pico.
@@ -115,25 +144,10 @@ Tres características estadísticas que deben estar en rango:
 
 Se usa la distancia utilizando el algoritmo de la deformación dinámica del
 tiempo (DTW) para discriminar ataques.
-
-== Demostración interactiva de problemas
-- Rocq
-  - Antes conocido como Coq
-- Lean
-  - Escrito en C++
-  - Turing completo
-- SPARK
-  - Utiliza otros probadores (`Alt-Ergo`, `Colibri`, `cvc5`, `Z3`, `Coq`...).
-  - Subconjunto de Ada con anotaciones adicionales.
-  - Permite demostrar propiedades de un programa.
-  - Detecta errores en tiempo de compilación.
-
+*/
 
 == Técnicas de programación
-- *Diseño por contrato*
-  - Ada y SPARK
-  - Eiffel
-  - \* C++ 26
+#slide[
 - *Rangos*
   - `range-v3`
   - `flux`
@@ -143,30 +157,30 @@ tiempo (DTW) para discriminar ataques.
   - OneTBB.
   - OpenMP.
   - C++ y políticas de ejecución.
+][
+- *Diseño por contrato*
+  - Ada y SPARK
+  - Eiffel
+  - \* C++ 26
+- *Demostración interactiva de teoremas*
+  - Rocq
+  - Lean
+  - SPARK
+]
 
 = Análisis
-== Casos de uso
+== Casos de uso y requisitos
 #slide[
-- Craig Larman: _Applying UML and Patterns: An Introduction to Object-Oriented
-  Analysis and Design and Iterative Development_.
-- Desarrollo en cascada.
-][
 #figure(
   caption: [Casos de uso],
   image("uml/casos-de-uso.svg", height: 80%))
-]
-
-== Requisitos
-#slide[
-- Requisitos funcionales (*5*)
-- Requsistos no funcionales (*13*)
-#figure(
-  caption: [Matriz de trazabilidad:\ Requisitos funcionales],
-  image("img/requisitos-funcionales.png"))
 ][
 #figure(
-  caption: [Matriz de trazabilidad:\ Requisitos no funcionales],
-  image("img/requisitos-no-funcionales.png"))
+  caption: [Requisitos funcionales y\ requisitos no funcionales],
+  grid(
+    columns: 1,
+    image("img/requisitos-funcionales.png", height: 28%),
+    image("img/requisitos-no-funcionales.png", height: 60%)))
 ]
 
 == Arquitectura
@@ -176,6 +190,7 @@ tiempo (DTW) para discriminar ataques.
 
 = Implementación en C++
 == Módulo de Python 3
+/*
 #code(caption: [Trucos de C++ con `pybind11`.])[```cpp
 template <typename T>
 constexpr std::span<T const> pyspan(pybind11::array_t<T> const & y) {
@@ -190,9 +205,10 @@ auto pymove(C && y) -> pybind11::array_t<typename C::value_type> {
                                    }};
   return pybind11::array_t<result_t>(vector->size(), vector->data(), capsule);
 })```]
-
 #pagebreak(weak: true)
-#code(caption: [Facilidad de `pybind11` y C++.])[```cpp
+*/
+
+#code(caption: [Integración de C++ en Python 3 con `pybind11`.])[```cpp
 PYBIND11_MODULE(signals, m) {
   m.doc() = "Signals library for Seizure Algorithm";
   m.def("simpson", simpson, pybind11::arg("y"), pybind11::arg("dx"));
@@ -223,25 +239,6 @@ for (auto && [epoch, idx] : ranges::views::zip(window_view, indices)) {
   // ...
 }
 ```]
-
-== Paralelización
-#code(caption: [Paralelización en C++ con OpenMP])[```cpp
-template <class Range, class Func>
-void parallel_for_with_index(Range && rng, Func && func) {
-  #pragma omp parallel for
-  for (auto && item : std::forward<decltype(rng)>(rng)) {
-    std::apply(std::forward<decltype(func)>(func), std::make_tuple(omp_get_thread_num(), item));
-  }
-}```]
-
-#code(caption: [Paralelización en C++ con OneTBB])[```cpp
-template <class Range, class Func>
-void parallel_for_with_index(Range && rng, Func && func) {
-  auto const range = std::move(std::forward<decltype(rng)>(rng));
-  oneapi::tbb::parallel_for_each(range.begin(), range.end(), [&](auto && item) {
-    std::apply(func, std::make_tuple(tbb::this_task_arena::current_thread_index(), item));
-  });
-}```]
 
 == Resultados
 #let pre-results-slimbook = (
@@ -403,13 +400,14 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
 = Implementación en Ada
 == ¿Por qué?
 - Pese a ser en general más lento que C++.
+- Prototipo rápido.
 - Punto fijo en el estándar.
-- Comportamiento no definido en C++ es comportamiento erróneo en Ada.
-- Traducción rápida de C++ a Ada.
-- GNAT pertenece al juego de compiladores de GCC
+  - GNAT pertenece al juego de compiladores de GCC
   - Intrínsecos del compilador para punto fijo.
-  - Compilación cruzada.
-- SPARK y contratos.
+- *Verificación formal del algoritmo.*
+  - Comportamiento no definido en C++ es comportamiento erróneo en Ada.
+  - Contratos en todas las operaciones.
+  - *SPARK*.
 
 == Pruebas preliminares (punto flotante)
 #figure(
@@ -435,7 +433,7 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
   table(
     columns: 3,
     align: (left, left, horizon),
-    table.header([*Checks*], [*Tipo*], [*épocas/s*]),
+    table.header([*_Checks_*], [*Tipo*], [*épocas/s*]),
     [Activados], [$bb(X)_(32,-8)$],  [`Constraint_Error`],
     [Activados], [$bb(X)_(64,-16)$], [$1.08$],
     [Desactivados], [$bb(X)_(32,-8)$],  [*$21.04$*],
@@ -445,10 +443,6 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
 #focus-slide[
   Técnicamente se podrían procesar alrededor de\
   21 épocas por segundo
-
-  #pause
-  - Es viable
-
   #pause
 
   - _Después de eliminar los errores_
@@ -458,33 +452,33 @@ _Intel Xeon Gold 6326 (64) \@ 3.500GHz_ con 64 hilos lógicos.
 - Desbordamiento y subdesbordamiento de enteros con signo.
   - En C++ es comportamiento no definido (_undefined behaviour_).
   - En Ada es `Constraint_Error`.
-#pause
 - Precisión
   - 32 bits: `float` ($23+1+1$) y `double` ($52+1+1$).
   - Variabilidad del exponente.
   - Productos y divisiones usan el doble de bits.
-#pause
+  #pause
   - *Divisiones ($49.2%$ del tiempo total en punto fijo de 64 bits).*
-#pause
+  #pause
 - Errores
   - En C++ son silenciosos.
   - En Ada lanzan excepciones. No capturables con la configuración de la
     biblioteca de tiempo de ejecución (_runtime_) del dispositivo empotrado
     (`No_Exception_Propagation`).
 
-== SPARK
 #focus-slide[
   SPARK
 ]
 
+== Soluciones
 - Subconjunto de Ada con anotaciones adicionales.
 - Probadores de teoremas: `Alt-Ergo`, `Colibri`, `cvc5`, `Z3`, `Coq`...
-- Uniformizar valores porque: $x, y in (-1, 1) -> x y in (-1, 1)$.
+- Uniformizar valores, porque: $x, y in (-1, 1) -> x y in (-1, 1)$.
 - Hacer iterativa la transformada de Fourier.
 - Punto fijo de 64 bits de manera dispersa.
 - SPARK _Gold_: _*Division*, *Index*, *Length*, *Overflow*, *Range*, Tag,
   Elaboration and *Flow* checks_.
 
+/*
 == Flujo de trabajo con SPARK
 #code(caption: [Declaración de `Generic_Accumulation`])[```adb
 generic
@@ -544,6 +538,7 @@ begin
    end loop;
    return Result;
 end Generic_Accumulation; ```]
+*/
 
 
 == Resultados
@@ -552,13 +547,14 @@ end Generic_Accumulation; ```]
   table(
     columns: 4,
     align: (left, left, left, horizon),
-    table.header([*Compilador*], [*Checks*], [*Máquina*], [*épocas/s*]),
+    table.header([*Compilador*], [*_Checks_*], [*Máquina*], [*épocas/s*]),
     ..(results.filter((x) => (x.real == "fixed32" and x.language == "Ada"))
            .map((x) => (
              [#x.compiler],
              if x.checks { [Activados] } else { [Desactivados] },
              [#x.target],
-             [$#x.performance$]))
+             (if x.compiler == "GNAT 14" and not x.checks and x.target == "ESP32C3"
+               [*$#x.performance$*] else [$#x.performance$])))
            .flatten())
   )) <tab:pruebas-finales-ada>
 
@@ -662,33 +658,36 @@ end Generic_Accumulation; ```]
 Objetivos cumplidos:
 1. Entrenamiento más rápido. Visto bueno del equipo de investigación de la UMA.
 2. Tiempo real.
-  1. ESP32C3
-    1. C++ 1.64 épocas por segundo
-    2. Ada 10.36 épocas por segundo
-  2. Dependiendo de la calidad de la FPU mejora el rendimiento de punto
-     flotante (vectorización, optimizaciones, ...).
-  3. A falta de FPU, punto fijo puede llegar a ser más rápido que punto
-     flotante.
-  4. Trabajar con punto fijo es tedioso y requiere demostraciones.
+  - ESP32C3
+    - C++: 1.64 épocas por segundo
+    - Ada: 10.36 épocas por segundo
+  - Dependiendo de la calidad de la FPU mejora el rendimiento de punto
+    flotante (vectorización, optimizaciones, ...).
+  - A falta de FPU, punto fijo puede llegar a ser más rápido que punto
+    flotante.
+  - Trabajar con punto fijo es tedioso y requiere demostraciones.
 3. Exceptuando Welch y la transformada de Fourier, se ha verificado formalmente
    todo el proyecto con un probador de teoremas.
 
-== Conclusiones personales
-1. Varios lenguajes de programación.
-2. SPARK en un proyecto real.
-3. Aprendido
-   1. Compilación cruzada
-   2. Probadores de teoremas
-   3. Dispositivos empotrados
-
-== Trabajo futuro
-1. Terminar de demostrar funciones.
-2. Reentrenamiento en tiempo de ejecución.
-3. Limpiado de señal y artefactos.
+== Conclusiones personales y trabajo futuro
+#slide[
+=== Conclusiones personales
+- Varios lenguajes de programación.
+- SPARK en un proyecto real.
+- Aprendido
+  - Compilación cruzada
+  - Probadores de teoremas
+  - Dispositivos empotrados
+][
+=== Trabajo futuro
+- Terminar de demostrar funciones.
+- Reentrenamiento en tiempo de ejecución.
+- Limpiado de señal y artefactos.
+- Publicación de resultados.
+]
 
 
 #focus-slide[
   ¡Muchas gracias por su atención!
-
-  Preguntas
 ]
+// Con esto concluyo mi presentación y quedo a disposición del tribunal.
