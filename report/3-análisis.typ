@@ -103,7 +103,7 @@ funcionales y la @srs:rnf-template de los no funcionales.
 #srs.show-template(reqs, srs.make-tag("R", "N"), "rnf-template")
 #srs.show-items(reqs, srs.make-tag("R", "N"))
 
-== Análisis de requisitos <sec:3-análisis-de-requisitos>
+=== Análisis de requisitos <sec:3-análisis-de-requisitos>
 Finalmente, las siguientes dos matrices de trazabilidad nos permiten ver la
 relación de cada requisito con cada caso de uso para determinar la cobertura y
 el grado de dependencia entre ambos. La primera (@srs:R-F-traceability) relaciona los
