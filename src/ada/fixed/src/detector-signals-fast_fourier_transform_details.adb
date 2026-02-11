@@ -11,8 +11,6 @@ with Detector.Numerics.Complex_Types_Operations;
 
 package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
 
-   -- FIXME: Set SPARK_Mode => On
-
    use Detector.Numerics.Elementary_Functions;
 
    package Trigonometric_Output_Complex is
@@ -119,27 +117,74 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       return Result;
    end Chunk_Sizes;
 
+   procedure Lemma_X_Mod_X_Is_Always_Zero (X, Y : in Positive_Count_Type) with
+      Pre  => X = Y,
+      Post => X mod Y = 0,
+      Global => null, Ghost, Always_Terminates;
+
+   procedure Lemma_Modulo_Is_Transitive (X, Y, Z : in Positive_Count_Type) with
+      Pre  => X mod Y = 0 and then Y mod Z = 0,
+      Post => X mod Z = 0,
+      Global => null, Ghost, Always_Terminates;
+
+   procedure Lemma_Expand_Denominator (X, Y, Z : in Positive_Count_Type) with
+      Pre  => Y = Z,
+      Post => X / Y = X / Z,
+      Global => null, Ghost, Always_Terminates;
+
+   procedure Lemma_X_Mod_X_Is_Always_Zero (X, Y : in Positive_Count_Type) is
+      null;
+
+   procedure Lemma_Expand_Denominator (X, Y, Z : in Positive_Count_Type) is
+      null;
+
+   procedure Lemma_Modulo_Is_Transitive (X, Y, Z : in Positive_Count_Type) is
+      A : constant Positive_Count_Type := X / Y;
+      B : constant Positive_Count_Type := Y / Z;
+   begin
+      pragma Assert (X mod Y = 0);
+      pragma Assert (X = A * Y);
+      pragma Assert (Y mod Z = 0);
+      pragma Assert (Y = B * Z);
+      Lemma_Expand_Denominator (X, Y, B * Z);
+      pragma Assert (X / Y = X / (B * Z));
+
+      pragma Assert (X = A * B * Z);
+      pragma Assert (X mod Z = 0);
+   end Lemma_Modulo_Is_Transitive;
+
    procedure Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
       Left  : in Natural;
       Right : in Natural) is
-      -- FIXME: Prove it!!
-      pragma SPARK_Mode (Off);
-      Sizes : constant Chunk_Size_Array := Chunk_Sizes;
+      Sizes : constant Chunk_Size_Array := Chunk_Sizes with Ghost;
    begin
       pragma Assert (2 ** Left = Sizes (Left));
       pragma Assert (2 ** Right = Sizes (Right));
       pragma Assert (2 ** Left >= 2 ** Right);
       pragma Assert (Left >= Right);
+
       if Left = Right then
+         pragma Assert (2 ** Left = 2 ** Right);
+         Lemma_X_Mod_X_Is_Always_Zero (2 ** Left, 2 ** Right);
+         pragma Assert (2 ** Left mod 2 ** Right = 0);
+      elsif Right = 0 then
+         pragma Assert (2 ** Right = 1);
          pragma Assert (2 ** Left mod 2 ** Right = 0);
       else
          pragma Assert (Left > Right);
-         pragma Assert (
-            (for all I in Left + 1 .. Right =>
-               Sizes (I) = Sizes (I - 1) * 2
-               and then Sizes (I) mod Sizes (I - 1) = 0
-               and then Sizes (I) mod 2 ** Left = 0));
-         pragma Assert (Sizes (Right) mod 2 ** Left = 0);
+         pragma Assert (Right > 0);
+
+         for I in Right + 1 .. Left loop
+            pragma Loop_Invariant (Sizes (I) = 2 ** I);
+            pragma Loop_Invariant (Sizes (I) = Sizes (I - 1) * 2);
+            pragma Loop_Invariant (Sizes (I) mod Sizes (I - 1) = 0);
+            pragma Loop_Invariant (
+               (for all J in Right .. I - 1 =>
+                  Sizes (J) mod Sizes (Right) = 0));
+            pragma Loop_Invariant (Sizes (I - 1) mod Sizes (Right) = 0);
+            Lemma_Modulo_Is_Transitive (Sizes (I), Sizes (I - 1), Sizes (Right));
+         end loop;
+
          pragma Assert (2 ** Left mod 2 ** Right = 0);
       end if;
    end Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero;
