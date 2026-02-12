@@ -8,7 +8,7 @@
 
 with Detector.Batches;
 
-package Default_Detector with SPARK_Mode => On is
+package Default_Detector with SPARK_Mode is
 
    use Detector;
 

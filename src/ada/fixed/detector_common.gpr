@@ -9,7 +9,7 @@ abstract project Detector_Common is
 
    Target            := "";
    Runtime           := "";
-   Compiler_Switches := ();
+   Compiler_Switches := ();   -- ("-gnato13");
 
    Parallel_Suffix := "";
    case Seizure_Detector_Fixed_Config.Parallel is
@@ -21,15 +21,17 @@ abstract project Detector_Common is
       when "native" =>
          Target  := "";
          Runtime := "default";
-         Compiler_Switches := ();
+         Compiler_Switches := Compiler_Switches & ();
       when "esp32c3" =>
          Target := "riscv64-elf";
          Runtime := "light-rv32imac";
-         Compiler_Switches := ("-march=rv32imc", "-mabi=ilp32");
+         Compiler_Switches := Compiler_Switches
+            & ("-march=rv32imc", "-mabi=ilp32");
       when "esp32c6" =>
          Target := "riscv64-elf";
          Runtime := "light-rv32imac";
-         Compiler_Switches := ("-march=rv32imac_zicsr_zifencei", "-mabi=ilp32");
+         Compiler_Switches := Compiler_Switches
+            & ("-march=rv32imac_zicsr_zifencei", "-mabi=ilp32");
       when "rpi4" =>
          Target := "arm-eabi";
          Runtime := "light-cortex-m7f";

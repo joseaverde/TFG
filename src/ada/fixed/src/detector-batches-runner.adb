@@ -7,9 +7,7 @@
 --\-------------------------------------------------------------------------/--
 
 procedure Detector.Batches.Runner (
-   Batch : in out Batch_Type) with
-   SPARK_Mode => On
-is
+   Batch : in out Batch_Type) with SPARK_Mode is
    Epoch : Epoch_Type := [others => 0.0];
    Is_It : Boolean;
 begin

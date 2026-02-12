@@ -154,7 +154,6 @@ package body Detector.Batches with SPARK_Mode is
       PSD_2  :    out Feature_Type;
       PSD_3  :    out Feature_Type) is
       pragma SPARK_Mode (Off);
-      -- FIXME: Set it to SPARK_Mode => On
       Size   : constant Positive_Count_Type := Welch_Window_Size;
       Pxx    : Signals.Signal_Type (1 .. Size / 2 + 1);
       Fq_Res : constant Signals.Sample_Type :=

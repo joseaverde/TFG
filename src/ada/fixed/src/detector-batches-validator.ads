@@ -10,7 +10,7 @@ generic
    Cores      : in Positive            := 1;
    Chunk_Size : in Positive_Count_Type := 100;
    Exclusion  : in Positive_Count_Type := 10;
-package Detector.Batches.Validator with SPARK_Mode => On is
+package Detector.Batches.Validator with SPARK_Mode is
 
    pragma Unreferenced (Cores);
 

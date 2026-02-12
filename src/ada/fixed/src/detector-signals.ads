@@ -8,7 +8,7 @@
 
 with Detector.Numerics.Generic_Complex_Types;
 
-package Detector.Signals with Pure, SPARK_Mode => On is
+package Detector.Signals with Pure, SPARK_Mode is
 
    -- A Signal is a sequence of samples. After some experimentation it is
    -- simpler for the theorem prover and for the implementation of numerous

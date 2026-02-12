@@ -4,9 +4,7 @@ procedure Detector.Signals.Fast_Fourier_Transform (
    Input  : in     Signal_Type;
    Output :    out Complex_Signal;
    Power  : in     Natural;
-   Scale  :    out Natural) is
-   pragma SPARK_Mode (On);
-
+   Scale  :    out Natural) with SPARK_Mode is
    use Detector.Signals.Fast_Fourier_Transform_Details;
 
    Buffer : Double_Buffer (Boolean, 0 .. Output'Length - 1);
@@ -34,6 +32,7 @@ begin
       pragma Assert (Input'Length = Buffer'Length (2));
       Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
          Power, I - 1);
+      pragma Assert ((Buffer'Length (2) / Layer) mod 2 = 0);
       Conquer (Buffer, Scaled, Layer, Result);
       if Scaled then
          Scale := Scale + 1;

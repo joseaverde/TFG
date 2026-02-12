@@ -9,6 +9,8 @@
 with Detector.Numerics.Elementary_Functions;
 with Detector.Numerics.Complex_Types_Operations;
 
+pragma Overflow_Mode (General => Strict, Assertions => Eliminated);
+
 package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
 
    use Detector.Numerics.Elementary_Functions;
@@ -51,10 +53,8 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Right_1   : in Count_Type;
       Right_2   : in Count_Type;
       Result    : in Count_Type) with
-      Pre      => Result / Left = Right_1
-         and then Left * Right_1 = Result
-         and then Right_2 <= Right_1,
-      Post => Left * Right_2 <= Result,
+      Pre    => Left * Right_1 = Result and then Right_2 <= Right_1,
+      Post   => Left * Right_2 <= Result,
       Global => null, Ghost, Always_Terminates;
 
    procedure Lemma_Lower_Positive_Factor_In_Product_Is_Lower (
@@ -107,11 +107,9 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Scaled := True;
       pragma Assert (First = 0);
       pragma Assert (Buffer'Length (2) mod Chunk_Size = 0);
-      pragma Assume (Count mod 2 = 0);
+      pragma Assert (Count mod 2 = 0);
       pragma Assert (Count * Chunk_Size = Buffer'Length (2));
       pragma Assert (Count * Chunk_Size / 2 = Buffer'Length (2) / 2);
-      pragma Assert (Last_Chunk * Chunk = Buffer'Length (2) / 2 - Chunk);
-      pragma Assume (Last_Chunk = (Buffer'Length (2) / 2 - Chunk) / Chunk);
       for Chunk in 0 .. Last_Chunk loop
          Lemma_Lower_Positive_Factor_In_Product_Is_Lower (
             Chunk_Size, Last_Chunk, Chunk, Buffer'Length (2) / 2 - Chunk_Size);

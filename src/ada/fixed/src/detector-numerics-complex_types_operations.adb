@@ -8,8 +8,6 @@
 
 package body Detector.Numerics.Complex_Types_Operations with SPARK_Mode => Off is
 
-   -- FIXME: Set SPARK_Mode => On
-
    function Multiply (
       Left  : in Left_Complex.Complex;
       Right : in Right_Complex.Complex)

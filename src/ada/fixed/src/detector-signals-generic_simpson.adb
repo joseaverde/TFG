@@ -12,7 +12,7 @@ with Detector.Numerics.Saturating_Arithmetic;
 function Detector.Signals.Generic_Simpson (
    Signal : in Signal_Type;
    dx     : in Sample_Type)
-   return Result_Type with SPARK_Mode => On is
+   return Result_Type with SPARK_Mode is
 
    package Details is new Generic_Simpson_Details (Result_Type);
    use Details;

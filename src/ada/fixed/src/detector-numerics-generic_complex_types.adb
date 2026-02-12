@@ -8,8 +8,6 @@
 
 package body Detector.Numerics.Generic_Complex_Types with SPARK_Mode => Off is
 
-   -- FIXME: Set SPARK_Mode => On
-
    function "*" (Left : in Complex; Right : in Integer) return Complex is (
       Re => Left.Re * Right,
       Im => Left.Im * Right);
