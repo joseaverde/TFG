@@ -65,6 +65,7 @@ class Configuration:
 
 # ==== Project ============================================================== #
 
+
 class BaseProject:
     def __init__ (self, config):
         self.config = config
@@ -149,11 +150,25 @@ class ESPProject (BaseProject):
             self.__compile_cxx()
 """
 
+def generate(conf : Configuration):
+    if conf.language == Language.Ada:
+        pass
+    elif conf.language == Language.CXX:
+        pass
+    else:
+        raise Exception(f"Invalid language {conf}")
+
 if __name__ == "__main__":
+    BUILD = "build"
+    if not os.path.exists(BUILD):
+        os.makedirs(BUILD);
+
     conf = Configuration(
             language = Language.Ada,
             real     = Real.Fixed,
             profile  = Profile.Release,
-            target   = Target.ESP32C6,
+            target   = Target.Native,
             compiler = Compiler.GCC)
+    generate(conf)
+
     print(conf.name)
