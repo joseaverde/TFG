@@ -56,4 +56,13 @@ is
       Post     => 2 ** Left mod 2 ** Right = 0,
       Always_Terminates;
 
+   procedure Lemma_Quotient_Of_Powers_Of_Two_Is_Sometimes_A_Power_Of_Two (
+      Left  : in Natural;
+      Right : in Natural) with
+      Pre      => Left in 0 .. Bits - 2
+         and then Right in 0 .. Bits - 2
+         and then Left < Right,
+      Post     => ((2 ** Right) / (2 ** Left)) mod 2 = 0,
+      Global => null, Ghost, Always_Terminates;
+
 end Detector.Signals.Fast_Fourier_Transform_Details;

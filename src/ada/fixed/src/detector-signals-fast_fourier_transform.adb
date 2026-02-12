@@ -21,10 +21,12 @@ begin
 
    pragma Assert (Input'Length = Sizes (Power));
    for I in 1 .. Power loop
+
       pragma Loop_Invariant (Layer = Sizes (I - 1));
       pragma Loop_Invariant (Scale in 0 .. I - 1);
       pragma Loop_Variant (Increases => Layer);
       exit when Layer >= Input'Length;
+
       pragma Assert (Layer = 2 ** (I - 1));
       pragma Assert (Input'Length = 2 ** Power);
       pragma Assert (Input'Length >= Layer);
@@ -32,13 +34,25 @@ begin
       pragma Assert (Input'Length = Buffer'Length (2));
       Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
          Power, I - 1);
+
+      pragma Assert (Buffer'Length (2) > Layer);
+      pragma Assert (I - 1 < Power);
+      pragma Assert (Sizes (I - 1) < Sizes (Power));
+      Lemma_Quotient_Of_Powers_Of_Two_Is_Sometimes_A_Power_Of_Two (
+         I - 1, Power);
+      pragma Assert (((2 ** Power) / (2 ** (I - 1))) mod 2 = 0);
+      pragma Assert ((Sizes (Power) / Sizes (I - 1)) mod 2 = 0);
+      pragma Assert (Buffer'Length (2) = Sizes (Power));
+      pragma Assert (Layer = Sizes (I - 1));
       pragma Assert ((Buffer'Length (2) / Layer) mod 2 = 0);
+
       Conquer (Buffer, Scaled, Layer, Result);
       if Scaled then
          Scale := Scale + 1;
       end if;
       Result := not Result;
       Layer := Layer * 2;
+
    end loop;
    pragma Assert (Scale in 0 .. Power);
 

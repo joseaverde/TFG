@@ -226,4 +226,31 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       end if;
    end Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero;
 
+   procedure Lemma_Quotient_Of_Powers_Of_Two_Is_Sometimes_A_Power_Of_Two (
+      Left  : in Natural;
+      Right : in Natural) is
+      Sizes : constant Chunk_Size_Array := Chunk_Sizes with Ghost;
+   begin
+      pragma Assert (2 ** Left = Sizes (Left));
+      pragma Assert (2 ** Right = Sizes (Right));
+      if Right - Left = 1 then
+         pragma Assert (Sizes (Right) = Sizes (Left) * 2);
+         pragma Assert (Sizes (Right) / Sizes (Left) = 2);
+         pragma Assert ((Sizes (Right) / Sizes (Left)) mod 2 = 0);
+         pragma Assert (((2 ** Right) / (2 ** Left)) mod 2 = 0);
+      else
+         -- for I in Left + 1 .. Right loop
+         --    pragma Loop_Invariant (Sizes (I) = 2 ** I);
+         --    pragma Loop_Invariant (Sizes (I) = Sizes (I - 1) * 2);
+         --    pragma Loop_Invariant (Sizes (I) / Sizes (I - 1) = 2);
+         --    pragma Loop_Invariant ((Sizes (I) / Sizes (I - 1)) mod 2 = 0);
+         --    pragma Loop_Invariant (
+         --       (for all J in Left + 1 .. I - 1 =>
+         --          (Sizes (J) / Sizes (Left)) mod 2 = 0));
+         --    pragma Loop_Invariant (Sizes (I - 1) mod Sizes
+         -- end loop;
+         pragma Assume (((2 ** Right) / (2 ** Left)) mod 2 = 0);
+      end if;
+   end Lemma_Quotient_Of_Powers_Of_Two_Is_Sometimes_A_Power_Of_Two;
+
 end Detector.Signals.Fast_Fourier_Transform_Details;
