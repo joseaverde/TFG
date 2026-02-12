@@ -26,7 +26,7 @@ begin
       pragma Loop_Invariant (Layer = Sizes (I - 1));
       pragma Loop_Invariant (Scale in 0 .. I - 1);
       pragma Loop_Variant (Increases => Layer);
-      exit when Layer > Input'Length;
+      exit when Layer >= Input'Length;
       pragma Assert (Layer = 2 ** (I - 1));
       pragma Assert (Input'Length = 2 ** Power);
       pragma Assert (Input'Length >= Layer);

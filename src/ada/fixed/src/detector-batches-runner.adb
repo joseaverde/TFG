@@ -1,5 +1,5 @@
 --/-------------------------------------------------------------------------\--
---| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--| Copyright (c) 2023-2026 José Antonio Verde Jiménez  All Rights Reserved |--
 --|-------------------------------------------------------------------------|--
 --| File:    detector-batches-runner.ads                                    |--
 --| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--

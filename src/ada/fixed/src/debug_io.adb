@@ -1,5 +1,5 @@
 --/-------------------------------------------------------------------------\--
---| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--| Copyright (c) 2023-2026 José Antonio Verde Jiménez  All Rights Reserved |--
 --|-------------------------------------------------------------------------|--
 --| File:    debug_io.adb                                                   |--
 --| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
@@ -7,10 +7,10 @@
 --\-------------------------------------------------------------------------/--
 
 with Interfaces.C; use Interfaces.C;
-package body Debug_IO is
+package body Debug_IO with SPARK_Mode is
 
    function putchar (c : int) return int with
-      Import, Convention => C, External_Name => "putchar";
+      Global => null, Import, Convention => C, External_Name => "putchar";
 
    procedure Put (Item : in Character) is
       Dummy : int with Unreferenced;

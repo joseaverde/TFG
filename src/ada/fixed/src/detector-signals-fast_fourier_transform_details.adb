@@ -1,5 +1,5 @@
 --/-------------------------------------------------------------------------\--
---| Copyright (c) 2023-2025 José Antonio Verde Jiménez  All Rights Reserved |--
+--| Copyright (c) 2023-2026 José Antonio Verde Jiménez  All Rights Reserved |--
 --|-------------------------------------------------------------------------|--
 --| File:    detector-signals-fast_fourier_transform_details.adb            |--
 --| Author:  José Antonio Verde Jiménez  <joseaverde@protonmail.com>        |--
@@ -31,6 +31,41 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Inline => True,
       Pre    => K < N;
 
+   procedure Lemma_X_Mod_X_Is_Always_Zero (X, Y : in Positive_Count_Type) with
+      Pre  => X = Y,
+      Post => X mod Y = 0,
+      Global => null, Ghost, Always_Terminates;
+
+   procedure Lemma_Modulo_Is_Transitive (X, Y, Z : in Positive_Count_Type) with
+      Pre  => X mod Y = 0 and then Y mod Z = 0,
+      Post => X mod Z = 0,
+      Global => null, Ghost, Always_Terminates;
+
+   procedure Lemma_Expand_Denominator (X, Y, Z : in Positive_Count_Type) with
+      Pre  => Y = Z,
+      Post => X / Y = X / Z,
+      Global => null, Ghost, Always_Terminates;
+
+   procedure Lemma_Lower_Positive_Factor_In_Product_Is_Lower (
+      Left      : in Positive_Count_Type;
+      Right_1   : in Count_Type;
+      Right_2   : in Count_Type;
+      Result    : in Count_Type) with
+      Pre      => Result / Left = Right_1
+         and then Left * Right_1 = Result
+         and then Right_2 <= Right_1,
+      Post => Left * Right_2 <= Result,
+      Global => null, Ghost, Always_Terminates;
+
+   procedure Lemma_Lower_Positive_Factor_In_Product_Is_Lower (
+      Left      : in Positive_Count_Type;
+      Right_1   : in Count_Type;
+      Right_2   : in Count_Type;
+      Result    : in Count_Type) is
+      null;
+
+   -->> Implementation <<-
+
    function ω (
       K : in Count_Type;
       N : in Positive_Count_Type)
@@ -46,7 +81,6 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       K, N         : in     Count_Type'Base;
       Left_Output  :    out Complex;
       Right_Output :    out Complex) is
-      pragma SPARK_Mode (Off);
       use all type Complex;
       L : constant Complex := Left_Input / 2;
       R : constant Complex := (Right_Input * ω (K, N)) / 2;
@@ -60,9 +94,10 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Scaled :    out Boolean;
       Chunk  : in     Positive_Count_Type;
       Input  : in     Boolean) is
-      pragma SPARK_Mode (Off);
       Chunk_Size : constant Positive_Count_Type := Chunk;
-      Count      : constant Count_Type := Buffer'Length (2) / Chunk_Size;
+      Count      : constant Positive_Count_Type :=
+         Buffer'Length (2) / Chunk_Size;
+      Last_Chunk : constant Count_Type := Count / 2 - 1;
       First      : constant Count_Type := Buffer'First (2);
       In_Left    : Count_Type;
       In_Right   : Count_Type;
@@ -70,11 +105,30 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       Out_Right  : Count_Type;
    begin
       Scaled := True;
-      for Chunk in 0 .. Count / 2 - 1 loop      -- Count * Size = Length
+      pragma Assert (First = 0);
+      pragma Assert (Buffer'Length (2) mod Chunk_Size = 0);
+      pragma Assume (Count mod 2 = 0);
+      pragma Assert (Count * Chunk_Size = Buffer'Length (2));
+      pragma Assert (Count * Chunk_Size / 2 = Buffer'Length (2) / 2);
+      pragma Assert (Last_Chunk * Chunk = Buffer'Length (2) / 2 - Chunk);
+      pragma Assume (Last_Chunk = (Buffer'Length (2) / 2 - Chunk) / Chunk);
+      for Chunk in 0 .. Last_Chunk loop
+         Lemma_Lower_Positive_Factor_In_Product_Is_Lower (
+            Chunk_Size, Last_Chunk, Chunk, Buffer'Length (2) / 2 - Chunk_Size);
          In_Left := First + Chunk * Chunk_Size;
          In_Right := First + (Chunk + Count / 2) * Chunk_Size;
          Out_Left := First + (2 * Chunk) * Chunk_Size;
-         Out_Right := First + (2 * Chunk + 1) * Chunk_Size;
+         Out_Right := Out_Left + Chunk_Size;
+         pragma Assert (
+            In_Left in First .. First + Buffer'Length (2) / 2 - Chunk_Size);
+         pragma Assert (
+            In_Right in First + Buffer'Length (2) / 2
+                     .. First + Buffer'Length (2) - Chunk_Size);
+         pragma Assert (
+            Out_Left in First .. First + Buffer'Length (2) - 2 * Chunk_Size);
+         pragma Assert (
+            Out_Right in First + Chunk_Size
+                      .. First + Buffer'Length (2) - Chunk_Size);
          for Index in 0 .. Chunk_Size - 1 loop
             Operation (
                Left_Input   => Buffer (Input, In_Left + Index),
@@ -116,21 +170,6 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
          (for all I in 1 .. Bits - 2 => Result (I) = 2 ** I));
       return Result;
    end Chunk_Sizes;
-
-   procedure Lemma_X_Mod_X_Is_Always_Zero (X, Y : in Positive_Count_Type) with
-      Pre  => X = Y,
-      Post => X mod Y = 0,
-      Global => null, Ghost, Always_Terminates;
-
-   procedure Lemma_Modulo_Is_Transitive (X, Y, Z : in Positive_Count_Type) with
-      Pre  => X mod Y = 0 and then Y mod Z = 0,
-      Post => X mod Z = 0,
-      Global => null, Ghost, Always_Terminates;
-
-   procedure Lemma_Expand_Denominator (X, Y, Z : in Positive_Count_Type) with
-      Pre  => Y = Z,
-      Post => X / Y = X / Z,
-      Global => null, Ghost, Always_Terminates;
 
    procedure Lemma_X_Mod_X_Is_Always_Zero (X, Y : in Positive_Count_Type) is
       null;
