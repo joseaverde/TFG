@@ -17,8 +17,6 @@ procedure Detector.Signals.Generic_Welch (
    Overlap   : in     Count_Type;
    Rescale   :    out Result_Type) with SPARK_Mode => Off is
 
-   use Complex_Types;
-
    -- The usual algorithm is as follows:
    --
    --    Pxx := [0, 0, ..., 0];
