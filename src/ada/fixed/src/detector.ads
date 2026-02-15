@@ -81,4 +81,9 @@ package Detector with Pure, SPARK_Mode is
       range -2.0 ** (Bits * 2 - 1) .. 2.0 ** (Bits * 2 - 1) - 1.0 with
    Size => Bits * 2;
 
+   type Int is range -2 ** (Bits - 1) .. 2 ** (Bits - 1) - 1 with Size => Bits;
+
+   type Long_Int is range -2 ** (2 * Bits - 1) .. 2 ** (2 * Bits - 1) - 1 with
+      Size => 2 * Bits;
+
 end Detector;

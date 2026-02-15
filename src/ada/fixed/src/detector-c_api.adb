@@ -57,9 +57,10 @@ is
    end To_Sample;
 
    function To_Double (Item : in Sample_Type) return double is
-      pragma SPARK_Mode (Off);
+      Numerator : constant Int := Int (
+         Fixed_Integer'(Item / Sample_Type'(Sample_Type'Delta)));
    begin
-      return double (Item);
+      return double (Numerator) / Sample_Type'Delta;
    end To_Double;
 
    -- Feature conversion functions --
@@ -76,10 +77,40 @@ is
       end if;
    end To_Feature;
 
+-- function To_Feature (Item : in double) return Feature_Type is
+--    Numerator : double;
+--    Value     : Feature_Type'Base;
+-- begin
+--    -- Feature_Type cannot be negative.
+--    if Item < 0.0 then
+--       return 0.0;
+--    end if;
+--    -- Check it isn't too big, so that we can divide the delta.
+--    if Item not in 0.0 .. 1.0E+80 then
+--       return (if Item > 0.0 then Feature_Type'Last else Feature_Type'First);
+--    end if;
+--    Numerator := Item / Feature_Type'Delta;
+--    -- Finally check the numerator
+--    if Numerator > double (Long_Int'Last) then
+--       return (if Item > 0.0 then Feature_Type'Last else Feature_Type'First);
+--    end if;
+--    pragma Assert (Numerator <= double (Long_Int'Last));
+--    pragma Assert (Long_Int (double (Long_Int'Last)) = Long_Int'Last);
+--    Lemma_Exact_Double_Conversion_Comparison (Long_Int'Last, Numerator);
+--    pragma Assert (Long_Int (Numerator) <= Long_Int'Last);
+--    Value := Fixed_Long_Integer (Long_Int (Numerator))
+--             / Feature_Type'(Feature_Type'Delta);
+--    if Value not in Feature_Type then
+--       return (if Item > 0.0 then Feature_Type'Last else Feature_Type'First);
+--    else
+--       return Value;
+--    end if;
+
    function To_Double (Item : in Feature_Type) return double is
-      pragma SPARK_Mode (Off);
+      Numerator : constant Long_Int := Long_Int (
+         Fixed_Long_Integer'(Item / Feature_Type'(Feature_Type'Delta)));
    begin
-      return double (Item);
+      return double (Numerator) / Feature_Type'Delta;
    end To_Double;
 
    -- Batch configuration functions --
