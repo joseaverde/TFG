@@ -45,11 +45,11 @@ is
       end if;
    end To_Sample;
 
-   function To_Sample (Item : in int) return Sample_Type is
+   function To_Sample (Item : in C.int) return Sample_Type is
    begin
-      if Item > int (Sample_Type'Last) then
+      if Item > C.int (Sample_Type'Last) then
          return Sample_Type'Last;
-      elsif Item < int (Sample_Type'First) then
+      elsif Item < C.int (Sample_Type'First) then
          return Sample_Type'First;
       else
          return Sample_Type (Item);
@@ -145,7 +145,7 @@ is
       Batches.Set_DTW_Dist (Batch, (0.0, Value));
    end Set_d_max_c;
 
-   procedure Set_Pattern (Pattern : in Epoch_Type; Index : in int) is
+   procedure Set_Pattern (Pattern : in Epoch_Type; Index : in C.int) is
       Signal : Detector.Signals.Signal_Type (Pattern.Value'Range);
       Normal : Batches.Pattern_Type;
    begin
@@ -186,7 +186,7 @@ is
       return Batches.Energy (Signal);
    end Energy;
 
-   function DTW (Item : in Epoch_Type; Index : in int) return Feature_Type is
+   function DTW (Item : in Epoch_Type; Index : in C.int) return Feature_Type is
       Signal : Detector.Signals.Signal_Type (Item.Value'Range);
       Normal : Batches.Pattern_Type;
    begin

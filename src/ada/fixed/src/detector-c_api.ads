@@ -6,7 +6,7 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
-with Interfaces.C; use Interfaces.C;
+with Interfaces.C;
 with Seizure_Detector_Fixed_Config;
 with Default_Detector;
 
@@ -15,6 +15,9 @@ package Detector.C_API with
    Abstract_State => State,
    Initializes    => State
 is
+
+   use Interfaces;
+   use Interfaces.C;
 
    Pattern_Count          : constant := 3;
    Default_Warping_Window : constant := 16;
@@ -66,7 +69,7 @@ is
    function To_Sample (Item : in double) return Sample_Type with
       Export, Convention => C,
       External_Name => "detector_convert_double_to_sample";
-   function To_Sample (Item : in int) return Sample_Type with
+   function To_Sample (Item : in C.int) return Sample_Type with
       Export, Convention => C,
       External_Name => "detector_convert_int_to_sample";
    function To_Double (Item : in Sample_Type) return double with
@@ -131,7 +134,7 @@ is
       Pre    => Batch_Pattern_Count = Pattern_Count,
       Post   => Batch_Pattern_Count = Pattern_Count,
       Export, Convention => C, External_Name => "detector_batch_set_d_max_c";
-   procedure Set_Pattern (Pattern : in Epoch_Type; Index : in int) with
+   procedure Set_Pattern (Pattern : in Epoch_Type; Index : in C.int) with
       Global   => (In_Out => State),
       Post     => Batch_Pattern_Count = Pattern_Count,
       Pre      => Batch_Pattern_Count = Pattern_Count
@@ -157,7 +160,8 @@ is
       Export, Convention => C, External_Name => "detector_max_distance";
    function Energy (Item : in Epoch_Type) return Feature_Type with
       Export, Convention => C, External_Name => "detector_energy";
-   function DTW (Item : in Epoch_Type; Index : in int) return Feature_Type with
+   function DTW (Item : in Epoch_Type; Index : in C.int)
+      return Feature_Type with
       Global   => (Input => State),
       Pre      => Index in 0 .. Pattern_Count - 1
          and then Batch_Pattern_Count = Pattern_Count,

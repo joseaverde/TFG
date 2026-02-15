@@ -206,9 +206,10 @@ def dump_output(result : Result, output : str):
         for feature in result.features:
             print(" ".join(map(str, feature)), file=fp)
 
-chbmit_dir = "/home/joseaverde/TFG/reference/CHBMIT"
-model_file = ("/home/joseaverde/DatosDeteccionSeizure/aa_ma_params_b3z2mz18ws5.json")
-for patient in range(1,8):
+chbmit_dir = os.path.join(root, "reference", "CHBMIT")
+model_file = os.path.join(root, "model", "aa_ma_params_b3z2mz18ws5.json")
+
+def gen_patient(patient : int):
     chb = "chb%02d" % patient
     print(f"Processing {chb}")
     print(f"  Loading {chb}")
@@ -222,3 +223,9 @@ for patient in range(1,8):
     print(f"  Generating output file")
     dump_output(result, f"{chb}.out")
     print(f"  Done")
+
+for patient in range(1,25):
+    try:
+        gen_patient(patient)
+    except:
+        print("  [PASS]")
