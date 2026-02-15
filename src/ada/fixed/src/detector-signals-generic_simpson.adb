@@ -14,7 +14,7 @@ function Detector.Signals.Generic_Simpson (
    dx     : in Sample_Type)
    return Result_Type with SPARK_Mode is
 
-   package Details is new Generic_Simpson_Details (Result_Type);
+   package Details is new Generic_Simpson_Details;
    use Details;
 
    function Multiply is

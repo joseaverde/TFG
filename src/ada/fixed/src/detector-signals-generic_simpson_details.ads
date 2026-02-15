@@ -9,7 +9,6 @@
 with Detector.Signals.Lemmas;
 
 private generic
-   type Result_Type is delta <>;
 package Detector.Signals.Generic_Simpson_Details with Pure, SPARK_Mode is
 
    -- This package's only purpose is proving the abscence of errors for the

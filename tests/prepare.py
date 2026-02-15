@@ -5,8 +5,7 @@ import os
 root : Final[str] = os.path.dirname(os.path.dirname(os.path.join(os.getcwd(),
                                                                  sys.argv[0])))
 sys.path.append(os.path.join(root, "reference"))
-sys.path.append(os.path.join(root, "reference/mylibrary/computeDTW/EEGLib/"
-                                 + "build/lib.linux-x86_64-cpython-310"))
+sys.path.append(os.path.join(root, "reference/mylibrary/computeDTW/EEGLib/"))
 
 import EEGLIB
 from typing import Final
