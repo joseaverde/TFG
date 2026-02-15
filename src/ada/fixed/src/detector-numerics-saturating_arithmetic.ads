@@ -16,6 +16,9 @@ package Detector.Numerics.Saturating_Arithmetic with Pure, SPARK_Mode is
       Left  : in Left_Fixed_Type;
       Right : in Right_Fixed_Type)
       return Result_Fixed_Type with
+      Pre      => Left_Fixed_Type'Delta <= 1.0
+         and then Right_Fixed_Type'Delta <= 1.0
+         and then Result_Fixed_Type'Delta <= 1.0,
       Inline => True,
       Global => null;
 

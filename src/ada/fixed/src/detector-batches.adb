@@ -6,6 +6,8 @@
 --| License: European Union Public License 1.2                              |--
 --\-------------------------------------------------------------------------/--
 
+with Detector.Numerics.Saturating_Arithmetic;
+
 package body Detector.Batches with SPARK_Mode is
 
    procedure Is_Seizure (
@@ -153,7 +155,6 @@ package body Detector.Batches with SPARK_Mode is
       PSD_1  :    out Feature_Type;
       PSD_2  :    out Feature_Type;
       PSD_3  :    out Feature_Type) is
-      pragma SPARK_Mode (Off);
       Size   : constant Positive_Count_Type := Welch_Window_Size;
       Pxx    : Signals.Signal_Type (1 .. Size / 2 + 1);
       Fq_Res : constant Signals.Sample_Type :=
@@ -162,12 +163,25 @@ package body Detector.Batches with SPARK_Mode is
       First  : Count_Type;
       Last   : Count_Type;
 
-      Denormalise : constant Positive := Normalisation.Factor ** 2;
+      Denormalise : constant Fixed_Integer :=
+         Fixed_Integer (Normalisation.Factor ** 2);
+
+      function Multiply is
+         new Numerics.Saturating_Arithmetic.Generic_Saturated_Multiplication (
+         Left_Fixed_Type   => Feature_Type,
+         Right_Fixed_Type  => Welch_Rescaling_Factor_Type,
+         Result_Fixed_Type => Feature_Type);
+
+      function Multiply is
+         new Numerics.Saturating_Arithmetic.Generic_Saturated_Multiplication (
+         Left_Fixed_Type   => Feature_Type,
+         Right_Fixed_Type  => Fixed_Integer,
+         Result_Fixed_Type => Feature_Type);
 
       function Rescale (
          Item : in Feature_Type)
          return Feature_Type is (
-         Feature_Type'(Item * Scale) * Denormalise);
+         Multiply (Multiply (Item, Scale), Denormalise));
    begin
       Welch (Signal, Pxx, Stride_Size, Size, Size / 2, Scale);
 
