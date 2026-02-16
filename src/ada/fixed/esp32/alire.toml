@@ -39,7 +39,7 @@ command = ["bash", "flash.sh"]
 
 
 [configuration.values]
-seizure_detector_fixed.Target = "esp32c6"
+seizure_detector_fixed.Target = "esp32c3"
 
 [[depends-on]]
 gnatprove = "^14.1.1"

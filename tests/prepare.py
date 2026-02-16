@@ -32,10 +32,10 @@ class Metadata:
     def __init__ (self, name : str):
         with open(name, "r", newline="") as csvfile:
             reader = csv.reader(csvfile,delimiter=",")
-            self.__bounds = [(int(row[4]) * stride, int(row[5]) * stride,)
+            self.__bounds = [(int(row[4]), int(row[5]),)
                              for row in list(reader)[1:-1]]
     def is_seizure (self, seizure : int) -> bool:
-        index : Final[int] = seizure * stride
+        index : Final[int] = seizure
         for (f, t) in self.__bounds:
             if f <= index <= t:
                 return True
@@ -45,8 +45,9 @@ class Metadata:
         return list(self.__bounds)
 
 class Patient:
-    signal : np.array
-    batch  : Batch
+    signal   : np.array
+    batch    : Batch
+    metadata : Metadata
 
 def load (patient : str, chbmit_dir : str, model_file : str):
     with open(model_file, "r") as fp:
@@ -73,6 +74,8 @@ def load (patient : str, chbmit_dir : str, model_file : str):
     indices = map(int, get("batch").replace(" ", "").split(","))
 
     result = Patient()
+    result.metadata = Metadata(os.path.join(chbmit_dir, patient,
+                                            patient + "_seizure_table.csv"))
     Scv = Scv.astype("float32")
     result.signal = Scv
     result.batch = Batch()
@@ -173,7 +176,7 @@ def solve (patient : Patient) -> Result:
              and within(energy,   patient.batch.energy)
              and within(max_dist, patient.batch.max_dist)
              and (all(dtw <= patient.batch.d_max_c for dtw in dtws)))
-        solution = guess
+        solution = patient.metadata.is_seizure(idx)
         result.features.append((solution, guess, psd_1, psd_2, psd_3,
                                 energy, max_dist, *dtws))
         if guess:
@@ -227,5 +230,5 @@ def gen_patient(patient : int):
 for patient in range(1,25):
     try:
         gen_patient(patient)
-    except:
-        print("  [PASS]")
+    except Exception as e:
+        print("  [PASS]", e)

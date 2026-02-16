@@ -16,7 +16,11 @@ library project Seizure_Detector_Fixed_ESP32 is
    for Library_Interface use ("Detector_C_Binding");
 
    package Compiler renames Detector_Common.Compiler;
-   package Binder renames Detector_Common.Binder;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es", "-Ldetector_binding_");
+   end Binder;
+
    package Install renames Detector_Common.Install;
    package Builder renames Detector_Common.Builder;
 

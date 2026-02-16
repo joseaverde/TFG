@@ -10,8 +10,8 @@
 #define EPOCH_SIZE 1280
 
 // Constructor
-extern void SeizureDetectorFixedinit(void);
-extern void detector_bindinginit(void);
+extern void detector_binding_init(void);
+extern void detector_init(void);
 
 typedef int32_t sample_t;
 typedef int64_t feature_t;
@@ -85,8 +85,8 @@ static void benchmark (void) {
 }
 
 void app_main (void) {
-  SeizureDetectorFixedinit();
-  detector_bindinginit();
+  detector_init();
+  detector_binding_init();
   benchmark();
   seizure_detector();
 }
