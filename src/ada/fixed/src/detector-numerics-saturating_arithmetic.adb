@@ -8,6 +8,8 @@
 
 package body Detector.Numerics.Saturating_Arithmetic with SPARK_Mode is
 
+   pragma Unsuppress (All_Checks);
+
    function Generic_Saturated_Multiplication (
       Left  : in Left_Fixed_Type;
       Right : in Right_Fixed_Type)
