@@ -62,7 +62,7 @@ is
       Pre      => Left in 0 .. Bits - 2
          and then Right in 0 .. Bits - 2
          and then Left < Right,
-      Post     => ((2 ** Right) / (2 ** Left)) mod 2 = 0,
+      Post     => (2 ** Right / 2 ** Left) mod 2 = 0,
       Global => null, Ghost, Always_Terminates;
 
 end Detector.Signals.Fast_Fourier_Transform_Details;

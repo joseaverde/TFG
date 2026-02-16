@@ -219,38 +219,64 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
                (for all J in Right .. I - 1 =>
                   Sizes (J) mod Sizes (Right) = 0));
             pragma Loop_Invariant (Sizes (I - 1) mod Sizes (Right) = 0);
-            Lemma_Modulo_Is_Transitive (Sizes (I), Sizes (I - 1), Sizes (Right));
+            Lemma_Modulo_Is_Transitive (
+               Sizes (I), Sizes (I - 1), Sizes (Right));
          end loop;
 
          pragma Assert (2 ** Left mod 2 ** Right = 0);
       end if;
    end Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero;
 
+   procedure Lemma_Division_Then_Multiply (
+      X : in Positive_Count_Type;
+      Y : in Positive_Count_Type;
+      Z : in Positive_Count_Type;
+      W : in Positive_Count_Type) with
+      Pre      => X / Z = X / (Y * W) and then Z = Y * W
+         and then X mod Z = 0 and then X mod Y = 0,
+      Post     => X / Z * W = X / Y,
+      Global => null, Ghost, Always_Terminates;
+
+   procedure Lemma_Division_Then_Multiply (
+      X : in Positive_Count_Type;
+      Y : in Positive_Count_Type;
+      Z : in Positive_Count_Type;
+      W : in Positive_Count_Type) is
+      A : constant Positive_Count_Type := X / Z;
+      B : constant Positive_Count_Type := X / Y;
+   begin
+      pragma Assert (A = X / (Y * W));
+      pragma Assert (B = X / Y);
+      pragma Assert (A = B / W);
+      pragma Assert (A * W = B);
+   end Lemma_Division_Then_Multiply;
+
    procedure Lemma_Quotient_Of_Powers_Of_Two_Is_Sometimes_A_Power_Of_Two (
       Left  : in Natural;
       Right : in Natural) is
       Sizes : constant Chunk_Size_Array := Chunk_Sizes with Ghost;
    begin
-      pragma Assert (2 ** Left = Sizes (Left));
-      pragma Assert (2 ** Right = Sizes (Right));
-      if Right - Left = 1 then
-         pragma Assert (Sizes (Right) = Sizes (Left) * 2);
-         pragma Assert (Sizes (Right) / Sizes (Left) = 2);
-         pragma Assert ((Sizes (Right) / Sizes (Left)) mod 2 = 0);
-         pragma Assert (((2 ** Right) / (2 ** Left)) mod 2 = 0);
-      else
-         -- for I in Left + 1 .. Right loop
-         --    pragma Loop_Invariant (Sizes (I) = 2 ** I);
-         --    pragma Loop_Invariant (Sizes (I) = Sizes (I - 1) * 2);
-         --    pragma Loop_Invariant (Sizes (I) / Sizes (I - 1) = 2);
-         --    pragma Loop_Invariant ((Sizes (I) / Sizes (I - 1)) mod 2 = 0);
-         --    pragma Loop_Invariant (
-         --       (for all J in Left + 1 .. I - 1 =>
-         --          (Sizes (J) / Sizes (Left)) mod 2 = 0));
-         --    pragma Loop_Invariant (Sizes (I - 1) mod Sizes
-         -- end loop;
-         pragma Assume (((2 ** Right) / (2 ** Left)) mod 2 = 0);
-      end if;
+      pragma Assert (Left < Right);
+      pragma Assert (Left + 1 <= Right);
+      pragma Assert (Sizes (Left) = 2 ** Left);
+      pragma Assert (Sizes (Right) = 2 ** Right);
+      pragma Assert (Sizes (Left + 1) = 2 ** (Left + 1));
+      pragma Assert (Sizes (Left + 1) = Sizes (Left) * 2);
+      Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
+         Right, Left);
+      Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
+         Right, Left + 1);
+      pragma Assert (Sizes (Right) mod Sizes (Left + 1) = 0);
+      pragma Assert (Sizes (Right) mod Sizes (Left) = 0);
+      pragma Assert (Sizes (Right) / Sizes (Left + 1)
+                     = Sizes (Right) / (Sizes (Left) * 2));
+      Lemma_Division_Then_Multiply (
+         Sizes (Right), Sizes (Left), Sizes (Left + 1), 2);
+      pragma Assert (Sizes (Right) / Sizes (Left + 1) * 2
+                     = Sizes (Right) / Sizes (Left));
+
+      pragma Assert ((Sizes (Right) / Sizes (Left)) mod 2 = 0);
+      pragma Assert ((2 ** Right / 2 ** Left) mod 2 = 0);
    end Lemma_Quotient_Of_Powers_Of_Two_Is_Sometimes_A_Power_Of_Two;
 
 end Detector.Signals.Fast_Fourier_Transform_Details;
