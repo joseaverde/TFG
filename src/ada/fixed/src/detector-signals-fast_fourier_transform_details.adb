@@ -263,9 +263,9 @@ package body Detector.Signals.Fast_Fourier_Transform_Details with SPARK_Mode is
       pragma Assert (Sizes (Left + 1) = 2 ** (Left + 1));
       pragma Assert (Sizes (Left + 1) = Sizes (Left) * 2);
       Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
-         Right, Left);
+         Left => Right, Right => Left);
       Lemma_Power_Of_Two_Module_Another_Lower_Power_Of_Two_Is_Zero (
-         Right, Left + 1);
+         Left => Right, Right => Left + 1);
       pragma Assert (Sizes (Right) mod Sizes (Left + 1) = 0);
       pragma Assert (Sizes (Right) mod Sizes (Left) = 0);
       pragma Assert (Sizes (Right) / Sizes (Left + 1)
